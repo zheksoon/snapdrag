@@ -229,7 +229,7 @@ export class DragSource<T> {
     this.config = config;
   }
 
-  public apply = (element: HTMLElement): (() => void) => {
+  public listen = (element: HTMLElement): (() => void) => {
     const mouseDownHandler = this.config.mouseConfig?.mouseDown ?? defaultMouseDownHandler;
 
     const mouseDownDestructor = mouseDownHandler(element, this.mouseDownHandler);
@@ -249,11 +249,11 @@ export class DragSource<T> {
 export class DropTarget<T> {
   constructor(public config: DropTargetConfig<T>) {}
 
-  public setConfig = (config: DropTargetConfig<T>) {
+  public setConfig = (config: DropTargetConfig<T>) => {
     this.config = config;
   }
 
-  public apply = (element: HTMLElement) => {
+  public listen = (element: HTMLElement) => {
     element.setAttribute(DROP_TARGET_ATTRIBUTE, "true");
 
     dropTargets.set(element, this);

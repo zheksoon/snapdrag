@@ -1,5 +1,5 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { DragSourceConfig, DropTargetConfig, createDragSource, createDropTarget } from "./index";
+import { PropsWithChildren, useEffect, useMemo } from "react";
+import { DragSourceConfig, DropTargetConfig, createDragSource, createDropTarget } from "./snapdrag";
 import React, { useRef, useCallback } from "react";
 
 type DragSourceProps = PropsWithChildren<{
@@ -20,17 +20,9 @@ export const DragSource = React.forwardRef(function DragSource(
 
   const originalRef = child.ref;
 
-  const [element, setElement] = useState<HTMLElement | null>(null);
-
   const dragSource = useMemo(() => createDragSource(config), []);
 
-  useEffect(() => {
-    if (element) {
-      const destructor = dragSource.apply(element);
-
-      return destructor;
-    }
-  }, [element]);
+  const dragSourceDestructor = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     dragSource.setConfig(config);
@@ -38,7 +30,13 @@ export const DragSource = React.forwardRef(function DragSource(
 
   const childRef = useCallback(
     (element: HTMLElement) => {
-      setElement(element);
+      if (dragSourceDestructor.current) {
+        dragSourceDestructor.current();
+      }
+
+      if (element) {
+        dragSourceDestructor.current = dragSource.listen(element);
+      }
 
       if (typeof originalRef === "function") {
         originalRef(element);
@@ -68,25 +66,23 @@ export const DropTarget = React.forwardRef(function DropTarget(
 
   const originalRef = child.ref;
 
-  const [element, setElement] = useState<HTMLElement | null>(null);
+  const dropTarget = useMemo(() => createDropTarget(config), []);
 
-  const dragSource = useMemo(() => createDropTarget(config), []);
-
-  useEffect(() => {
-    if (element) {
-      const destructor = dragSource.apply(element);
-
-      return destructor;
-    }
-  }, [element]);
+  const dropTargetDestructor = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    dragSource.setConfig(config);
+    dropTarget.setConfig(config);
   }, [config]);
 
   const childRef = useCallback(
     (element: HTMLElement) => {
-      setElement(element);
+      if (dropTargetDestructor.current) {
+        dropTargetDestructor.current();
+      }
+
+      if (element) {
+        dropTargetDestructor.current = dropTarget.listen(element);
+      }
 
       if (typeof originalRef === "function") {
         originalRef(element);
@@ -105,3 +101,15 @@ export const DropTarget = React.forwardRef(function DropTarget(
 
   return React.cloneElement(child, { ref: childRef });
 });
+
+export function useDragSource<T>(config: DragSourceConfig<T>) {
+  return (component: React.ReactElement) => {
+    return <DragSource config={config}>{component}</DragSource>;
+  };
+}
+
+export function useDropTarget<T>(config: DropTargetConfig<T>) {
+  return (component: React.ReactElement) => {
+    return <DropTarget config={config}>{component}</DropTarget>;
+  };
+}
