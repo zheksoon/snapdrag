@@ -1,5 +1,11 @@
 import { PropsWithChildren, useEffect, useMemo } from "react";
-import { DragSourceConfig, DropTargetConfig, createDragSource, createDropTarget } from "./snapdrag";
+import {
+  DragSourceConfig,
+  DragSourceType,
+  DropTargetConfig,
+  createDragSource,
+  createDropTarget,
+} from "./snapdrag";
 import React, { useRef, useCallback } from "react";
 
 type DragSourceProps = PropsWithChildren<{
@@ -102,7 +108,7 @@ export const DropTarget = React.forwardRef(function DropTarget(
   return React.cloneElement(child, { ref: childRef });
 });
 
-export function useDragSource<T>(config: DragSourceConfig<T>) {
+export function useDragSource<T extends DragSourceType<T>>(config: DragSourceConfig<T>) {
   return (component: React.ReactElement) => {
     return <DragSource config={config}>{component}</DragSource>;
   };

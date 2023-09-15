@@ -1,11 +1,11 @@
 {
   "name": "snapdrag",
   "version": "0.1.0",
-  "source": "src/index.tsx",
+  "source": "src/index.ts",
   "main": "dist/snapdrag.cjs.js",
   "module": "dist/snapdrag.esm.js",
   "unpkg": "dist/snapdrag.umd.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/snapdrag.d.ts",
   "scripts": {
     "build": "microbundle",
     "start": "microbundle watch"
@@ -22,11 +22,8 @@
     "react": "^16.8.0"
   },
   "devDependencies": {
-    "microbundle": "latest",
-    "typescript": "latest",
+    "microbundle": "^0.15.1",
+    "typescript": "^5.0.4",
     "@types/react": "^18.2.7"
-  },
-  "dependencies": {
-    "onek": "^0.1.6"
   }
 }
