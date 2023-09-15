@@ -1,20 +1,22 @@
-type DragSourceSymbol = string | symbol;
+export type DragSourceType<Data> = symbol & { __data: Data };
 
-export type DragSourceType<Data> = DragSourceSymbol & { __data: Data };
+export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
+  ? DataType
+  : never;
 
-export type DragSourceConfig<T> = {
-  type: DragSourceType<T>;
-  data: T;
-  onDragStart: (params: {
+export type DragSourceConfig<T extends DragSourceType<any>> = {
+  type: T;
+  data: DragSourceDataType<T>;
+  onDragStart?: (params: {
     event: MouseEvent;
     startCoords: StartCoords;
   }) => boolean | undefined | void;
-  onDragEnd: (params: {
+  onDragEnd?: (params: {
     event: MouseEvent;
     startCoords: StartCoords;
     dropTargets: Map<Element, DropTarget<any>>;
   }) => void;
-  onDragMove: (params: {
+  onDragMove?: (params: {
     event: MouseEvent;
     startCoords: StartCoords;
     dropTargets: Map<Element, DropTarget<any>>;
@@ -27,8 +29,8 @@ export type DragSourceConfig<T> = {
 };
 
 export type DropHandlerProps<T> = T extends DragSourceType<infer Data>
-  ? { type: DragSourceSymbol; data: Data; event: MouseEvent }
-  : never;
+  ? { sourceType: T; sourceData: Data; event: MouseEvent }
+  : unknown;
 
 export type DropHandler<T> = (props: DropHandlerProps<T>) => void;
 
@@ -54,8 +56,8 @@ export const DROP_TARGET_ATTRIBUTE = "data-drop-target";
 
 export const DRAGGABLE_ATTRIBUTE = "data-draggable";
 
-export function dragSourceType<Data>(type: DragSourceSymbol): DragSourceType<Data> {
-  return type as DragSourceType<Data>;
+export function dragSourceType<Data>(name: string): DragSourceType<Data> {
+  return Symbol(name) as DragSourceType<Data>;
 }
 
 function defaultMouseDownHandler(element: HTMLElement, handler: (event: MouseEvent) => void) {
@@ -84,7 +86,7 @@ function defaultMouseUpHandler(document: Document, handler: (event: MouseEvent) 
 
 const dropTargets = new WeakMap<Element, DropTarget<any>>();
 
-export class DragSource<T> {
+export class DragSource<T extends DragSourceType<any>> {
   private dragElement: HTMLElement | null = null;
 
   private dragStartTriggered = false;
@@ -144,21 +146,21 @@ export class DragSource<T> {
         newTargets.set(element, dropTarget);
 
         if (!this.currentDropTargets.has(element)) {
-          dropTarget.config.onDragIn?.({ type, data, event });
+          dropTarget.config.onDragIn?.({ sourceType: type, sourceData: data, event });
         }
       }
     });
 
     this.currentDropTargets.forEach((dropTarget, element) => {
       if (!newTargets.has(element)) {
-        dropTarget.config.onDragOut?.({ type, data, event });
+        dropTarget.config.onDragOut?.({ sourceType: type, sourceData: data, event });
       }
     });
 
     this.currentDropTargets = newTargets;
 
     newTargets.forEach((dropTarget) => {
-      dropTarget.config.onDragMove?.({ type, data, event });
+      dropTarget.config.onDragMove?.({ sourceType: type, sourceData: data, event });
     });
 
     onDragMove?.({
@@ -173,7 +175,7 @@ export class DragSource<T> {
       const { data, type, onDragEnd } = this.config!;
 
       this.currentDropTargets.forEach((dropTarget) => {
-        dropTarget.config.onDrop?.({ type, data, event });
+        dropTarget.config.onDrop?.({ sourceType: type, sourceData: data, event });
       });
 
       onDragEnd?.({
@@ -227,7 +229,7 @@ export class DragSource<T> {
 
   public setConfig = (config: DragSourceConfig<T>) => {
     this.config = config;
-  }
+  };
 
   public listen = (element: HTMLElement): (() => void) => {
     const mouseDownHandler = this.config.mouseConfig?.mouseDown ?? defaultMouseDownHandler;
@@ -251,7 +253,7 @@ export class DropTarget<T> {
 
   public setConfig = (config: DropTargetConfig<T>) => {
     this.config = config;
-  }
+  };
 
   public listen = (element: HTMLElement) => {
     element.setAttribute(DROP_TARGET_ATTRIBUTE, "true");
@@ -264,12 +266,16 @@ export class DropTarget<T> {
       dropTargets.delete(element);
     };
   };
+
+  get data() {
+    return this.config.data;
+  }
 }
 
-export function createDragSource<T>(config: DragSourceConfig<T>) {
+export function createDragSource<T extends DragSourceConfig<any>>(config: T) {
   return new DragSource(config);
 }
 
-export function createDropTarget<T>(config: DropTargetConfig<T>) {
+export function createDropTarget<T extends DropTargetConfig<any>>(config: T) {
   return new DropTarget(config);
 }
