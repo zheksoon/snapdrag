@@ -26,12 +26,14 @@ function getAxisConfig(axisConfig: AxisConfig | boolean) {
 export function createScroller(config: ScrollerConfig) {
   let configX = config.x ? getAxisConfig(config.x) : null;
   let configY = config.y ? getAxisConfig(config.y) : null;
+  let container;
 
   let isMouseDown = false;
   let lastAnimationFrame: number | null = null;
   let lastTimestamp: number = 0;
   let lastMouseX: number = 0;
   let lastMouseY: number = 0;
+  let scale = 1.0;
 
   function animationLoop(timestamp: number) {
     if (!isMouseDown) {
@@ -44,14 +46,19 @@ export function createScroller(config: ScrollerConfig) {
     let scrollDeltaX = 0;
     let scrollDeltaY = 0;
 
-    if (configX) {
-      const windowWidth = window.innerWidth;
+    let { top, bottom, left, right } = container.getBoundingClientRect();
 
+    top *= scale;
+    bottom *= scale;
+    left *= scale;
+    right *= scale;
+
+    if (configX) {
       const { threshold, speed, distancePower } = configX;
 
       const borderDistanceX = Math.max(
-        threshold - lastMouseX,
-        lastMouseX - (windowWidth - threshold)
+        threshold + left - lastMouseX,
+        threshold - right + lastMouseX
       );
 
       const scrollSpeed =
@@ -59,21 +66,19 @@ export function createScroller(config: ScrollerConfig) {
 
       const scrollDelta = (scrollSpeed * deltaT) / 1000;
 
-      if (lastMouseX < threshold) {
+      if (lastMouseX < threshold - left) {
         scrollDeltaX = -scrollDelta;
-      } else if (lastMouseX > windowWidth - threshold) {
+      } else if (lastMouseX > right - threshold) {
         scrollDeltaX = scrollDelta;
       }
     }
 
     if (configY) {
-      const windowHeight = window.innerHeight;
-
       const { threshold, speed, distancePower } = configY;
 
       const borderDistanceX = Math.max(
-        threshold - lastMouseY,
-        lastMouseY - (windowHeight - threshold)
+        threshold + top - lastMouseY,
+        threshold - bottom + lastMouseY
       );
 
       const scrollSpeed =
@@ -81,14 +86,14 @@ export function createScroller(config: ScrollerConfig) {
 
       const scrollDelta = (scrollSpeed * deltaT) / 1000;
 
-      if (lastMouseY < threshold) {
+      if (lastMouseY < threshold - top) {
         scrollDeltaY = -scrollDelta;
-      } else if (lastMouseY > windowHeight - threshold) {
+      } else if (lastMouseY > bottom - threshold) {
         scrollDeltaY = scrollDelta;
       }
     }
 
-    window.scrollBy(scrollDeltaX, scrollDeltaY);
+    container.scrollBy(scrollDeltaX, scrollDeltaY);
 
     lastAnimationFrame = requestAnimationFrame(animationLoop);
   }
@@ -107,21 +112,32 @@ export function createScroller(config: ScrollerConfig) {
     }
   }
 
-  function onMove(e: MouseEvent) {
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
+  function onMove(_container: Element, e: MouseEvent) {
+    container = _container;
 
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
+    const ratio = window.devicePixelRatio;
+    const viewportScale = window.visualViewport ? window.visualViewport.scale : 1;
+
+    scale = ratio / viewportScale;
+
+    lastMouseX = e.x * scale;
+    lastMouseY = e.y * scale;
+
+    let { top, bottom, left, right } = container.getBoundingClientRect();
+
+    top *= scale;
+    bottom *= scale;
+    left *= scale;
+    right *= scale;
 
     let shouldRun = false;
 
     if (configX) {
-      shouldRun ||= lastMouseX < configX.threshold || lastMouseX > windowWidth - configX.threshold;
+      shouldRun ||= lastMouseX < configX.threshold + left || lastMouseX > right - configX.threshold;
     }
 
     if (configY) {
-      shouldRun ||= lastMouseY < configY.threshold || lastMouseY > windowHeight - configY.threshold;
+      shouldRun ||= lastMouseY < configY.threshold + top || lastMouseY > bottom - configY.threshold;
     }
 
     if (lastAnimationFrame) {

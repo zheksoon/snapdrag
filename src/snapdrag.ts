@@ -5,18 +5,22 @@ export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<i
   : never;
 
 export type DragSourceConfig<T extends DragSourceType<any>> = {
+  disabled?: boolean;
   type: T;
   data: DragSourceDataType<T>;
   onDragStart?: (params: {
+    element: HTMLElement;
     event: MouseEvent;
     startCoords: StartCoords;
   }) => boolean | undefined | void;
   onDragEnd?: (params: {
+    element: HTMLElement;
     event: MouseEvent;
     startCoords: StartCoords;
     dropTargets: Map<Element, DropTarget<any>>;
   }) => void;
   onDragMove?: (params: {
+    element: HTMLElement;
     event: MouseEvent;
     startCoords: StartCoords;
     dropTargets: Map<Element, DropTarget<any>>;
@@ -35,6 +39,7 @@ export type DropHandlerProps<T> = T extends DragSourceType<infer Data>
 export type DropHandler<T> = (props: DropHandlerProps<T>) => void;
 
 export type DropTargetConfig<T> = {
+  disabled?: boolean;
   sourceTypes: Array<T>;
   data?: any;
   onDragIn?: DropHandler<T>;
@@ -118,7 +123,13 @@ export class DragSource<T extends DragSourceType<any>> {
         offsetY: dragStartEvent.y - top,
       };
 
-      if (onDragStart?.({ event: dragStartEvent, startCoords: this.startCoords })) {
+      if (
+        onDragStart?.({
+          element: this.dragElement!,
+          event: dragStartEvent,
+          startCoords: this.startCoords,
+        })
+      ) {
         this.cleanup();
 
         return;
@@ -145,25 +156,40 @@ export class DragSource<T extends DragSourceType<any>> {
       if (dropTarget) {
         newTargets.set(element, dropTarget);
 
-        if (!this.currentDropTargets.has(element)) {
-          dropTarget.config.onDragIn?.({ sourceType: type, sourceData: data, event });
+        if (!this.currentDropTargets.has(element) && !dropTarget.disabled) {
+          dropTarget.config.onDragIn?.({
+            sourceType: type,
+            sourceData: data,
+            event,
+          });
         }
       }
     });
 
     this.currentDropTargets.forEach((dropTarget, element) => {
-      if (!newTargets.has(element)) {
-        dropTarget.config.onDragOut?.({ sourceType: type, sourceData: data, event });
+      if (!newTargets.has(element) && !dropTarget.disabled) {
+        dropTarget.config.onDragOut?.({
+          sourceType: type,
+          sourceData: data,
+          event,
+        });
       }
     });
 
     this.currentDropTargets = newTargets;
 
     newTargets.forEach((dropTarget) => {
-      dropTarget.config.onDragMove?.({ sourceType: type, sourceData: data, event });
+      if (!dropTarget.disabled) {
+        dropTarget.config.onDragMove?.({
+          sourceType: type,
+          sourceData: data,
+          event,
+        });
+      }
     });
 
     onDragMove?.({
+      element: this.dragElement!,
       event,
       startCoords: this.startCoords!,
       dropTargets: this.currentDropTargets,
@@ -175,10 +201,17 @@ export class DragSource<T extends DragSourceType<any>> {
       const { data, type, onDragEnd } = this.config!;
 
       this.currentDropTargets.forEach((dropTarget) => {
-        dropTarget.config.onDrop?.({ sourceType: type, sourceData: data, event });
+        if (!dropTarget.disabled) {
+          dropTarget.config.onDrop?.({
+            sourceType: type,
+            sourceData: data,
+            event,
+          });
+        }
       });
 
       onDragEnd?.({
+        element: this.dragElement!,
         event,
         dropTargets: this.currentDropTargets,
         startCoords: this.startCoords!,
@@ -189,6 +222,10 @@ export class DragSource<T extends DragSourceType<any>> {
   };
 
   private mouseDownHandler = (event: MouseEvent) => {
+    if (this.config.disabled) {
+      return;
+    }
+
     const target = event.target as HTMLElement;
 
     const dragElement = target.closest(`[${DRAGGABLE_ATTRIBUTE}]`);
@@ -269,6 +306,10 @@ export class DropTarget<T> {
 
   get data() {
     return this.config.data;
+  }
+
+  get disabled() {
+    return this.config.disabled ?? false;
   }
 }
 
