@@ -26,7 +26,7 @@ function getAxisConfig(axisConfig: AxisConfig | boolean) {
 }
 
 export function createScroller(config: ScrollerConfig) {
-  return function Scroller(container): PluginType {
+  return function Scroller(container: HTMLElement): PluginType {
     const configX = config.x ? getAxisConfig(config.x) : null;
     const configY = config.y ? getAxisConfig(config.y) : null;
 

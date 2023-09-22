@@ -7,7 +7,7 @@
   "unpkg": "dist/snapdrag.umd.js",
   "types": "dist/snapdrag.d.ts",
   "scripts": {
-    "build": "microbundle",
+    "build": "microbundle --no-compress",
     "start": "microbundle watch"
   },
   "exports": {
