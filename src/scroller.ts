@@ -1,3 +1,5 @@
+import { PluginType } from "./snapdrag";
+
 type AxisConfig = {
   threshold?: number;
   speed?: number;
@@ -24,134 +26,145 @@ function getAxisConfig(axisConfig: AxisConfig | boolean) {
 }
 
 export function createScroller(config: ScrollerConfig) {
-  let configX = config.x ? getAxisConfig(config.x) : null;
-  let configY = config.y ? getAxisConfig(config.y) : null;
-  let container;
+  return function Scroller(container): PluginType {
+    const configX = config.x ? getAxisConfig(config.x) : null;
+    const configY = config.y ? getAxisConfig(config.y) : null;
 
-  let isMouseDown = false;
-  let lastAnimationFrame: number | null = null;
-  let lastTimestamp: number = 0;
-  let lastMouseX: number = 0;
-  let lastMouseY: number = 0;
-  let scale = 1.0;
+    let isMouseDown = false;
+    let lastAnimationFrame: number | null = null;
+    let lastTimestamp: number = 0;
+    let lastMouseX: number = 0;
+    let lastMouseY: number = 0;
+    let scale = 1.0;
 
-  function animationLoop(timestamp: number) {
-    if (!isMouseDown) {
-      return;
-    }
+    function getContainerBoundingRect() {
+      if (container instanceof Window) {
+        return {
+          top: 0,
+          left: 0,
+          bottom: container.innerHeight,
+          right: container.innerWidth,
+        };
+      } else {
+        let { top, bottom, left, right } = container.getBoundingClientRect();
 
-    const deltaT = timestamp - lastTimestamp;
-    lastTimestamp = timestamp;
-
-    let scrollDeltaX = 0;
-    let scrollDeltaY = 0;
-
-    let { top, bottom, left, right } = container.getBoundingClientRect();
-
-    top *= scale;
-    bottom *= scale;
-    left *= scale;
-    right *= scale;
-
-    if (configX) {
-      const { threshold, speed, distancePower } = configX;
-
-      const borderDistanceX = Math.max(
-        threshold + left - lastMouseX,
-        threshold - right + lastMouseX
-      );
-
-      const scrollSpeed =
-        Math.pow(Math.min(borderDistanceX / threshold, 1.0), distancePower) * speed;
-
-      const scrollDelta = (scrollSpeed * deltaT) / 1000;
-
-      if (lastMouseX < threshold - left) {
-        scrollDeltaX = -scrollDelta;
-      } else if (lastMouseX > right - threshold) {
-        scrollDeltaX = scrollDelta;
+        return {
+          top: top * scale,
+          bottom: bottom * scale,
+          left: left * scale,
+          right: right * scale,
+        };
       }
     }
 
-    if (configY) {
-      const { threshold, speed, distancePower } = configY;
-
-      const borderDistanceX = Math.max(
-        threshold + top - lastMouseY,
-        threshold - bottom + lastMouseY
-      );
-
-      const scrollSpeed =
-        Math.pow(Math.min(borderDistanceX / threshold, 1.0), distancePower) * speed;
-
-      const scrollDelta = (scrollSpeed * deltaT) / 1000;
-
-      if (lastMouseY < threshold - top) {
-        scrollDeltaY = -scrollDelta;
-      } else if (lastMouseY > bottom - threshold) {
-        scrollDeltaY = scrollDelta;
+    function animationLoop(timestamp: number) {
+      if (!isMouseDown) {
+        return;
       }
-    }
 
-    container.scrollBy(scrollDeltaX, scrollDeltaY);
+      const deltaT = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
 
-    lastAnimationFrame = requestAnimationFrame(animationLoop);
-  }
+      let scrollDeltaX = 0;
+      let scrollDeltaY = 0;
 
-  function onStart() {
-    isMouseDown = true;
-    lastTimestamp = performance.now();
-  }
+      const { top, bottom, left, right } = getContainerBoundingRect();
 
-  function onEnd() {
-    isMouseDown = false;
-    lastTimestamp = 0;
+      if (configX) {
+        const { threshold, speed, distancePower } = configX;
 
-    if (lastAnimationFrame) {
-      cancelAnimationFrame(lastAnimationFrame);
-    }
-  }
+        const borderDistanceX = Math.max(
+          threshold + left - lastMouseX,
+          threshold - right + lastMouseX
+        );
 
-  function onMove(_container: Element, e: MouseEvent) {
-    container = _container;
+        const scrollSpeed =
+          Math.pow(Math.min(borderDistanceX / threshold, 1.0), distancePower) * speed;
 
-    const ratio = window.devicePixelRatio;
-    const viewportScale = window.visualViewport ? window.visualViewport.scale : 1;
+        const scrollDelta = (scrollSpeed * deltaT) / 1000;
 
-    scale = ratio / viewportScale;
+        if (lastMouseX < threshold - left) {
+          scrollDeltaX = -scrollDelta;
+        } else if (lastMouseX > right - threshold) {
+          scrollDeltaX = scrollDelta;
+        }
+      }
 
-    lastMouseX = e.x * scale;
-    lastMouseY = e.y * scale;
+      if (configY) {
+        const { threshold, speed, distancePower } = configY;
 
-    let { top, bottom, left, right } = container.getBoundingClientRect();
+        const borderDistanceX = Math.max(
+          threshold + top - lastMouseY,
+          threshold - bottom + lastMouseY
+        );
 
-    top *= scale;
-    bottom *= scale;
-    left *= scale;
-    right *= scale;
+        const scrollSpeed =
+          Math.pow(Math.min(borderDistanceX / threshold, 1.0), distancePower) * speed;
 
-    let shouldRun = false;
+        const scrollDelta = (scrollSpeed * deltaT) / 1000;
 
-    if (configX) {
-      shouldRun ||= lastMouseX < configX.threshold + left || lastMouseX > right - configX.threshold;
-    }
+        if (lastMouseY < threshold - top) {
+          scrollDeltaY = -scrollDelta;
+        } else if (lastMouseY > bottom - threshold) {
+          scrollDeltaY = scrollDelta;
+        }
+      }
 
-    if (configY) {
-      shouldRun ||= lastMouseY < configY.threshold + top || lastMouseY > bottom - configY.threshold;
-    }
+      container.scrollBy(scrollDeltaX, scrollDeltaY);
 
-    if (lastAnimationFrame) {
-      cancelAnimationFrame(lastAnimationFrame);
-    }
-
-    if (shouldRun) {
       lastAnimationFrame = requestAnimationFrame(animationLoop);
     }
-  }
 
-  return {
-    onStart,
-    onEnd,
-    onMove,
+    function onDragStart() {
+      isMouseDown = true;
+      lastTimestamp = performance.now();
+    }
+
+    function onDragEnd() {
+      isMouseDown = false;
+      lastTimestamp = 0;
+
+      if (lastAnimationFrame) {
+        cancelAnimationFrame(lastAnimationFrame);
+      }
+    }
+
+    function onDragMove({ event }: { event: UIEvent }) {
+      const ratio = window.devicePixelRatio;
+      const viewportScale = window.visualViewport ? window.visualViewport.scale : 1;
+
+      scale = ratio / viewportScale;
+
+      lastMouseX = (event as MouseEvent).x * scale;
+      lastMouseY = (event as MouseEvent).y * scale;
+
+      const { top, bottom, left, right } = getContainerBoundingRect();
+
+      let shouldRun = false;
+
+      if (configX) {
+        shouldRun ||=
+          lastMouseX < configX.threshold + left || lastMouseX > right - configX.threshold;
+      }
+
+      if (configY) {
+        shouldRun ||=
+          lastMouseY < configY.threshold + top || lastMouseY > bottom - configY.threshold;
+      }
+
+      if (lastAnimationFrame) {
+        cancelAnimationFrame(lastAnimationFrame);
+      }
+
+      if (shouldRun) {
+        lastAnimationFrame = requestAnimationFrame(animationLoop);
+      }
+    }
+
+    return {
+      onDragStart,
+      onDragEnd,
+      onDragMove,
+    };
   };
 }

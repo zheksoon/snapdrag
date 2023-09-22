@@ -1,42 +1,54 @@
 export type DragSourceType<Data> = symbol & { __data: Data };
 
-export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
+type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
   ? DataType
   : never;
+
+type UIEventHandler = (event: UIEvent) => void;
+type Destructor = () => void;
+
+type DragStarHandlertArgs = { element: HTMLElement; event: UIEvent };
+type DragHandlerArgs = {
+  element: HTMLElement;
+  event: UIEvent;
+  dragStartEvent: UIEvent;
+  dropTargets: Map<Element, DropTarget<any>>;
+};
+
+export type PluginType = {
+  onDragStart?: (args: DragStarHandlertArgs) => boolean | undefined | void;
+  onDragMove?: (args: DragHandlerArgs) => void;
+  onDragEnd?: (args: DragHandlerArgs) => void;
+};
+
+export type MouseConfig = {
+  mouseDown?: (element: HTMLElement, handler: UIEventHandler) => Destructor;
+  mouseMove?: (handler: UIEventHandler) => Destructor;
+  mouseUp?: (handler: UIEventHandler) => Destructor;
+};
 
 export type DragSourceConfig<T extends DragSourceType<any>> = {
   disabled?: boolean;
   type: T;
   data: DragSourceDataType<T>;
-  onDragStart?: (params: {
-    element: HTMLElement;
-    event: MouseEvent;
-    startCoords: StartCoords;
-  }) => boolean | undefined | void;
-  onDragEnd?: (params: {
-    element: HTMLElement;
-    event: MouseEvent;
-    startCoords: StartCoords;
-    dropTargets: Map<Element, DropTarget<any>>;
-  }) => void;
-  onDragMove?: (params: {
-    element: HTMLElement;
-    event: MouseEvent;
-    startCoords: StartCoords;
-    dropTargets: Map<Element, DropTarget<any>>;
-  }) => void;
-  mouseConfig?: {
-    mouseDown?: (element: HTMLElement, handler: (event: MouseEvent) => void) => () => void;
-    mouseMove?: (document: Document, handler: (event: MouseEvent) => void) => () => void;
-    mouseUp?: (document: Document, handler: (event: MouseEvent) => void) => () => void;
-  };
+  shouldDrag?: (args: DragStarHandlertArgs) => boolean;
+  onDragStart?: (args: DragStarHandlertArgs) => void;
+  onDragEnd?: (args: DragHandlerArgs) => void;
+  onDragMove?: (args: DragHandlerArgs) => void;
+  mouseConfig?: MouseConfig;
+  plugins?: Array<PluginType>;
 };
 
-export type DropHandlerProps<T> = T extends DragSourceType<infer Data>
-  ? { sourceType: T; sourceData: Data; event: MouseEvent }
-  : unknown;
-
-export type DropHandler<T> = (props: DropHandlerProps<T>) => void;
+export type DropHandler<T> = (props: {
+  dropTarget: DropTarget<T>;
+  dropElement: Element;
+  sourceType: T;
+  sourceData: DragSourceDataType<T>;
+  dropTargets: Map<Element, DropTarget<any>>;
+  event: UIEvent;
+  dragStartEvent: UIEvent;
+  dragElement: Element;
+}) => void;
 
 export type DropTargetConfig<T> = {
   disabled?: boolean;
@@ -48,15 +60,6 @@ export type DropTargetConfig<T> = {
   onDrop?: DropHandler<T>;
 };
 
-type StartCoords = {
-  x: number;
-  y: number;
-  elementX: number;
-  elementY: number;
-  offsetX: number;
-  offsetY: number;
-};
-
 export const DROP_TARGET_ATTRIBUTE = "data-drop-target";
 
 export const DRAGGABLE_ATTRIBUTE = "data-draggable";
@@ -65,7 +68,7 @@ export function dragSourceType<Data>(name: string): DragSourceType<Data> {
   return Symbol(name) as DragSourceType<Data>;
 }
 
-function defaultMouseDownHandler(element: HTMLElement, handler: (event: MouseEvent) => void) {
+function defaultMouseDownHandler(element: HTMLElement, handler: UIEventHandler) {
   element.addEventListener("pointerdown", handler);
 
   return () => {
@@ -73,7 +76,7 @@ function defaultMouseDownHandler(element: HTMLElement, handler: (event: MouseEve
   };
 }
 
-function defaultMouseMoveHandler(document: Document, handler: (event: MouseEvent) => void) {
+function defaultMouseMoveHandler(handler: UIEventHandler) {
   document.addEventListener("pointermove", handler);
 
   return () => {
@@ -81,7 +84,7 @@ function defaultMouseMoveHandler(document: Document, handler: (event: MouseEvent
   };
 }
 
-function defaultMouseUpHandler(document: Document, handler: (event: MouseEvent) => void) {
+function defaultMouseUpHandler(handler: UIEventHandler) {
   document.addEventListener("pointerup", handler);
 
   return () => {
@@ -96,53 +99,51 @@ export class DragSource<T extends DragSourceType<any>> {
 
   private dragStartTriggered = false;
 
-  private dragStartEvent: MouseEvent | null = null;
+  private dragStartEvent: UIEvent | null = null;
 
-  private currentDropTargets = new Map<Element, DropTarget<any>>();
+  private currentDropTargets: Map<Element, DropTarget<any>> | null = null;
 
-  private startCoords: StartCoords | null = null;
+  private mouseEventsDestructor: Destructor | null = null;
 
-  private mouseEventsDestructor: (() => void) | null = null;
+  private pluginsSnapshot: PluginType[] = [];
 
   constructor(public config: DragSourceConfig<T>) {}
 
-  private mouseMoveHandler = (event: MouseEvent) => {
-    const { onDragStart, onDragMove, data, type } = this.config!;
+  private mouseMoveHandler(event: UIEvent) {
+    const { shouldDrag, onDragStart, onDragMove, data, type, plugins } = this.config!;
+
+    const dragElement = this.dragElement!;
+    const dragStartEvent = this.dragStartEvent!;
 
     if (!this.dragStartTriggered) {
-      const dragStartEvent = this.dragStartEvent!;
+      this.dragStartTriggered = true;
 
-      const { left, top } = this.dragElement!.getBoundingClientRect();
+      const dragStartArgs = { element: dragElement, event: dragStartEvent };
 
-      this.startCoords = {
-        x: dragStartEvent.x,
-        y: dragStartEvent.y,
-        elementX: left,
-        elementY: top,
-        offsetX: dragStartEvent.x - left,
-        offsetY: dragStartEvent.y - top,
-      };
+      const _shouldDrag = shouldDrag?.(dragStartArgs) ?? true;
 
-      if (
-        onDragStart?.({
-          element: this.dragElement!,
-          event: dragStartEvent,
-          startCoords: this.startCoords,
-        })
-      ) {
+      if (!_shouldDrag) {
         this.cleanup();
 
         return;
       }
 
-      this.dragStartTriggered = true;
+      onDragStart?.(dragStartArgs);
+
+      this.pluginsSnapshot.forEach((plugin) => {
+        plugin.onDragStart?.(dragStartArgs);
+      });
     }
 
-    const targetElementsList = document.elementsFromPoint(event.x, event.y);
+    const { x, y } = event as MouseEvent;
+
+    const targetElementsList = document.elementsFromPoint(x, y);
 
     const targetElements = targetElementsList ? Array.from(targetElementsList) : [];
 
-    const newTargets = new Map<Element, DropTarget<any>>();
+    const newDropTargets = new Map<Element, DropTarget<any>>();
+
+    const currentDropTargets = this.currentDropTargets ?? new Map<Element, DropTarget<any>>();
 
     targetElements.forEach((element) => {
       const isDropTarget = element.getAttribute(DROP_TARGET_ATTRIBUTE);
@@ -154,74 +155,104 @@ export class DragSource<T extends DragSourceType<any>> {
       const dropTarget = dropTargets.get(element);
 
       if (dropTarget) {
-        newTargets.set(element, dropTarget);
+        newDropTargets.set(element, dropTarget);
+      }
+    });
 
-        if (!this.currentDropTargets.has(element) && !dropTarget.disabled) {
+    const dropHandlerArgs = {
+      sourceType: type,
+      sourceData: data,
+      dropTargets: newDropTargets,
+      event,
+      dragElement,
+      dragStartEvent,
+    };
+
+    newDropTargets.forEach((dropTarget, dropElement) => {
+      if (!dropTarget.disabled) {
+        if (!currentDropTargets.has(dropElement)) {
           dropTarget.config.onDragIn?.({
-            sourceType: type,
-            sourceData: data,
-            event,
+            dropTarget,
+            dropElement,
+            ...dropHandlerArgs,
           });
         }
-      }
-    });
 
-    this.currentDropTargets.forEach((dropTarget, element) => {
-      if (!newTargets.has(element) && !dropTarget.disabled) {
-        dropTarget.config.onDragOut?.({
-          sourceType: type,
-          sourceData: data,
-          event,
-        });
-      }
-    });
-
-    this.currentDropTargets = newTargets;
-
-    newTargets.forEach((dropTarget) => {
-      if (!dropTarget.disabled) {
         dropTarget.config.onDragMove?.({
-          sourceType: type,
-          sourceData: data,
-          event,
+          dropTarget,
+          dropElement,
+          ...dropHandlerArgs,
         });
       }
     });
 
-    onDragMove?.({
-      element: this.dragElement!,
-      event,
-      startCoords: this.startCoords!,
-      dropTargets: this.currentDropTargets,
+    currentDropTargets.forEach((dropTarget, dropElement) => {
+      if (!dropTarget.disabled && !newDropTargets.has(dropElement)) {
+        dropTarget.config.onDragOut?.({
+          dropTarget,
+          dropElement,
+          ...dropHandlerArgs,
+        });
+      }
     });
-  };
 
-  private mouseUpHandler = (event: MouseEvent) => {
+    this.currentDropTargets = newDropTargets;
+
+    const dragMoveHandlerArgs = {
+      element: dragElement,
+      event,
+      dragStartEvent,
+      dropTargets: newDropTargets,
+    };
+
+    onDragMove?.(dragMoveHandlerArgs);
+
+    this.pluginsSnapshot.forEach((plugin) => {
+      plugin.onDragEnd?.(dragMoveHandlerArgs);
+    });
+  }
+
+  private mouseUpHandler(event: UIEvent) {
     if (this.dragStartTriggered) {
-      const { data, type, onDragEnd } = this.config!;
+      const { data, type, onDragEnd, plugins } = this.config!;
 
-      this.currentDropTargets.forEach((dropTarget) => {
+      const dropTargets = this.currentDropTargets!;
+      const dragElement = this.dragElement!;
+      const dragStartEvent = this.dragStartEvent!;
+
+      dropTargets.forEach((dropTarget, dropElement) => {
         if (!dropTarget.disabled) {
           dropTarget.config.onDrop?.({
+            dropTarget,
+            dropElement,
             sourceType: type,
             sourceData: data,
+            dropTargets,
             event,
+            dragElement,
+            dragStartEvent,
           });
         }
       });
 
-      onDragEnd?.({
-        element: this.dragElement!,
+      const dragEndArgs = {
+        element: dragElement,
         event,
-        dropTargets: this.currentDropTargets,
-        startCoords: this.startCoords!,
+        dragStartEvent,
+        dropTargets,
+      };
+
+      onDragEnd?.(dragEndArgs);
+
+      this.pluginsSnapshot.forEach((plugin) => {
+        plugin.onDragEnd?.(dragEndArgs);
       });
     }
 
     this.cleanup();
-  };
+  }
 
-  private mouseDownHandler = (event: MouseEvent) => {
+  private mouseDownHandler(event: UIEvent) {
     if (this.config.disabled) {
       return;
     }
@@ -238,49 +269,84 @@ export class DragSource<T extends DragSourceType<any>> {
       return;
     }
 
-    this.dragStartEvent = event;
     this.dragElement = dragElement as HTMLElement;
+    this.dragStartEvent = event;
 
     const mouseMoveHandler = this.config.mouseConfig?.mouseMove ?? defaultMouseMoveHandler;
     const mouseUpHandler = this.config.mouseConfig?.mouseUp ?? defaultMouseUpHandler;
 
-    const mouseMoveDestructor = mouseMoveHandler(document, this.mouseMoveHandler);
-    const mouseUpDestructor = mouseUpHandler(document, this.mouseUpHandler);
+    const mouseMoveDestructor = mouseMoveHandler(this.safeMouseMoveHandler);
+    const mouseUpDestructor = mouseUpHandler(this.safeMouseUpHandler);
 
     this.mouseEventsDestructor = () => {
       mouseMoveDestructor();
       mouseUpDestructor();
     };
+
+    this.pluginsSnapshot = this.config.plugins?.slice() ?? [];
+  }
+
+  private cleanup() {
+    this.mouseEventsDestructor?.();
+    this.mouseEventsDestructor = null;
+
+    this.dragElement = null;
+    this.dragStartTriggered = false;
+    this.currentDropTargets = null;
+    this.pluginsSnapshot = [];
+  }
+
+  private safeMouseMoveHandler = (event: UIEvent) => {
+    try {
+      this.mouseMoveHandler(event);
+    } catch (err) {
+      this.cleanup();
+
+      throw err;
+    }
   };
 
-  private cleanup = () => {
-    this.mouseEventsDestructor?.();
+  private safeMouseUpHandler = (event: UIEvent) => {
+    try {
+      this.mouseUpHandler(event);
+    } catch (err) {
+      this.cleanup();
 
-    this.startCoords = null;
-    this.dragElement = null;
-    this.dragStartEvent = null;
-    this.dragStartTriggered = false;
+      throw err;
+    }
+  };
 
-    this.currentDropTargets.clear();
+  private safeMouseDownHandler = (event: UIEvent) => {
+    try {
+      this.mouseDownHandler(event);
+    } catch (err) {
+      this.cleanup();
+
+      throw err;
+    }
   };
 
   public setConfig = (config: DragSourceConfig<T>) => {
     this.config = config;
   };
 
-  public listen = (element: HTMLElement): (() => void) => {
+  public listen = (element: HTMLElement, setAttribute = true): Destructor => {
     const mouseDownHandler = this.config.mouseConfig?.mouseDown ?? defaultMouseDownHandler;
 
-    const mouseDownDestructor = mouseDownHandler(element, this.mouseDownHandler);
+    const mouseDownDestructor = mouseDownHandler(element, this.safeMouseDownHandler);
 
-    element.setAttribute(DRAGGABLE_ATTRIBUTE, "true");
+    if (setAttribute) {
+      element.setAttribute(DRAGGABLE_ATTRIBUTE, "true");
+    }
 
     return () => {
       this.cleanup();
 
       mouseDownDestructor();
 
-      element.removeAttribute(DRAGGABLE_ATTRIBUTE);
+      if (setAttribute) {
+        element.removeAttribute(DRAGGABLE_ATTRIBUTE);
+      }
     };
   };
 }
