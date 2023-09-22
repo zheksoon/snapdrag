@@ -7,7 +7,7 @@ type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer Da
 type UIEventHandler = (event: UIEvent) => void;
 type Destructor = () => void;
 
-type DragStarHandlertArgs = { element: HTMLElement; event: UIEvent };
+type DragStarHandlertArgs = { element: HTMLElement; dragStartEvent: UIEvent };
 type DragHandlerArgs = {
   element: HTMLElement;
   event: UIEvent;
@@ -118,7 +118,7 @@ export class DragSource<T extends DragSourceType<any>> {
     if (!this.dragStartTriggered) {
       this.dragStartTriggered = true;
 
-      const dragStartArgs = { element: dragElement, event: dragStartEvent };
+      const dragStartArgs = { element: dragElement, dragStartEvent };
 
       const _shouldDrag = shouldDrag?.(dragStartArgs) ?? true;
 
@@ -358,7 +358,7 @@ export class DropTarget<T> {
     this.config = config;
   };
 
-  public listen = (element: HTMLElement) => {
+  public listen = (element: HTMLElement): Destructor => {
     element.setAttribute(DROP_TARGET_ATTRIBUTE, "true");
 
     dropTargets.set(element, this);
