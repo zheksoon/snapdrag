@@ -40,6 +40,16 @@
     "microbundle": "^0.15.1",
     "typescript": "^5.0.4"
   },
+  "files": [
+    "dist",
+    "react/dist",
+    "src",
+    "react/src",
+    "react/package.json",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "drag",
     "drop",
