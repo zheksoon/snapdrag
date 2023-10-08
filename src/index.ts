@@ -1,11 +1,3 @@
-export {
-  dragSourceType,
-  DragSource as DragSourceClass,
-  DropTarget as DropTargetClass,
-  createDragSource,
-  createDropTarget,
-} from "./snapdrag";
+export * from "./core";
 
-export { DragSource, DropTarget, useDragSource, useDropTarget } from "./react";
-
-export { createScroller } from "./scroller";
+export { createScroller } from "./plugins/scroller";

@@ -1,4 +1,10 @@
-# snapdrag
+<h1 align="center">
+  snapdrag
+</h1>
+
+<p align="center">
+  🔰 A simple, lightweight, and performant drag and drop library for React and vanilla JS 🔰
+</p>
 
 ## The Problem
 
@@ -11,23 +17,23 @@ Snapdrag is a vanilla JS implementation of drag-and-drop that operates without r
 
 ## Key Features
 
-- **Highly Customizable Core:** Extendable and written in pure TypeScript, offering seamless compatibility with various frameworks.
+- **Highly Customizable Core:** Extendable and written in pure TypeScript, offering compatibility with various frameworks and libraries.
 
-- **High Performance:** Capable of handling any number of drag-and-drop targets efficiently.
+- **High Performance:** Can handle any number of drag-and-drop targets efficiently.
 
-- **Rich Event System:** Provides a comprehensive set of events for fine-tuned control over drag-and-drop interactions.
+- **Rich Event System:** Provides a rich set of events for fine control over drag-and-drop interactions.
 
 - **Plugin Architecture:** Features a flexible plugin system, including a configurable auto-scroller plugin out of the box.
 
-- **Optional React Bindings:** Supports both wrapping components and hooks, offering versatility for React developers.
+- **Optional React Bindings:** Supports both wrapping components and hooks, offering easy integration for React developers.
 
 - **Lightweight:** A compact core codebase of just 350 lines, with built-in support for tree-shaking to optimize bundle size.
-
-- **Type Safety:** Written in TypeScript to enhance code robustness through type checking.
 
 ## API
 
 ### Drag source
+
+Example code for drag source implementation:
 
 ```
 const myDragSourceType = dragSourceType<{ name: string }>("myType");

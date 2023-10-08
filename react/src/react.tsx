@@ -1,12 +1,11 @@
-import { PropsWithChildren, useEffect, useMemo } from "react";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   DragSourceConfig,
   DragSourceType,
   DropTargetConfig,
   createDragSource,
   createDropTarget,
-} from "./snapdrag";
-import React, { useRef, useCallback } from "react";
+} from "snapdrag";
 
 type DragSourceProps = PropsWithChildren<{
   config: DragSourceConfig<any>;
@@ -16,7 +15,7 @@ type DropTargetProps = PropsWithChildren<{
   config: DropTargetConfig<any>;
 }>;
 
-export const DragSource = React.forwardRef(function DragSource(
+export const WithDragSource = React.forwardRef(function DragSource(
   props: DragSourceProps,
   componentRef: any
 ) {
@@ -62,7 +61,7 @@ export const DragSource = React.forwardRef(function DragSource(
   return React.cloneElement(child, { ref: childRef });
 });
 
-export const DropTarget = React.forwardRef(function DropTarget(
+export const WithDropTarget = React.forwardRef(function DropTarget(
   props: DropTargetProps,
   componentRef: any
 ) {
@@ -110,12 +109,12 @@ export const DropTarget = React.forwardRef(function DropTarget(
 
 export function useDragSource<T extends DragSourceType<T>>(config: DragSourceConfig<T>) {
   return (component: React.ReactElement) => {
-    return <DragSource config={config}>{component}</DragSource>;
+    return <WithDragSource config={config}>{component}</WithDragSource>;
   };
 }
 
 export function useDropTarget<T>(config: DropTargetConfig<T>) {
   return (component: React.ReactElement) => {
-    return <DropTarget config={config}>{component}</DropTarget>;
+    return <WithDropTarget config={config}>{component}</WithDropTarget>;
   };
 }
