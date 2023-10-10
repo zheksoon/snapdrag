@@ -1,7 +1,7 @@
-import { UIEventHandler } from "../types";
+import { MouseEventHandler } from "../types";
 
 
-export function defaultMouseDownHandler(element: HTMLElement, handler: UIEventHandler) {
+export function defaultMouseDownHandler(element: HTMLElement, handler: MouseEventHandler) {
   element.addEventListener("pointerdown", handler);
 
   return () => {
@@ -9,7 +9,7 @@ export function defaultMouseDownHandler(element: HTMLElement, handler: UIEventHa
   };
 }
 
-export function defaultMouseMoveHandler(handler: UIEventHandler) {
+export function defaultMouseMoveHandler(handler: MouseEventHandler) {
   document.addEventListener("pointermove", handler);
 
   return () => {
@@ -17,7 +17,7 @@ export function defaultMouseMoveHandler(handler: UIEventHandler) {
   };
 }
 
-export function defaultMouseUpHandler(handler: UIEventHandler) {
+export function defaultMouseUpHandler(handler: MouseEventHandler) {
   document.addEventListener("pointerup", handler);
 
   return () => {

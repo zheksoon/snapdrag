@@ -17,22 +17,22 @@ export type DragSourceType<Data> = symbol & { __data: Data; };
 
 export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType> ? DataType : never;
 
-export type UIEventHandler = (event: UIEvent) => void;
+export type MouseEventHandler = (event: MouseEvent) => void;
 
 export type Destructor = () => void;
 
 export type DragStarHandlertArgs<T = any> = {
   dragElement: HTMLElement;
-  dragStartEvent: UIEvent;
+  dragStartEvent: MouseEvent;
   data?: DragSourceDataType<T>;
 };
 
 export type DropTargetsMap = Map<Element, IDropTarget<any>>;
 
 type DragHandlerArgs<T = any> = {
-  event: UIEvent;
+  event: MouseEvent;
   dragElement: HTMLElement;
-  dragStartEvent: UIEvent;
+  dragStartEvent: MouseEvent;
   dropTargets: DropTargetsMap;
   data?: DragSourceDataType<T>;
 };
@@ -45,14 +45,14 @@ export type PluginType = {
 };
 
 export type MouseConfig = {
-  mouseDown?: (element: HTMLElement, handler: UIEventHandler) => Destructor;
-  mouseMove?: (handler: UIEventHandler) => Destructor;
-  mouseUp?: (handler: UIEventHandler) => Destructor;
+  mouseDown?: (element: HTMLElement, handler: MouseEventHandler) => Destructor;
+  mouseMove?: (handler: MouseEventHandler) => Destructor;
+  mouseUp?: (handler: MouseEventHandler) => Destructor;
 };
 
 export type DragSourceDataFactory<T> = (args: {
   dragElement: HTMLElement;
-  dragStartEvent: UIEvent;
+  dragStartEvent: MouseEvent;
 }) => DragSourceDataType<T>;
 
 export type DragSourceConfig<T extends DragSourceType<any>> = {
@@ -68,10 +68,10 @@ export type DragSourceConfig<T extends DragSourceType<any>> = {
 };
 
 export type DropHandlerArgs<T> = {
-  event: UIEvent;
+  event: MouseEvent;
   sourceType: T;
   sourceData: DragSourceDataType<T>;
-  dragStartEvent: UIEvent;
+  dragStartEvent: MouseEvent;
   dragElement: Element;
   dropTarget: IDropTarget<T>;
   dropTargets: DropTargetsMap;
@@ -84,6 +84,7 @@ export type DropTargetConfig<T> = {
   disabled?: boolean;
   sourceTypes: Array<T>;
   data?: any;
+  shouldAccept?: (args: DropHandlerArgs<T>) => boolean;
   onDragIn?: DropHandler<T>;
   onDragOut?: DropHandler<T>;
   onDragMove?: DropHandler<T>;

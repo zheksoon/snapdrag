@@ -107,7 +107,7 @@ export const WithDropTarget = React.forwardRef(function DropTarget(
   return React.cloneElement(child, { ref: childRef });
 });
 
-export function useDragSource<T extends DragSourceType<T>>(config: DragSourceConfig<T>) {
+export function useDragSource<T extends DragSourceType<any>>(config: DragSourceConfig<T>) {
   return (component: React.ReactElement) => {
     return <WithDragSource config={config}>{component}</WithDragSource>;
   };

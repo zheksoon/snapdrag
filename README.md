@@ -1,9 +1,9 @@
-<h1 align="center">
-  snapdrag
-</h1>
+<h2 align="center">
+  ↕️ snapdrag ↔️
+</h2>
 
 <p align="center">
-  🔰 A simple, lightweight, and performant drag and drop library for React and vanilla JS 🔰
+  <b>A simple, lightweight, and performant drag and drop library for React and vanilla JS</b>
 </p>
 
 ## The Problem
