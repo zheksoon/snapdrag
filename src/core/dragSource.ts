@@ -18,9 +18,12 @@ import {
   defaultMouseUpHandler,
 } from "./utils/defaultMouseHandlers";
 
-type PartialDropArgs<T> = Omit<DropHandlerArgs<T>, "dropTarget" | "dropElement">;
+type PartialDropArgs<T extends Array<DragSourceType<any>>> = Omit<
+  DropHandlerArgs<T>,
+  "dropTarget" | "dropElement"
+>;
 
-export const dropTargets = new WeakMap<Element, IDropTarget<any>>();
+export const registeredDropTargets = new WeakMap<HTMLElement, IDropTarget<any>>();
 
 const disabledDropTargets = new Set<IDropTarget<any>>();
 
@@ -45,30 +48,24 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
 
   constructor(public config: DragSourceConfig<T>) {}
 
-  private getDropTargetsMap(event: UIEvent) {
-    const { x, y } = event as MouseEvent;
-
-    const targetElementsList = document.elementsFromPoint(x, y);
+  private getDropTargetsMap(event: MouseEvent): DropTargetsMap {
+    const targetElementsList = document.elementsFromPoint(event.x, event.y);
 
     const targetElements = targetElementsList ? Array.from(targetElementsList) : [];
 
-    const newDropTargets: DropTargetsMap = new Map();
+    return targetElements.reduce((dropTargets, element) => {
+      const dropTargetAtrribute = element.getAttribute(DROP_TARGET_ATTRIBUTE);
 
-    targetElements.forEach((element) => {
-      const isDropTarget = element.getAttribute(DROP_TARGET_ATTRIBUTE);
+      if (dropTargetAtrribute && dropTargetAtrribute !== "false") {
+        const dropTarget = registeredDropTargets.get(element as HTMLElement);
 
-      if (!isDropTarget || isDropTarget === "false") {
-        return;
+        if (dropTarget && !disabledDropTargets.has(dropTarget)) {
+          dropTargets.set(element as HTMLElement, dropTarget);
+        }
       }
 
-      const dropTarget = dropTargets.get(element);
-
-      if (dropTarget && !disabledDropTargets.has(dropTarget)) {
-        newDropTargets.set(element, dropTarget);
-      }
-    });
-
-    return newDropTargets;
+      return dropTargets;
+    }, new Map() as DropTargetsMap);
   }
 
   private handleDragSourceStart() {
@@ -108,15 +105,11 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
   private handeDragSourceMove(event: MouseEvent) {
     const { onDragMove } = this.config!;
 
-    const dropTargets = this.currentDropTargets!;
-    const dragElement = this.dragElement!;
-    const dragStartEvent = this.dragStartEvent!;
-
     const dragMoveArgs = {
       event,
-      dragElement,
-      dragStartEvent,
-      dropTargets,
+      dragElement: this.dragElement!,
+      dragStartEvent: this.dragStartEvent!,
+      dropTargets: this.currentDropTargets!,
       data: this.currentData!,
     };
 
@@ -170,20 +163,15 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     });
   }
 
-  private getDropHanderArgs(event: MouseEvent, dropTargets: DropTargetsMap): PartialDropArgs<T> {
-    const { type } = this.config!;
-
-    const dragElement = this.dragElement!;
-    const dragStartEvent = this.dragStartEvent!;
-
+  private getDropHanderArgs(event: MouseEvent, dropTargets: DropTargetsMap) {
     return {
       event,
-      dragElement,
-      dragStartEvent,
+      dragElement: this.dragElement!,
+      dragStartEvent: this.dragStartEvent!,
       dropTargets,
-      sourceType: type,
+      sourceType: this.config!.type,
       sourceData: this.currentData!,
-    };
+    } as PartialDropArgs<T[]>;
   }
 
   private handleDragInOrMove(
@@ -194,14 +182,18 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     const dropHandlerArgs = this.getDropHanderArgs(event, dropTargets);
 
     dropTargets.forEach((dropTarget, dropElement) => {
-      if (dropTarget.disabled || disabledDropTargets.has(dropTarget)) {
+      if (dropTarget.disabled) {
         return;
       }
 
-      const args = { ...dropHandlerArgs, dropTarget, dropElement };
+      const args = {
+        ...dropHandlerArgs,
+        dropTarget,
+        dropElement,
+      };
 
       if (!currentDropTargets.has(dropElement)) {
-        const shouldAccept = dropTarget.config.shouldAccept?.(args);
+        const shouldAccept = dropTarget.config.shouldAccept?.(args) ?? true;
 
         if (!shouldAccept) {
           disabledDropTargets.add(dropTarget);
@@ -229,7 +221,11 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
       }
 
       if (!dropTargets.has(dropElement)) {
-        dropTarget.config.onDragOut?.({ ...dropHandlerArgs, dropTarget, dropElement });
+        dropTarget.config.onDragOut?.({
+          ...dropHandlerArgs,
+          dropTarget,
+          dropElement,
+        });
       }
     });
   }
@@ -275,7 +271,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
 
     const dropTargets = this.getDropTargetsMap(event);
 
-    const currentDropTargets = this.currentDropTargets ?? new Map<Element, IDropTarget<any>>();
+    const currentDropTargets: DropTargetsMap = this.currentDropTargets ?? new Map();
 
     this.handleDragInOrMove(event, currentDropTargets, dropTargets);
 

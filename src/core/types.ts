@@ -1,33 +1,24 @@
-export declare class IDragSource<T extends DragSourceType<any>> {
-  constructor(config: DragSourceConfig<T>);
-  setConfig: (config: DragSourceConfig<T>) => void;
-  listen: (element: HTMLElement, setAttribute?: boolean) => Destructor;
-}
+export type DragSourceType<Data> = symbol & { __data: Data };
 
-export declare class IDropTarget<T> {
-  constructor(config: DropTargetConfig<T>);
-  setConfig: (config: DropTargetConfig<T>) => void;
-  listen: (element: HTMLElement) => Destructor;
-  readonly config: DropTargetConfig<T>;
-  readonly data: any;
-  readonly disabled: boolean;
-}
+export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
+  ? DataType
+  : never;
 
-export type DragSourceType<Data> = symbol & { __data: Data; };
-
-export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType> ? DataType : never;
+type DragSourceTypesToUnion<SourceTypeArray extends any[]> = {
+  [K in keyof SourceTypeArray]: DragSourceDataType<SourceTypeArray[K]>;
+}[number];
 
 export type MouseEventHandler = (event: MouseEvent) => void;
 
 export type Destructor = () => void;
+
+export type DropTargetsMap = Map<HTMLElement, IDropTarget<any>>;
 
 export type DragStarHandlertArgs<T = any> = {
   dragElement: HTMLElement;
   dragStartEvent: MouseEvent;
   data?: DragSourceDataType<T>;
 };
-
-export type DropTargetsMap = Map<Element, IDropTarget<any>>;
 
 type DragHandlerArgs<T = any> = {
   event: MouseEvent;
@@ -67,22 +58,22 @@ export type DragSourceConfig<T extends DragSourceType<any>> = {
   plugins?: Array<PluginType>;
 };
 
-export type DropHandlerArgs<T> = {
+export type DropHandlerArgs<T extends Array<DragSourceType<any>>> = {
   event: MouseEvent;
-  sourceType: T;
-  sourceData: DragSourceDataType<T>;
+  sourceType: T[number];
+  sourceData: DragSourceTypesToUnion<T>;
   dragStartEvent: MouseEvent;
-  dragElement: Element;
+  dragElement: HTMLElement;
   dropTarget: IDropTarget<T>;
   dropTargets: DropTargetsMap;
-  dropElement: Element;
+  dropElement: HTMLElement;
 };
 
-export type DropHandler<T> = (args: DropHandlerArgs<T>) => void;
+export type DropHandler<T extends Array<DragSourceType<any>>> = (args: DropHandlerArgs<T>) => void;
 
-export type DropTargetConfig<T> = {
+export type DropTargetConfig<T extends Array<DragSourceType<any>>> = {
   disabled?: boolean;
-  sourceTypes: Array<T>;
+  sourceTypes: T;
   data?: any;
   shouldAccept?: (args: DropHandlerArgs<T>) => boolean;
   onDragIn?: DropHandler<T>;
@@ -90,3 +81,18 @@ export type DropTargetConfig<T> = {
   onDragMove?: DropHandler<T>;
   onDrop?: DropHandler<T>;
 };
+
+export declare class IDragSource<T extends DragSourceType<any>> {
+  constructor(config: DragSourceConfig<T>);
+  setConfig: (config: DragSourceConfig<T>) => void;
+  listen: (element: HTMLElement, setAttribute?: boolean) => Destructor;
+}
+
+export declare class IDropTarget<T extends Array<DragSourceType<any>>> {
+  constructor(config: DropTargetConfig<T>);
+  setConfig: (config: DropTargetConfig<T>) => void;
+  listen: (element: HTMLElement) => Destructor;
+  readonly config: DropTargetConfig<T>;
+  readonly data: any;
+  readonly disabled: boolean;
+}

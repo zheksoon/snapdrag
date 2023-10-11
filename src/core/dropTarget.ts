@@ -1,12 +1,13 @@
 import { DROP_TARGET_ATTRIBUTE } from "./constants";
-import { dropTargets } from "./dragSource";
+import { registeredDropTargets } from "./dragSource";
 import {
   Destructor,
+  DragSourceType,
   DropTargetConfig,
   IDropTarget
 } from "./types";
 
-export class DropTarget<T> implements IDropTarget<T> {
+export class DropTarget<T extends Array<DragSourceType<any>>> implements IDropTarget<T> {
   constructor(public config: DropTargetConfig<T>) {}
 
   public setConfig = (config: DropTargetConfig<T>) => {
@@ -16,12 +17,12 @@ export class DropTarget<T> implements IDropTarget<T> {
   public listen = (element: HTMLElement): Destructor => {
     element.setAttribute(DROP_TARGET_ATTRIBUTE, "true");
 
-    dropTargets.set(element, this);
+    registeredDropTargets.set(element, this);
 
     return () => {
       element.removeAttribute(DROP_TARGET_ATTRIBUTE);
 
-      dropTargets.delete(element);
+      registeredDropTargets.delete(element);
     };
   };
 
@@ -34,6 +35,6 @@ export class DropTarget<T> implements IDropTarget<T> {
   }
 }
 
-export function createDropTarget<T extends DropTargetConfig<any>>(config: T) {
+export function createDropTarget<T extends Array<DragSourceType<any>>>(config: DropTargetConfig<T>) {
   return new DropTarget(config);
 }

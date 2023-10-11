@@ -113,7 +113,7 @@ export function useDragSource<T extends DragSourceType<any>>(config: DragSourceC
   };
 }
 
-export function useDropTarget<T>(config: DropTargetConfig<T>) {
+export function useDropTarget<T extends Array<DragSourceType<any>>>(config: DropTargetConfig<T>) {
   return (component: React.ReactElement) => {
     return <WithDropTarget config={config}>{component}</WithDropTarget>;
   };

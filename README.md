@@ -1,145 +1,93 @@
 <h2 align="center">
-  ↕️ snapdrag ↔️
+  Snap ↔️ Drag 
 </h2>
 
 <p align="center">
   <b>A simple, lightweight, and performant drag and drop library for React and vanilla JS</b>
 </p>
 
-## The Problem
-
-Implementing drag-and-drop in vanilla JS can be a cumbersome task, often requiring a deep dive into the bulky HTML5 API. While powerful, this API can be difficult to customize and adapt, especially for touch devices.
-
-When it comes to React-based solutions, `react-dnd` is often the go-to choice. While it offers a robust set of features, it's not without its drawbacks. One notable issue is the dependency on backends to handle the drag-and-drop logic. The most commonly used HTML5 backend comes with limitations, such as inconsistent behavior across browsers and limited support for touch interactions. Additionally, managing nested or overlapping drop targets can become complex, often requiring custom logic to handle event propagation and state management. These challenges can add layers of complexity to the code, making it less straightforward to implement a seamless and efficient drag-and-drop experience.
-
 ## Introduction
-Snapdrag is a vanilla JS implementation of drag-and-drop that operates without relying on the HTML5 API. Designed to be framework-agnostic and written in pure TypeScript, this library provides a simple way to add drag-and-drop features to projects based on any framework or library.
+**Snapdrag** is a simple, lightweight, and performant drag and drop library for React and vanilla JS. It is designed to be highly customizable and extensible, while also being easy to use out of the box. It is written in pure TypeScript, and offers compatibility with various frameworks and libraries.
 
 ## Key Features
 
-- **Highly Customizable Core:** Extendable and written in pure TypeScript, offering compatibility with various frameworks and libraries.
+- **Extendable:** Provides a simple core API that can be extended to support any drag-and-drop use case.
 
-- **High Performance:** Can handle any number of drag-and-drop targets efficiently.
+- **High Performance:**: Can handle thousands of drag sources and drop targets with minimal performance impact.
 
 - **Rich Event System:** Provides a rich set of events for fine control over drag-and-drop interactions.
 
-- **Plugin Architecture:** Features a flexible plugin system, including a configurable auto-scroller plugin out of the box.
+- **Plugins:** Supports plugins to extend the core functionality.
 
-- **Optional React Bindings:** Supports both wrapping components and hooks, offering easy integration for React developers.
+- **Optional React Bindings:** Provides optional React bindings for easy integration with React apps.
 
-- **Lightweight:** A compact core codebase of just 350 lines, with built-in support for tree-shaking to optimize bundle size.
+- **Lightweight:** Weighs less than 5KB gzipped.
 
-## API
+## Installation
 
-### Drag source
+```bash
+npm i --save snapdrag
 
-Example code for drag source implementation:
-
-```
-const myDragSourceType = dragSourceType<{ name: string }>("myType");
-
-const dragSourceConfig: DragSourceConfig<typeof myDragSourceType> = {
-  // Determines whether the drag source is disabled
-  disabled: false,
-
-  // Specifies the type of the drag source
-  type: myDragSourceType,
-
-  // Data associated with the drag source
-  data: { name: "example" },
-
-  // Optional function to decide whether to start dragging
-  shouldDrag: (args) => {
-    return args.element.id !== "no-drag";
-  },
-
-  // Event handler for when dragging starts
-  onDragStart: (args) => {
-    console.log("Drag started:", args.element);
-  },
-
-  // Event handler for when dragging ends
-  onDragEnd: (args) => {
-    console.log("Drag ended:", args.element);
-  },
-
-  // Event handler for when dragging moves
-  onDragMove: (args) => {
-    console.log("Dragging:", args.element);
-  },
-
-  // Mouse event configurations
-  mouseConfig: {
-    mouseDown: (element, handler) => {
-      // Custom mouse down logic
-    },
-    mouseMove: (handler) => {
-      // Custom mouse move logic
-    },
-    mouseUp: (handler) => {
-      // Custom mouse up logic
-    },
-  },
-
-  // Array of plugins
-  plugins: [
-    {
-      onDragStart: (args) => {
-        // Plugin logic for drag start
-      },
-    },
-  ],
-};
-
-const myDragSource = createDragSource(dragSourceConfig);
-
-const destructor = myDragSource.listen(element);
-
-destructor();
+yarn add snapdrag
 ```
 
-### Drop target
+## Show me the code!
 
+Here's a simple example of a drag source and drop target:
 
-```
-const dropTargetConfig: DropTargetConfig<typeof myDragSourceType> = {
-  // Determines whether the drop target is disabled
-  disabled: false,
+```ts
+// define a drag source type
+const SQUARE = dragSourceType<{ color: string }>("square");
 
-  // Array of source types that this drop target can accept
-  sourceTypes: [myDragSourceType],
-
-  // Data associated with the drop target
-  data: { someData: "example" },
-
-  // Event handler for when a drag source enters the drop target
-  onDragIn: (props) => {
-    console.log("Drag entered:", props.dropTarget);
+const dragSource = createDragSource({
+  // specify the drag source type
+  type: SQUARE,
+  // specify the data associated with the drag source
+  data: { color: "red" },
+  // specify the event handlers
+  onDragStart: (props) => {
+    console.log("Drag started:", props.dragElement);
   },
-
-  // Event handler for when a drag source leaves the drop target
-  onDragOut: (props) => {
-    console.log("Drag left:", props.dropTarget);
+  onDragEnd: (props) => {
+    console.log("Drag ended:", props.dragElement);
   },
-
-  // Event handler for when a drag source moves over the drop target
   onDragMove: (props) => {
-    console.log("Drag moving over:", props.dropTarget);
+    console.log("Dragging:", props.dragElement);
   },
+});
 
-  // Event handler for when a drag source is dropped on the drop target
+const dropTarget = createDropTarget({
+  // specify the drag source types that this drop target can accept
+  sourceTypes: [SQUARE],
+  // specify the event handlers
+  onDragIn: (props) => {
+    console.log("Drag entered:", props.dropElement, "with data:", props.sourceData);
+  },
+  onDragOut: (props) => {
+    console.log("Drag left:", props.dropElement, "with data:", props.sourceData);
+  },
+  onDragMove: (props) => {
+    console.log("Drag moving over:", props.dropElement, "with data:", props.sourceData);
+  },
   onDrop: (props) => {
-    console.log("Dropped:", props.dropTarget);
+    console.log("Dropped:", props.dropElement);
   },
-};
+});
 
-const myDropTarget = createDropTarget(dropTargetConfig);
+// listen for drag events on the drag source element
+dragSource.listen(element);
 
-const destructor = myDropTarget.listen(element);
-
-destructor();
+// listen for drag events on the drop target element
+dropTarget.listen(element);
 ```
 
+This example is vanilla JS: [Link](https://codesandbox.io/s/snapdrag-example-vanilla-tcyz9z)
+
+A bit more complex example in React: [Link](https://codesandbox.io/s/snapdrag-base-react-d2wtjf)
+
+## Documentation
+
+WIP
 
 ## Author
 
