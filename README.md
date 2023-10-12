@@ -7,6 +7,7 @@
 </p>
 
 ## Introduction
+
 **Snapdrag** is a simple, lightweight, and performant drag and drop library for React and vanilla JS. It is designed to be highly customizable and extensible, while also being easy to use out of the box. It is written in pure TypeScript, and offers compatibility with various frameworks and libraries.
 
 Snapdrag is inspired by React DnD, but is designed to be more lightweight and flexible. It overcomes HTML5 drag and drop limitations, and provides a rich set of events for fine control over drag-and-drop interactions.
@@ -15,17 +16,12 @@ Snapdrag is a low level library, and does not provide any UI components out of t
 
 ## Key Features
 
-- **Extendable:** Provides a simple core API that can be extended to support any drag-and-drop use case.
-
-- **High Performance:**: Can handle thousands of drag sources and drop targets with minimal performance impact.
-
-- **Rich Event System:** Provides a rich set of events for fine control over drag-and-drop interactions.
-
-- **Plugins:** Supports plugins to extend the core functionality.
-
-- **Optional React Bindings:** Provides optional React bindings for easy integration with React apps.
-
-- **Lightweight:** Weighs less than 5KB gzipped without minification.
+- 🛠️ **Extendable:** Provides a simple core API that can be extended to support any drag-and-drop use case.
+- 🚀 **High Performance:** Can handle thousands of drag sources and drop targets with minimal performance impact.
+- 📡 **Rich Event System:** Provides a rich set of events for fine control over drag-and-drop interactions.
+- 🔌 **Plugins:** Supports [plugins](#plugins) to extend the core functionality, with the default [auto scroll plugin](#auto-scroll-plugin) out of the box.
+- ⚛️ **Optional React Bindings:** Provides optional [React bindings](#react-bindings) for easy integration with React apps.
+- 🪶 **Lightweight:** Weighs less than 5KB gzipped without minification.
 
 ## Installation
 
@@ -97,7 +93,11 @@ Snapdrag provides optional React bindings for easy integration with React apps. 
 import { useDragSource, useDropTarget } from "snapdrag/react";
 
 const Square = React.forwardRef(({ text }, ref) => {
-  return <div ref="ref" className="square">{text}</div>
+  return (
+    <div ref="ref" className="square">
+      {text}
+    </div>
+  );
 });
 
 const DraggableSquare = () => {
@@ -120,7 +120,7 @@ const DraggableSquare = () => {
   });
 
   return withDragSource(<Square text={squareText} />);
-}
+};
 
 const DroppableSquare = () => {
   const [squareText, setSquareText] = useState("Drop here!");
@@ -142,7 +142,7 @@ const DroppableSquare = () => {
   });
 
   return withDropTarget(<Square text={squareText} />);
-}
+};
 ```
 
 The element wrapped by the `useDragSource` and `useDropTarget` hooks **must take a `ref` prop**. This is used to attach the drag source and drop target to the element.
@@ -191,7 +191,7 @@ Creates a drag source type. A drag source type is a unique identifier for a drag
 
 ### createDragSource
 
-The `createDragSource` function accepts a configuration object, and returns a drag source object.
+The `createDragSource` function accepts a configuration object, and returns a [drag source object](#idragsource).
 
 The configuration object has the following properties:
 
@@ -200,42 +200,46 @@ The configuration object has the following properties:
 - `type`: The drag source type. This is used to identify the drag source when it is dragged over a drop target.
 
 - `data`: The data associated with the drag source. The type of data must match that defined by the drag source type. The `data` field can be a function that returns the data. This is useful when the data needs to be dynamic. Note that the `data` function is called only once when the drag starts, and the returned data is cached for the duration of the drag. In this case, it takes the following arguments:
+
   - `dragElement`: The drag source element.
-  
+
   - `dragStartEvent`: The drag start event, usually a `mousedown` or `touchstart` event.
 
 - `onDragStart`: The drag start event handler. This is called when the drag source is dragged. It takes the following arguments:
+
   - `dragStartEvent: MouseEvent`: The drag start event, usually a `mousedown` or `touchstart` event.
-  
+
   - `dragElement: HTMLElement`: The drag source element.
-  
+
   - `data`: The data returned by the `data` field of the configuration object.
 
 - `onDragMove`: The drag move event handler. This is called when the drag source is dragged. It takes the following arguments:
+
   - `event: MouseEvent`: The drag move event, usually a `mousemove` or `touchmove` event.
-  
+
   - `dragStartEvent: MouseEvent`: The event that started the drag, usually a `mousedown` or `touchstart` event.
-  
+
   - `dragElement: HTMLElement`: The drag source element.
-  
+
   - `data`: The data returned by the `data` field of the configuration object.
-  
-  - `dropTargets: Map<HTMLElement, IDropTargget>`: The drop targets that the drag source is currently dragged over.
+
+  - `dropTargets: Map<HTMLElement, IDropTarget>`: The drop targets that the drag source is currently dragged over.
 
 - `onDragEnd`: The drag end event handler. This is called when the drag source is dropped or cancelled. It takes the same arguments as the `onDragMove` event handler.
 
 - `mouseConfig`: The optional mouse configuration object. This is used to configure the mouse events. It has the following properties (all optional):
+
   - `mouseDown(element: HTMLElement, handler: MouseEventHandler)`: The mouse down event handler. This is called when the drag element is listened. It should call the `handler` when the mouse down event occurs.
-  
+
   - `mouseMove(handler: MouseEventHandler)`: The mouse move event handler. This is called when the mouse is moved. It should call the `handler` when the mouse move event occurs.
-  
+
   - `mouseUp(handler: MouseEventHandler)`: The mouse up event handler. This is called when the mouse is released. It should call the `handler` when the mouse up event occurs.
 
 - `plugins`: The optional array of plugins. This is used to extend the core functionality. See the [Plugins](#plugins) section for more details.
 
 ### createDropTarget
 
-The `createDropTarget` function accepts a drop target configuration object, and returns a drop target object.
+The `createDropTarget` function accepts a drop target configuration object, and returns a [drop target object](#idroptarget).
 
 The configuration object has the following properties:
 
@@ -246,30 +250,57 @@ The configuration object has the following properties:
 - `data: any`: The optional data associated with the drop target.
 
 - `onDragIn`: The drag in event handler. This is called when a drag source is dragged over the drop target. It takes the following arguments:
+
   - `event: MouseEvent`: The drag in event, usually a `mousemove` or `touchmove` event.
-  
+
   - `sourceType`: The drag source type that is currently dragged over the drop target.
-  
+
   - `sourceData`: The data associated with the drag source.
-  
+
   - `dragStartEvent: MouseEvent`: The event that started the drag, usually a `mousedown` or `touchstart` event.
-  
+
   - `dragElement: HTMLElement`: The drag source element.
-  
+
   - `dropTarget: IDropTarget<T>`: The drop target object itself.
-  
-  - `dropTargets: Map<HTMLElement, IDropTargget>`: All the drop targets that the drag source is currently dragged over.
-  
+
+  - `dropTargets: Map<HTMLElement, IDropTarget>`: All the drop targets that the drag source is currently dragged over.
+
   - `dropElement: HTMLElement`: The drop target element.
 
 - `onDragOut`: The drag out event handler. This is called when a drag source is dragged out of the drop target. It takes the same arguments as the `onDragIn` event handler.
 
 - `onDragMove`: The drag move event handler. This is called when a drag source is dragged over the drop target. It takes the same arguments as the `onDragIn` event handler.
 
-- `shouldAccept`: The optional function that determines whether the drop target should accept the drag source. 
-It takes the same arguments as the `onDragIn` event handler, and returns a boolean value. 
-It's called only once when the drag source is dragged over the drop target for the first time. 
-If it returns `false`, the drop target will not accept the drag source, and the `onDragIn` event handler will not be called.
+- `shouldAccept`: The optional function that determines whether the drop target should accept the drag source.
+  It takes the same arguments as the `onDragIn` event handler, and returns a boolean value.
+  It's called only once when the drag source is dragged over the drop target for the first time.
+  If it returns `false`, the drop target will not accept the drag source, and the `onDragIn` event handler will not be called.
+
+### IDragSource
+
+The drag source object returned by the `createDragSource` function has the following properties:
+
+- `listen(element: HTMLElement)`: The function that attaches the drag source to the specified element. It returns destuctor function that removed listener and `data-draggable` attribute. It takes the following arguments:
+
+  - `element: HTMLElement`: The element to attach the drag source to.
+
+  - `setAttribute: boolean`: The optional boolean value that determines if the `data-draggable` attribute should be added onto the element.
+
+- `setConfig: (config: IDragSourceConfig) => void`: The function that sets the drag source configuration. It takes the same configuration object as the `createDragSource` function.
+
+### IDropTarget
+
+The drop target object returned by the `createDropTarget` function has the following properties:
+
+- `listen(element: HTMLElement)`: The function that attaches the drop target to the specified element. It returns destuctor function that removed listener and `data-droppable` attribute. It takes the following arguments:
+
+  - `element: HTMLElement`: The element to attach the drop target to.
+
+- `setConfig: (config: IDropTargetConfig) => void`: The function that sets the drop target configuration. It takes the same configuration object as the `createDropTarget` function.
+
+- `disabled`: The boolean value that determines whether the drop target is disabled. If it's `true`, the drop target will not accept any drag sources.
+
+- `data`: The data associated with the drop target.
 
 ### Plugins
 
@@ -282,6 +313,34 @@ Snapdrag supports plugins to extend the core functionality. A plugin is an objec
 - `onDragEnd`: The optional drag end event handler. This is called when the drag source is dropped or cancelled. It takes the same arguments as the `onDragEnd` event handler of the `createDragSource` function.
 
 - `cleanup`: The optional cleanup function. This is called when the drag is ended or cancelled.
+
+### Auto Scroll Plugin
+
+The auto scroll plugin automatically scrolls the scrollable parent element when the drag source is dragged near the edges of the scrollable parent element.
+
+```ts
+const scroller = createScroller({
+  // specify config for x axis
+  x: {
+    // a margin in pixels from the edges of the scrollable parent element
+    threshold: 100;
+    // the scroll speed in pixels per second
+    speed: 2000;
+    // the power applied to the distance from the edges of the scrollable parent element
+    // it makes the scroll speed increase as the drag source gets closer to the edges
+    distancePower: 1.5;
+  },
+  // true applies the default config as above
+  y: true,
+})
+
+const dragSource = createDragSource({
+  // ...
+  plugins: [scroller(containerElement)],
+});
+```
+
+Example: TODO
 
 ## Author
 
