@@ -59,7 +59,11 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
       if (dropTargetAtrribute && dropTargetAtrribute !== "false") {
         const dropTarget = registeredDropTargets.get(element as HTMLElement);
 
-        if (dropTarget && !disabledDropTargets.has(dropTarget)) {
+        if (
+          dropTarget &&
+          !disabledDropTargets.has(dropTarget) &&
+          dropTarget.config.sourceTypes.includes(this.config.type)
+        ) {
           dropTargets.set(element as HTMLElement, dropTarget);
         }
       }
