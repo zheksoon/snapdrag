@@ -12,7 +12,7 @@
   "module": "dist/snapdrag.module.js",
   "unpkg": "dist/snapdrag.umd.js",
   "types": "dist/types/index.d.ts",
-    "exports": {
+  "exports": {
     ".": {
       "import": "./dist/snapdrag.mjs",
       "require": "./dist/snapdrag.js",
@@ -35,7 +35,6 @@
     "build:react": "cd react/ && microbundle --no-compress --jsx React.createElement --external 'snapdrag'",
     "start": "microbundle watch"
   },
-  "packageManager": "yarn@3.5.0",
   "devDependencies": {
     "microbundle": "^0.15.1",
     "typescript": "^5.0.4"
