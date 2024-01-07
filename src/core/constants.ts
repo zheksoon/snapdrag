@@ -1,3 +1,3 @@
-export const DRAGGABLE_ATTRIBUTE = "data-draggable";
+export const DRAG_SOURCE_ATTRIBUTE = "data-drag-source";
 
-export const DROP_TARGET_ATTRIBUTE = "data-droppable";
+export const DROP_TARGET_ATTRIBUTE = "data-drop-target";

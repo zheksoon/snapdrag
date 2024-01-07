@@ -1,6 +1,8 @@
 export type DragSourceType<Data> = symbol & { __data: Data };
 
-export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
+export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<
+  infer DataType
+>
   ? DataType
   : never;
 
@@ -14,7 +16,7 @@ export type Destructor = () => void;
 
 export type DropTargetsMap = Map<HTMLElement, IDropTarget<any>>;
 
-export type DragStarHandlertArgs<T = any> = {
+export type DragStarHandlerArgs<T = any> = {
   dragElement: HTMLElement;
   dragStartEvent: MouseEvent;
   data?: DragSourceDataType<T>;
@@ -29,7 +31,7 @@ type DragHandlerArgs<T = any> = {
 };
 
 export type PluginType = {
-  onDragStart?: (args: DragStarHandlertArgs) => boolean | undefined | void;
+  onDragStart?: (args: DragStarHandlerArgs) => boolean | undefined | void;
   onDragMove?: (args: DragHandlerArgs) => void;
   onDragEnd?: (args: DragHandlerArgs) => void;
   cleanup?: () => void;
@@ -50,8 +52,8 @@ export type DragSourceConfig<T extends DragSourceType<any>> = {
   disabled?: boolean;
   type: T;
   data: DragSourceDataType<T> | DragSourceDataFactory<T>;
-  shouldDrag?: (args: DragStarHandlertArgs<T>) => boolean;
-  onDragStart?: (args: DragStarHandlertArgs<T>) => void;
+  shouldDrag?: (args: DragStarHandlerArgs<T>) => boolean;
+  onDragStart?: (args: DragStarHandlerArgs<T>) => void;
   onDragEnd?: (args: DragHandlerArgs<T>) => void;
   onDragMove?: (args: DragHandlerArgs<T>) => void;
   mouseConfig?: MouseConfig;
@@ -69,7 +71,9 @@ export type DropHandlerArgs<T extends Array<DragSourceType<any>>> = {
   dropElement: HTMLElement;
 };
 
-export type DropHandler<T extends Array<DragSourceType<any>>> = (args: DropHandlerArgs<T>) => void;
+export type DropHandler<T extends Array<DragSourceType<any>>> = (
+  args: DropHandlerArgs<T>
+) => void;
 
 export type DropTargetConfig<T extends Array<DragSourceType<any>>> = {
   disabled?: boolean;

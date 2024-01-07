@@ -1,3 +1,2 @@
 export * from "./core";
-
-export { createScroller } from "./plugins/scroller";
+export * from "./plugins";

@@ -1,7 +1,9 @@
 import { MouseEventHandler } from "../types";
 
-
-export function defaultMouseDownHandler(element: HTMLElement, handler: MouseEventHandler) {
+export function defaultMouseDownHandler(
+  element: HTMLElement,
+  handler: MouseEventHandler
+) {
   element.addEventListener("pointerdown", handler);
 
   return () => {
