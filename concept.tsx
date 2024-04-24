@@ -1,42 +1,57 @@
-import React from "react";
-import { useDraggable, useDroppable } from "snapdrag/react";
+import "./styles.css";
 
-const Square = React.forwardRef(({ top, left, color, text }, ref) => {
-  return (
-    <div ref={ref} className="square" style={{ top, left, backgroundColor: color }}>
-      {text}
-    </div>
-  );
-});
+import React, { useState, useEffect } from "react";
+import { useDraggable, useDroppable, Overlay } from "./concept";
 
-const DraggableSquare = ({ top, left, color }) => {
+const DraggableSquare = ({ color }) => {
   const { draggable, isDragging } = useDraggable({
-    data: { color },
+    type: "SQUARE",
+    data: { color: "red" },
   });
 
-  const text = isDragging ? "Dragging" : "Drag me";
+  const opacity = isDragging ? 0.5 : 1;
 
-  return draggable(<Square top={top} left={left} color={color} text={text} />);
+  return draggable(
+    <div className="square" style={{ backgroundColor: color, opacity }}>
+      {isDragging ? "Dragging" : "Drag me"}
+    </div>
+  );
 };
 
-const DroppableSquare = ({ top, left, color: initialColor }) => {
+const DroppableSquare = ({ color: initialColor }) => {
   const [color, setColor] = React.useState(initialColor);
   const [text, setText] = React.useState("Drop here");
 
   const { droppable } = useDroppable({
-    onDrop({ data }) {
+    sourceTypes: ["SQUARE"],
+    onDragIn({ data }) {
       setColor(data.color);
+      setText("Dragged in");
+    },
+    onDragOut() {
+      setColor(initialColor);
+      setText("Drop here");
+    },
+    onDrop({ data }) {
       setText("Dropped");
     },
   });
-  return droppable(<Square top={top} left={left} color={color} text={text} />);
+
+  return droppable(
+    <div className="square" style={{ backgroundColor: color }}>
+      {text}
+    </div>
+  );
 };
 
-export default App() {
+export default App = () => {
   return (
     <>
-      <DraggableSquare top={100} left={100} color="red" />
-      <DroppableSquare top={100} left={300} color="green" />
+      <div style={{ position: "relative" }}>
+        <DraggableSquare top={100} left={100} color="red" />
+        <DroppableSquare top={100} left={300} color="green" />
+      </div>
+      <Overlay />
     </>
   );
-}
+};
