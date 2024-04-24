@@ -8,20 +8,20 @@
 
 ## Introduction
 
-**Snapdrag** is a simple, lightweight, and performant drag-and-drop library for React and vanilla JS. It is designed to be highly customizable and extensible, while also being easy to use out of the box. It is written in pure TypeScript and offers compatibility with various frameworks and libraries.
+**Snapdrag** is a simple, lightweight, and performant drag-and-drop library for React and vanilla JS. It's designed to be highly customizable and extensible, while also being easy to use out of the box. Snapdrag is written in pure TypeScript and offers compatibility with various frameworks and libraries.
 
-Inspired by React DnD, it's designed to be more lightweight and flexible. **Snapdrag** overcomes HTML5 limitations and provides a rich set of events for fine control over drag-and-drop interactions.
+## Why Snapdrag?
 
-**Snapdrag** is a low-level library and does not provide any UI components out of the box. It is designed to be a building block for more complex drag-and-drop interactions. It is also framework-agnostic and can be used with any framework or library. For convenience, **Snapdrag** provides optional React bindings for easy integration with React apps.
+Working with drag-and-drop for sure is not an easy task. Libraries like `react-dnd` are quite bulky and don't offer a lot of flexibility. Snapdrag is my attempt to create a simple, flexible, and intuitive drag-and-drop library, suitable for any framework, or without it.
 
 ## Key Features
 
-- 🛠️ **Extendable:** Simple core API that can be extended to support any drag-and-drop use case
-- 🚀 **High Performance:** Handle thousands of drag sources and drop targets with a minimal performance impact
-- 📡 **Rich Event System:** Fine control over drag-and-drop interactions
-- 🔌 **Plugins:** Supports [plugins](#plugins) to extend the core functionality, with the default [auto scroll plugin](#auto-scroll-plugin) out of the box
-- ⚛️ **Optional React Bindings:** Provides optional [React bindings](#react-bindings)
-- 🪶 **Lightweight:** Less than 5KB gzipped without minification
+- **Extendable:** Simple core API that can be extended to support any drag-and-drop use case
+- **High Performance:** Handle thousands of drag sources and drop targets with a minimal performance impact
+- **Rich Event System:** Fine control over drag-and-drop interactions
+- **Plugins:** Supports [plugins](#plugins) to extend the core functionality, with the default [auto scroll plugin](#auto-scroll-plugin) out of the box
+- **Optional React Bindings:** Provides optional [React bindings](#react-bindings)
+- **Lightweight:** Less than 5KB gzipped without minification
 
 ## Installation
 
@@ -33,7 +33,48 @@ yarn add snapdrag
 
 ## Show me the code!
 
-Here's a simple example of a drag source and drop target:
+Here's a simple example of a drag source and drop target with React:
+
+```tsx
+import { createDragSource } from "snapdrag";
+
+const DraggableSquare = () => {
+  const [text, setText] = useState("Drag me!");
+  const [offset, setOffset] = useState({ top: 0, left: 0 });
+  const [dragOffset, setDragOffset] = useState({ top: 0, left: 0 });
+
+  const top = dragOffset.top + offset.top;
+  const left = dragOffset.left + offset.left;
+
+  const dragSource = createDragSource({
+    type: "SQUARE",
+    onDragStart() {
+      setText("Drag started!");
+    },
+    onDragEnd() {
+      // persist the new offset
+      setOffset({ top, left });
+      // reset the drag offset
+      setDragOffset({ top: 0, left: 0 });
+      setText("Drag me!");
+    },
+    onDragMove({ event, dragStartEvent }) {
+      // calculate the offset from the drag start position
+      const topOffset = event.clientY - dragStartEvent.clientY;
+      const leftOffset = event.clientX - dragStartEvent.clientX;
+      // update the drag offset
+      setDragOffset({ top: topOffset, left: leftOffset });
+      setText("Dragging...");
+    },
+  });
+
+  return dragSource(
+    <div className="square" style={{ top, left }}>
+      {text}
+    </div>
+  );
+};
+```
 
 ```ts
 // define a drag source type
