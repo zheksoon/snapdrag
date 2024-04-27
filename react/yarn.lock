@@ -38,6 +38,11 @@ loose-envify@^1.1.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
+onek@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/onek/-/onek-0.1.7.tgz#e1b880cd27977a89e9bf6d220708004da4262e41"
+  integrity sha512-d56O3k6J3MqT7+Ru0QAj1P5v0NzlpbdmtA+c1Mm4yNGWtIrqKgJ0NRSVGBN1SorpHENBsP3RjHtB5AMrO7GSsQ==
+
 react@>=16.8.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"

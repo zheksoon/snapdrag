@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ESNext", 
+    "target": "ESNext",
     "module": "commonjs",
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react"
   },
-  "include": ["src/**/*.tsx", "src/**/*.tsx"],
+  "include": ["src/**/*.tsx", "src/**/*.tsx", "src/react-new.jsx"],
   "exclude": ["node_modules"]
 }

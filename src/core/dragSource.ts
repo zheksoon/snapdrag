@@ -56,16 +56,27 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     targetElements.forEach((element) => {
       const dropTargetAttribute = element.getAttribute(DROP_TARGET_ATTRIBUTE);
 
-      if (dropTargetAttribute && dropTargetAttribute !== "false") {
-        const dropTarget = registeredDropTargets.get(element);
+      if (!dropTargetAttribute || dropTargetAttribute === "false") {
+        return;
+      }
+      const dropTarget = registeredDropTargets.get(element);
 
-        if (
-          dropTarget &&
-          dropTarget.config.sourceTypes.includes(this.config.type) &&
-          !dropTarget.disabled
-        ) {
-          dropTargets.set(element, dropTarget);
-        }
+      if (!dropTarget) {
+        return;
+      }
+
+      const sourceTypes = dropTarget.config.sourceTypes;
+
+      let shouldAccept = false;
+
+      if (typeof sourceTypes === "function") {
+        shouldAccept = sourceTypes({ kind: this.config.type, data: this.currentData });
+      } else {
+        shouldAccept = sourceTypes.includes(this.config.type) && !dropTarget.disabled;
+      }
+
+      if (shouldAccept) {
+        dropTargets.set(element, dropTarget);
       }
     });
 
@@ -242,8 +253,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     this.dragElement = dragElement as HTMLElement;
     this.dragStartEvent = event;
 
-    const mouseMoveHandler =
-      this.config.mouseConfig?.mouseMove ?? defaultMouseMoveHandler;
+    const mouseMoveHandler = this.config.mouseConfig?.mouseMove ?? defaultMouseMoveHandler;
     const mouseUpHandler = this.config.mouseConfig?.mouseUp ?? defaultMouseUpHandler;
 
     const mouseMoveDestructor = mouseMoveHandler(this.safeMouseMoveHandler);
@@ -339,8 +349,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
   };
 
   public listen = (element: HTMLElement, setAttribute = true): Destructor => {
-    const mouseDownHandler =
-      this.config.mouseConfig?.mouseDown ?? defaultMouseDownHandler;
+    const mouseDownHandler = this.config.mouseConfig?.mouseDown ?? defaultMouseDownHandler;
 
     const mouseDownDestructor = mouseDownHandler(element, this.safeMouseDownHandler);
 

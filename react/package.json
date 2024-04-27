@@ -1,28 +1,30 @@
 {
-    "name": "@snapdrag/react",
-    "version": "0.1.0",
-    "main": "dist/index.js",
-    "source": "src/index.ts",
-    "umd:main": "./dist/index.umd.js",
-    "module": "dist/index.module.js",
-    "unpkg": "./dist/index.umd.js",
-    "types": "./dist/types/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/types/index.d.ts",
-            "browser": "./dist/index.module.js",
-            "umd": "./dist/index.umd.js",
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.js"
-        }
-    },
-    "peerDependencies": {
-        "snapdrag": "*",
-        "react": ">=16.8.0"
-    },
-    "devDependencies": {
-        "@types/react": ">=16.8.0",
-        "snapdrag": "link:../",
-        "react": ">=16.8.0"
+  "name": "@snapdrag/react",
+  "type": "module",
+  "version": "0.1.0",
+  "main": "dist/index.cjs",
+  "source": "src/index.ts",
+  "umd:main": "./dist/index.umd.js",
+  "module": "dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "snapdrag": "*"
+  },
+  "devDependencies": {
+    "@types/react": ">=16.8.0",
+    "react": ">=16.8.0",
+    "snapdrag": "link:../"
+  },
+  "dependencies": {
+    "onek": "^0.1.7"
+  }
 }
