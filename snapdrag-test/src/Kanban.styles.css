@@ -1,0 +1,43 @@
+.dashboard {
+  display: flex;
+}
+
+.column {
+  flex: 1;
+  padding: 16px;
+}
+
+.task-group {
+  margin: 0;
+  padding: 10px;
+}
+
+.task-group h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.task-group.hovered {
+  background-color: lightblue;
+}
+
+.task {
+  padding: 8px;
+  background-color: #f0f0f0;
+  user-select: none;
+}
+
+.task-wrapper {
+  position: relative;
+  margin: 10px 0;
+}
+
+.task-wrapper.dragging {
+  opacity: 0.9;
+  width: 300px;
+}
+
+.task-drop-line {
+  height: 36px;
+  transition: height 0.5s;
+}

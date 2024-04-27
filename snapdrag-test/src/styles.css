@@ -1,0 +1,32 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+#root {
+  position: relative;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drag {
+  position: absolute;
+  cursor: move;
+  top: 100px;
+  left: 100px;
+}
+
+.drop {
+  position: absolute;
+  top: 100px;
+  left: 300px;
+}
