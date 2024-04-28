@@ -353,7 +353,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
 
     const mouseDownDestructor = mouseDownHandler(element, this.safeMouseDownHandler);
 
-    if (setAttribute) {
+    if (setAttribute && !element.hasAttribute(DRAG_SOURCE_ATTRIBUTE)) {
       element.setAttribute(DRAG_SOURCE_ATTRIBUTE, "true");
     }
 

@@ -32,16 +32,22 @@ const Task = ({ task }) => {
 
   const { droppable, hoveredBy } = useDroppable({
     accepts: ({ kind, data }) => kind === "TASK" && data.task.project === task.project,
-    onDrop({ sourceData }) {
-      updateTask(sourceData.task, { status: task.status, order: task.order - 0.5 });
+    data: { kind: "TASK_TARGET" },
+    onDrop({ data }) {
+      updateTask(data.task, { status: task.status, order: task.order - 0.5 });
     },
   });
 
   return droppable(
     draggable(
-      <div className={cx("task-wrapper", isDragging && "dragging")}>
+      <div className={cx("task-wrapper", isDragging && "dragging")} data-drag-source="false">
         {!isDragging && hoveredBy && <div className="task-drop-line" />}
-        <div className="task">{task.title}</div>
+        <div className="task">
+          <div className="drag-handle" data-drag-source="true">
+            ☰
+          </div>
+          {task.title}
+        </div>
       </div>
     )
   );
@@ -50,10 +56,10 @@ const Task = ({ task }) => {
 const TaskGroup = ({ status, project, tasks }) => {
   const { droppable, hoveredBy } = useDroppable({
     accepts: ({ kind, data }) => kind === "TASK" && data.task.project === project,
-    onDrop({ sourceData, dropTargets }) {
-      // we are the only drop target here, so task does not accept the drop
-      if (dropTargets.size === 1) {
-        updateTask(sourceData.task, { status, order: tasks.length + 1 });
+    onDrop({ data, dropTargets }) {
+      // If the task is dropped on a task target, do nothing
+      if (!dropTargets.some((target) => target.data?.kind === "TASK_TARGET")) {
+        updateTask(data.task, { status, order: tasks.length + 1 });
       }
     },
   });

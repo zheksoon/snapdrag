@@ -24,7 +24,8 @@
 .task {
   padding: 8px;
   background-color: #f0f0f0;
-  user-select: none;
+  display: flex;
+  align-items: center;
 }
 
 .task-wrapper {
@@ -40,4 +41,10 @@
 .task-drop-line {
   height: 36px;
   transition: height 0.5s;
+}
+
+.drag-handle {
+  cursor: move;
+  padding: 4px 8px;
+  user-select: none;
 }

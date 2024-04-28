@@ -84,9 +84,7 @@ export function useDraggable(config: any) {
 
         const dropTargets = [...props.dropTargets.values()];
 
-        const droppedOn = dropTargets.length ? dropTargets : null;
-
-        config.onDragEnd?.({ event: props.event, droppedOn });
+        config.onDragEnd?.({ event: props.event, dropTargets });
       },
     }),
     [config]
@@ -160,20 +158,28 @@ export function useDroppable(config) {
   const trueConfig = useMemo<DropTargetConfig<any>>(
     () => ({
       sourceTypes: config.accepts,
+      data: config.data,
       onDragIn(props) {
         setHoveredBy({ kind: props.sourceType, data: props.sourceData });
 
-        config.onDragIn?.({ kind: props.sourceType, data: props.sourceData });
+        config.onDragIn?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
       },
       onDragOut(props) {
         setHoveredBy(null);
 
-        config.onDragOut?.({ kind: props.sourceType, data: props.sourceData });
+        config.onDragOut?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
+      },
+      onDragMove(props) {
+        config.onDragMove?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
       },
       onDrop(props) {
         setHoveredBy(null);
 
-        config.onDrop?.(props);
+        config.onDrop?.({
+          kind: props.sourceType,
+          data: props.sourceData,
+          dropTargets: [...props.dropTargets.values()],
+        });
       },
     }),
     [config]
@@ -216,6 +222,10 @@ export function useDroppable(config) {
 
   return {
     droppable(child) {
+      if (!child) {
+        return null;
+      }
+
       originalRef.current = child.ref;
 
       return React.cloneElement(child, { ref: childRef });
