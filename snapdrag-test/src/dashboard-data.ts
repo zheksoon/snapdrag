@@ -1,5 +1,3 @@
-import { observable } from "onek";
-
 export const columns = [
   { name: "Todo", status: "todo" },
   { name: "In Progress", status: "in-progress" },
@@ -8,7 +6,7 @@ export const columns = [
 
 export const projects = ["Project 1", "Project 2"];
 
-export const [tasks, setTasks] = observable([
+export const tasks = [
   { id: 1, title: "Implement login functionality", project: "Project 1", status: "todo", order: 0 },
   { id: 2, title: "Refactor API integration", project: "Project 2", status: "todo", order: 2 },
   {
@@ -40,4 +38,4 @@ export const [tasks, setTasks] = observable([
     status: "done",
     order: 2,
   },
-]);
+];

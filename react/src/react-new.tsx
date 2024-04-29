@@ -1,41 +1,57 @@
 import React, { useRef, useState, useMemo, useCallback, useEffect } from "react";
-import { observable } from "onek";
-import { useObserver } from "onek/react";
 
 import { DragSourceConfig, DropTargetConfig, createDragSource, createDropTarget } from "snapdrag";
 
-const [dragElement, setDragElement] = observable(null);
-const [dragElementPosition, setDragElementPosition] = observable({
-  top: 0,
-  left: 0,
-});
+let setDragElementFn = null;
+let setDragElementPositionFn = null;
+
+const setDragElement = (element) => {
+  Promise.resolve().then(() => {
+    setDragElementFn?.(element);
+  });
+};
+
+const setDragElementPosition = (position) => {
+  Promise.resolve().then(() => {
+    setDragElementPositionFn?.(position);
+  });
+};
 
 export function Overlay({ style = {}, className = "" }) {
-  const observer = useObserver();
+  const [dragElement, _setDragElement] = useState(null);
+  const [dragElementPosition, _setDragElementPosition] = useState({ top: 0, left: 0 });
 
-  return observer(() => {
-    const { top, left } = dragElementPosition();
+  useEffect(() => {
+    setDragElementFn = _setDragElement;
+    setDragElementPositionFn = _setDragElementPosition;
 
-    const dragWrapperStyle = {
-      position: "relative" as const,
-      transform: `translateX(${left}px) translateY(${top}px)`,
+    return () => {
+      setDragElementFn = null;
+      setDragElementPositionFn = null;
     };
+  }, []);
 
-    const dragOverlayStyle = {
-      position: "fixed" as const,
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      ...style,
-    };
+  const { top, left } = dragElementPosition;
 
-    return dragElement() ? (
-      <div style={dragOverlayStyle}>
-        <div style={dragWrapperStyle}>{dragElement()}</div>
-      </div>
-    ) : null;
-  });
+  const dragWrapperStyle = {
+    position: "relative" as const,
+    transform: `translateX(${left}px) translateY(${top}px)`,
+  };
+
+  const dragOverlayStyle = {
+    position: "fixed" as const,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    ...style,
+  };
+
+  return dragElement ? (
+    <div style={dragOverlayStyle}>
+      <div style={dragWrapperStyle}>{dragElement}</div>
+    </div>
+  ) : null;
 }
 
 export function useDraggable(config: any) {
@@ -46,6 +62,8 @@ export function useDraggable(config: any) {
   const elementRef = useRef(null);
 
   const elementOffsetRef = useRef({ top: 0, left: 0 });
+
+  const originalRef = useRef(null);
 
   const trueConfig = useMemo<DragSourceConfig<any>>(
     () => ({
@@ -95,8 +113,6 @@ export function useDraggable(config: any) {
   useEffect(() => {
     dragSource.setConfig(trueConfig);
   }, [trueConfig]);
-
-  const originalRef = useRef(null);
 
   const childRef = useCallback((element) => {
     if (element) {

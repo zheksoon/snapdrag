@@ -23,8 +23,5 @@
     "@types/react": ">=16.8.0",
     "react": ">=16.8.0",
     "snapdrag": "link:../"
-  },
-  "dependencies": {
-    "onek": "^0.1.7"
   }
 }
