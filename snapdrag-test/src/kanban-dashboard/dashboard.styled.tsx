@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Dashboard = styled.div`
+export const DashboardColumns = styled.div`
   display: flex;
   background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
   font-family: "Roboto", sans-serif;
@@ -18,7 +18,10 @@ export const Column = styled.div`
   overflow: scroll;
 `;
 
+export const ColumnHeader = styled.h1``;
+
 export const TaskGroup = styled.div`
+  position: relative;
   margin: 16px 0;
   padding: 10px;
   background: #ffffff;
@@ -30,7 +33,7 @@ export const TaskGroup = styled.div`
     background-color: #e3f2fd;
   }
 
-  ${(props) => props.hovered && `background-color: #e3f2fd`}
+  ${(props) => props.$hovered && `background-color: #e3f2fd`}
 `;
 
 export const TaskGroupHeader = styled.div`
@@ -66,6 +69,8 @@ export const Button = styled.button`
 `;
 
 export const NewTask = styled.div`
+  position: relative;
+  margin: 10px 0;
   padding: 8px;
   background-color: #f0f0f0;
   display: flex;
@@ -74,7 +79,9 @@ export const NewTask = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
-export const NewTaskInput = styled.input`
+export const NewTaskInput = styled.input.attrs({
+  type: "text",
+})`
   flex: 1;
   border: none;
   padding: 4px;
@@ -120,14 +127,18 @@ export const TaskTitle = styled.div`
   flex: 1;
 `;
 
-export const TaskWrapper = styled.div`
+export const TaskWrapper = styled.div.attrs({
+  "data-drag-source": "false",
+})`
   position: relative;
   margin: 10px 0;
 
-  ${(props) => props.isDragging && `opacity: 0.5; width: 300px;`}
+  ${(props) => props.$isDragging && `opacity: 0.8; width: 300px;`}
 `;
 
-export const DragHandle = styled.div`
+export const DragHandle = styled.div.attrs({
+  "data-drag-source": "true",
+})`
   cursor: move;
   padding: 4px 8px;
   user-select: none;
@@ -136,14 +147,13 @@ export const DragHandle = styled.div`
 `;
 
 export const TaskDropLine = styled.div<{
-  active?: boolean;
-  stopAnimation?: boolean;
+  $active: boolean;
+  $stopAnimation?: boolean;
 }>`
   height: 0px;
   transition: height 0.25s ease-out;
-  /* background-color: #42a5f5; Blue line color */
 
-  ${(props) => props.active && `height: 36px;`}
+  ${(props) => props.$active && `height: 36px;`}
 
-  ${(props) => props.stopAnimation && `transition: none;`}
+  ${(props) => props.$stopAnimation && `transition: none;`}
 `;

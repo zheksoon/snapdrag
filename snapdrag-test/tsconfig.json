@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/dashboard-data.ts"],
+  "include": ["src", "src/kanban-dashboard/data.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

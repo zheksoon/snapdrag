@@ -208,9 +208,7 @@ export function useDroppable(config) {
   const childRef = useCallback(
     (element) => {
       if (element) {
-        dropTargetElementRef.current = element;
-
-        dropTargetDestructor.current = dropTarget.listen(element);
+        dropTarget.listen(element);
       }
 
       const ref = originalRef.current;
@@ -227,14 +225,6 @@ export function useDroppable(config) {
   useEffect(() => {
     dropTarget.setConfig(trueConfig);
   }, [trueConfig]);
-
-  useEffect(() => {
-    dropTargetDestructor.current = dropTarget.listen(dropTargetElementRef.current);
-
-    return () => {
-      dropTargetDestructor.current();
-    };
-  }, []);
 
   return {
     droppable(child) {
