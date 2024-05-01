@@ -1,6 +1,6 @@
 {
   "name": "snapdrag",
-  "version": "0.4.10-concept-3",
+  "version": "0.5.1",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
@@ -42,8 +42,8 @@
   },
   "files": [
     "dist",
-    "react/dist",
     "src",
+    "react/dist",
     "react/src",
     "react/package.json",
     "package.json",
