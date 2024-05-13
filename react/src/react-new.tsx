@@ -57,6 +57,13 @@ export function Overlay({ style = {}, className = "" }) {
 export function useDraggable(config: any) {
   const [isDragging, setIsDragging] = useState(false);
 
+  const stateRef = useRef({
+    dragElementSnapshot: null,
+    element: null,
+    elementOffset: { top: 0, left: 0 },
+    original
+  });
+
   const dragElementSnapshotRef = useRef(null);
 
   const elementRef = useRef(null);

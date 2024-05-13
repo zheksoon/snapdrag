@@ -15,18 +15,18 @@
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/snapdrag.js",
       "require": "./dist/snapdrag.cjs",
       "umd": "./dist/snapdrag.umd.js",
-      "browser": "./dist/snapdrag.module.cjs",
-      "types": "./dist/types/index.d.ts"
+      "browser": "./dist/snapdrag.module.cjs"
     },
     "./react": {
+      "types": "./react/dist/types/index.d.ts",
       "import": "./react/dist/index.js",
       "require": "./react/dist/index.cjs",
       "umd": "./react/dist/index.umd.js",
-      "browser": "./react/dist/index.module.cjs",
-      "types": "./react/dist/types/index.d.ts"
+      "browser": "./react/dist/index.module.cjs"
     },
     "./package.json": "./package.json"
   },
