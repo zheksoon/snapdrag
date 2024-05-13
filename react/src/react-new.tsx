@@ -17,6 +17,12 @@ const setDragElementPosition = (position) => {
   });
 };
 
+let mouseConfig = null;
+
+export function setMouseConfig(config) {
+  mouseConfig = config;
+}
+
 export function Overlay({ style = {}, className = "" }) {
   const [dragElement, _setDragElement] = useState(null);
   const [dragElementPosition, _setDragElementPosition] = useState({ top: 0, left: 0 });
@@ -57,78 +63,90 @@ export function Overlay({ style = {}, className = "" }) {
 export function useDraggable(config: any) {
   const [isDragging, setIsDragging] = useState(false);
 
-  const stateRef = useRef({
-    dragElementSnapshot: null,
+  const refs = useRef({
+    dragComponentSnapshot: null,
     element: null,
     elementOffset: { top: 0, left: 0 },
-    original
+    originalRef: null,
+    component: null,
   });
 
-  const dragElementSnapshotRef = useRef(null);
+  refs.current.component = config.component;
 
-  const elementRef = useRef(null);
+  const trueConfig = {
+    disabled: config.disabled,
+    type: config.kind,
+    data: config.data,
+    shouldDrag(props) {
+      const shouldDrag = config.shouldDrag?.({
+        event: props.dragStartEvent,
+        element: props.dragElement,
+      });
+      return shouldDrag;
+    },
+    onDragStart(props) {
+      const { top, left } = refs.current.element.getBoundingClientRect();
 
-  const elementOffsetRef = useRef({ top: 0, left: 0 });
+      refs.current.elementOffset = {
+        top: top - props.dragStartEvent.pageY,
+        left: left - props.dragStartEvent.pageX,
+      };
+      
+      setIsDragging(true);
 
-  const originalRef = useRef(null);
+      config.onDragStart?.({
+        element: props.dragElement,
+        event: props.dragStartEvent,
+        data: props.data,
+      });
+    },
+    onDragMove(props) {
+      const top = refs.current.elementOffset.top + props.event.pageY;
+      const left = refs.current.elementOffset.left + props.event.pageX;
 
-  const trueConfig = useMemo<DragSourceConfig<any>>(
-    () => ({
-      type: config.kind,
-      data: config.data,
-      onDragStart(props) {
-        const { top, left } = elementRef.current.getBoundingClientRect();
+      setDragElementPosition({ top, left });
 
-        elementOffsetRef.current = {
-          top: top - props.dragStartEvent.pageY,
-          left: left - props.dragStartEvent.pageX,
-        };
+      const dropTargets = [...props.dropTargets.values()];
 
-        setIsDragging(true);
+      config.onDragMove?.({ event: props.event, dropTargets, data: props.data, top, left });
+    },
+    onDragEnd(props) {
+      refs.current.dragComponentSnapshot = null;
 
-        config.onDragStart?.({ event: props.dragStartEvent });
-      },
-      onDragMove(props) {
-        const top = elementOffsetRef.current.top + props.event.pageY;
-        const left = elementOffsetRef.current.left + props.event.pageX;
+      setIsDragging(false);
 
-        setDragElementPosition({ top, left });
+      setDragElementPosition({ top: 0, left: 0 });
 
-        config.onDragMove?.({ event: props.event, top, left });
-      },
-      onDragEnd(props) {
-        dragElementSnapshotRef.current = null;
+      setDragElement(null);
 
-        setIsDragging(false);
+      refs.current.elementOffset = { top: 0, left: 0 };
 
-        setDragElementPosition({ top: 0, left: 0 });
+      const dropTargets = [...props.dropTargets.values()];
 
-        setDragElement(null);
-
-        elementOffsetRef.current = { top: 0, left: 0 };
-
-        const dropTargets = [...props.dropTargets.values()];
-
-        config.onDragEnd?.({ event: props.event, dropTargets });
-      },
-    }),
-    [config]
-  );
+      config.onDragEnd?.({
+        event: props.event,
+        data: props.data,
+        dropTargets,
+      });
+    },
+    mouseConfig: config.mouseConfig ?? mouseConfig,
+    plugins: config.plugins,
+  };
 
   const dragSource = useMemo(() => createDragSource(trueConfig), []);
 
-  useEffect(() => {
-    dragSource.setConfig(trueConfig);
-  }, [trueConfig]);
+  dragSource.setConfig(trueConfig);
 
-  const childRef = useCallback((element) => {
+  const componentRef = useCallback((element) => {
+    const current = refs.current;
+
     if (element) {
-      elementRef.current = element;
+      current.element = element;
 
       dragSource.listen(element);
     }
 
-    const ref = originalRef.current;
+    const ref = current.originalRef;
 
     if (typeof ref === "function") {
       ref(element);
@@ -137,36 +155,40 @@ export function useDraggable(config: any) {
     }
   }, []);
 
-  const draggingChildRef = useCallback((element) => {
+  const dragComponentRef = useCallback((element) => {
     if (element) {
       dragSource.listen(element);
     }
   }, []);
 
-  return {
-    draggable(child) {
-      originalRef.current = child.ref;
+  const draggable = useCallback((child) => {
+    const current = refs.current;
 
-      const clone = React.cloneElement(child, { ref: childRef });
+    current.originalRef = child.ref;
 
-      dragElementSnapshotRef.current ??= clone;
+    const clone = React.cloneElement(child, { ref: componentRef });
 
-      if (isDragging) {
-        const component = config.component?.() ?? child;
+    current.dragComponentSnapshot ??= clone;
 
-        const withRef = React.cloneElement(component, { ref: draggingChildRef });
+    if (isDragging) {
+      let dragComponent = current.component?.() ?? child;
 
-        setDragElement(withRef);
+      dragComponent = React.cloneElement(dragComponent, { ref: dragComponentRef });
 
-        if (config.move) {
-          return null;
-        }
+      setDragElement(dragComponent);
 
-        return dragElementSnapshotRef.current;
+      if (config.move) {
+        return null;
       }
 
-      return clone;
-    },
+      return current.dragComponentSnapshot;
+    }
+
+    return clone;
+  }, []);
+
+  return {
+    draggable,
     isDragging,
   };
 }
