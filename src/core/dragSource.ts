@@ -1,5 +1,5 @@
 import { DRAG_SOURCE_ATTRIBUTE, DROP_TARGET_ATTRIBUTE } from "./constants";
-import { disabledDropTargets, registeredDropTargets } from "./dropTarget";
+import { registeredDropTargets } from "./dropTarget";
 import {
   Destructor,
   DragSourceConfig,
@@ -204,14 +204,6 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
       };
 
       if (!this.currentDropTargets.has(dropElement)) {
-        const shouldAccept = dropTarget.config.shouldAccept?.(args) ?? true;
-
-        if (!shouldAccept) {
-          disabledDropTargets.add(dropTarget);
-
-          return;
-        }
-
         dropTarget.config.onDragIn?.(args);
       } else {
         dropTarget.config.onDragMove?.(args);
@@ -304,8 +296,6 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     this.newDropTargets.clear();
     this.currentDropTargets.clear();
     this.currentData = null;
-
-    disabledDropTargets.clear();
 
     this.pluginsSnapshot.forEach((plugin) => {
       plugin.cleanup?.();

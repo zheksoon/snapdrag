@@ -1,10 +1,21 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { partition } from "lodash";
-import { initialTasks } from "./data";
+import { IColumn, IProject, ITask, initialTasks } from "./data";
 
-export const TasksContext = React.createContext({});
+type AddTask = (task: Partial<ITask>) => void;
 
-const updateOrder = (tasks, project, status) => {
+type RemoveTask = (task: ITask) => void;
+
+type UpdateTask = (task: ITask, data: Partial<ITask>) => void;
+
+export const TasksContext = React.createContext({
+  tasks: [] as ITask[],
+  addTask: (() => {}) as AddTask,
+  removeTask: (() => {}) as RemoveTask,
+  updateTask: (() => {}) as UpdateTask,
+});
+
+const updateOrder = (tasks: ITask[], project: IProject["id"], status: IColumn["status"]) => {
   const [projectTasks, otherTasks] = partition(
     tasks,
     (t) => t.project === project && t.status === status
@@ -17,26 +28,26 @@ const updateOrder = (tasks, project, status) => {
   return [...otherTasks, ...orderedTasks];
 };
 
-export const TasksProvider = ({ children }) => {
-  const [tasks, setTasks] = useState(() => {
+export const TasksProvider = ({ children }: { children: React.ReactElement | React.ReactElement[] }) => {
+  const [tasks, setTasks] = useState<ITask[]>(() => {
     const storageTasks = localStorage.getItem("tasks");
 
     return storageTasks ? JSON.parse(storageTasks) : initialTasks;
   });
 
-  const addTask = useCallback((task) => {
+  const addTask = useCallback<AddTask>((task) => {
     setTasks((tasks) => {
-      const newTask = { ...task, id: (Math.random() * 1e16) | 0 };
+      const newTask = { ...task, id: (Math.random() * 1e15) | 0 } as ITask;
 
       return updateOrder([...tasks, newTask], newTask.project, newTask.status);
     });
   }, []);
 
-  const removeTask = useCallback((task) => {
+  const removeTask = useCallback<RemoveTask>((task) => {
     setTasks((tasks) => tasks.filter((_task) => _task.id !== task.id));
   }, []);
 
-  const updateTask = useCallback((task, data) => {
+  const updateTask = useCallback<UpdateTask>((task, data) => {
     setTasks((tasks) => {
       const newTasks = tasks.map((_task) =>
         task.id === _task.id ? { ..._task, ...data } : _task

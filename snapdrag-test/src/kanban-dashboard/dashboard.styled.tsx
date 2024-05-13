@@ -20,7 +20,7 @@ export const Column = styled.div`
 
 export const ColumnHeader = styled.h1``;
 
-export const TaskGroup = styled.div`
+export const TaskGroup = styled.div<{ $hovered: boolean; }>`
   position: relative;
   margin: 16px 0;
   padding: 10px;
@@ -129,7 +129,7 @@ export const TaskTitle = styled.div`
 
 export const TaskWrapper = styled.div.attrs({
   "data-drag-source": "false",
-})`
+})<{ $isDragging: boolean; }>`
   position: relative;
   margin: 10px 0;
 

@@ -5,13 +5,14 @@ import {
   useDroppable,
 } from "../../../react/src/react-new";
 
+import { TasksProvider, useTasks } from "./store";
 import { columns, projects } from "./data";
+import type { ITask, IColumn, IProject } from "./data";
+import * as Styled from "./dashboard.styled";
+
 import "../App.css";
 
-import * as Styled from "./dashboard.styled";
-import { TasksProvider, useTasks } from "./store";
-
-const Task = ({ task }) => {
+const Task = ({ task }: { task: ITask }) => {
   const { updateTask, removeTask } = useTasks();
 
   const [stopAnimation, setStopAnimation] = useState(false);
@@ -40,7 +41,7 @@ const Task = ({ task }) => {
     draggable(
       <Styled.TaskWrapper $isDragging={isDragging}>
         <Styled.TaskDropLine
-          $active={!isDragging && hoveredBy}
+          $active={!isDragging && !!hoveredBy}
           $stopAnimation={stopAnimation}
         />
         <Styled.Task>
@@ -55,8 +56,15 @@ const Task = ({ task }) => {
   );
 };
 
+type NewTaskProps = {
+  status: IColumn["status"];
+  project: IProject["id"];
+  onSubmit: (task: Partial<ITask>) => void;
+  onCancel: () => void;
+};
+
 // new task with input and add button that reacts to Enter and escape
-const NewTask = ({ status, project, onSubmit, onCancel }) => {
+const NewTask = ({ status, project, onSubmit, onCancel }: NewTaskProps) => {
   const [title, setTitle] = useState("");
 
   const handleSubmit = () => {
@@ -84,7 +92,13 @@ const NewTask = ({ status, project, onSubmit, onCancel }) => {
   );
 };
 
-const TaskGroup = ({ status, project, tasks }) => {
+type TaskGroupProps = {
+  status: IColumn["status"];
+  project: IProject;
+  tasks: ITask[];
+};
+
+const TaskGroup = ({ status, project, tasks }: TaskGroupProps) => {
   const { addTask, updateTask } = useTasks();
 
   const { droppable, hoveredBy } = useDroppable({
@@ -104,7 +118,7 @@ const TaskGroup = ({ status, project, tasks }) => {
     setNewTaskVisible(true);
   };
 
-  const submitNewTask = (task) => {
+  const submitNewTask = (task: Partial<ITask>) => {
     addTask({ ...task, order: 1e10 });
     setNewTaskVisible(false);
   };
@@ -120,14 +134,14 @@ const TaskGroup = ({ status, project, tasks }) => {
         <Styled.AddTaskButton onClick={showNewTask}>➕</Styled.AddTaskButton>
       </Styled.TaskGroupHeader>
       {tasks.length > 0 &&
-        tasks.map((task, idx) => <Task key={task.id} task={task} />)}
+        tasks.map((task) => <Task key={task.id} task={task} />)}
       {tasks.length === 0 && !newTaskVisible && (
         <Styled.NoTasksPlaceholder>No tasks</Styled.NoTasksPlaceholder>
       )}
       {newTaskVisible && (
         <NewTask
           status={status}
-          project={project}
+          project={project.id}
           onSubmit={submitNewTask}
           onCancel={cancelNewTask}
         />
@@ -136,7 +150,13 @@ const TaskGroup = ({ status, project, tasks }) => {
   );
 };
 
-const Column = ({ name, status, tasks }) => {
+type ColumnProps = {
+  name: IColumn["name"];
+  status: IColumn["status"];
+  tasks: ITask[];
+};
+
+const Column = ({ name, status, tasks }: ColumnProps) => {
   return (
     <Styled.Column>
       <Styled.ColumnHeader>{name}</Styled.ColumnHeader>

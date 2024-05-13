@@ -1,14 +1,33 @@
-export const columns = [
+export interface ITask {
+  id: number;
+  title: string;
+  project: number;
+  status: string;
+  order: number;
+}
+
+export interface IProject {
+  id: number;
+  title: string;
+}
+
+export interface IColumn {
+  name: string;
+  status: string;
+}
+
+export const columns: IColumn[] = [
   { name: "Todo", status: "todo" },
   { name: "In Progress", status: "in-progress" },
   { name: "Done", status: "done" },
 ];
 
-export const projects = [
+export const projects: IProject[] = [
   { id: 1, title: "Website Redesign" },
   { id: 2, title: "Mobile App Development" },
 ];
-export const initialTasks = [
+
+export const initialTasks: ITask[] = [
   {
     id: 1,
     title: "Implement login functionality",

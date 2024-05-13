@@ -3,8 +3,6 @@ import { Destructor, DragSourceType, DropTargetConfig, IDropTarget } from "./typ
 
 export const registeredDropTargets = new WeakMap<HTMLElement, IDropTarget<any>>();
 
-export const disabledDropTargets = new Set<IDropTarget<any>>();
-
 export class DropTarget<T extends Array<DragSourceType<any>>> implements IDropTarget<T> {
   constructor(public config: DropTargetConfig<T>) {}
 
@@ -29,7 +27,7 @@ export class DropTarget<T extends Array<DragSourceType<any>>> implements IDropTa
   }
 
   get disabled(): boolean {
-    return this.config.disabled || disabledDropTargets.has(this);
+    return this.config.disabled;
   }
 }
 
