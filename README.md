@@ -3,25 +3,87 @@
 </h1>
 
 <p align="center">
-  <b>A simple, lightweight, and performant drag-and-drop library for React and vanilla JS</b>
+  <b>Simplest possible drag-and-drop for React</b>
 </p>
 
-## Introduction
+## What is it?
 
-**Snapdrag** is a simple, lightweight, and performant drag-and-drop library for React and vanilla JS. It's designed to be highly customizable and extensible, while also being easy to use out of the box. Snapdrag is written in pure TypeScript and offers compatibility with various frameworks and libraries.
-
-## Why Snapdrag?
-
-Working with drag-and-drop for sure is not an easy task. Libraries like `react-dnd` are quite bulky and don't offer a lot of flexibility. Snapdrag is my attempt to create a simple, flexible, and intuitive drag-and-drop library, suitable for any framework, or without it.
+**Snapdrag** is a library for drag-and-drop with React in the first place. I was tired of the bulky APIs other libraries offer, so decided to experiment a bit on the ergonomics and simplicity, while maintaining flexibility and customization. It's built on top of `snapdrag/core`, the universal building block for any framework, even vanilla JS.
 
 ## Key Features
 
-- **Extendable:** Simple core API that can be extended to support any drag-and-drop use case
-- **High Performance:** Handle thousands of drag sources and drop targets with a minimal performance impact
-- **Rich Event System:** Fine control over drag-and-drop interactions
-- **Plugins:** Supports [plugins](#plugins) to extend the core functionality, with the default [auto scroll plugin](#auto-scroll-plugin) out of the box
-- **Optional React Bindings:** Provides optional [React bindings](#react-bindings)
-- **Lightweight:** Less than 5KB gzipped without minification
+- **Dead** simple - two hooks to go
+- **Super** ergonomics - no need for memoizing callbacks or config
+- **Full** customization - rich event system
+- **Two-way** data exchange for draggable and droppable
+- **Multiple** droppable - do your logic of multilayer interactions
+- **No HTML5** features used - for good and for bad
+
+## Show me the code!
+
+```ts
+import { Overlay, useDraggable, useDroppable } from "snapdrag";
+
+const DraggableSquare = ({ color }: { color: string; }) => {
+  const { draggable, isDragging } = useDraggable({
+    kind: "SQUARE",
+    data: { color },
+    move: true,
+  });
+
+  const opacity = isDragging ? 0.5 : 1;
+
+  return draggable(
+    <div className="square" style={{ backgroundColor: color, opacity }}>
+      {isDragging ? "Dragging" : "Drag me"}
+    </div>
+  );
+};
+
+const DroppableSquare = ({ color }: { color: string; }) => {
+  const [text, setText] = React.useState("Drop here");
+
+  const { droppable, hovered } = useDroppable({
+    accepts: "SQUARE",
+    onDrop({ data }) {
+      setText(`Dropped ${data.color}`);
+    },
+  });
+
+  const backgroundColor = hovered ? hovered.data.color : color;
+
+  return droppable(
+    <div className="square" style={{ backgroundColor }}>
+      {text}
+    </div>
+  );
+};
+```
+
+<details>
+<summary><b>App.ts</b></summary>
+
+```ts
+export default function App() {
+  return (
+    <>
+      {/* Render squares with absolute wrappers for positioning */}
+      <div style={{ position: "relative" }}>
+        <div style={{ position: "absolute", top: 100, left: 100 }}>
+          <DraggableSquare color="red" />
+        </div>
+        <div style={{ position: "absolute", top: 100, left: 300 }}>
+          <DroppableSquare color="green" />
+        </div>
+      </div>
+      {/* Render overlay to show the dragged component */}
+      <Overlay />
+    </>
+  );
+}
+```
+
+</details>
 
 ## Installation
 

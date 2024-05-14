@@ -255,8 +255,14 @@ export type DroppableConfig = {
   onDrop?: (props: { kind: string; data: any; dropTargets: IDropTarget<any>[] }) => void;
 };
 
+type HoveredData = {
+  kind: Kind,
+  data: any,
+  element: HTMLElement,
+}
+
 export function useDroppable(config: DroppableConfig) {
-  const [hoveredBy, setHoveredBy] = useState(null);
+  const [hovered, setHovered] = useState<HoveredData | null>(null);
 
   let { accepts } = config;
 
@@ -266,12 +272,12 @@ export function useDroppable(config: DroppableConfig) {
     sourceTypes: trueAccepts as unknown as DragSourceType<any>[],
     data: config.data,
     onDragIn(props) {
-      setHoveredBy({ kind: props.sourceType, data: props.sourceData });
+      setHovered({ kind: props.sourceType, data: props.sourceData, element: props.dragElement });
 
       config.onDragIn?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
     },
     onDragOut(props) {
-      setHoveredBy(null);
+      setHovered(null);
 
       config.onDragOut?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
     },
@@ -279,7 +285,7 @@ export function useDroppable(config: DroppableConfig) {
       config.onDragMove?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
     },
     onDrop(props) {
-      setHoveredBy(null);
+      setHovered(null);
 
       config.onDrop?.({
         kind: props.sourceType,
@@ -321,6 +327,6 @@ export function useDroppable(config: DroppableConfig) {
 
   return {
     droppable,
-    hoveredBy,
+    hovered,
   };
 }

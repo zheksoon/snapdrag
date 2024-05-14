@@ -23,11 +23,10 @@ const Task = ({ task }: { task: ITask }) => {
     move: true,
   });
 
-  const { droppable, hoveredBy } = useDroppable({
+  const { droppable, hovered } = useDroppable({
     accepts: ({ kind, data }) =>
       kind === "TASK" && data.task.project === task.project,
     onDrop({ data }) {
-      console.log("drop task");
       setStopAnimation(true);
       updateTask(data.task, { status: task.status, order: task.order - 0.5 });
 
@@ -41,7 +40,7 @@ const Task = ({ task }: { task: ITask }) => {
     draggable(
       <Styled.TaskWrapper $isDragging={isDragging}>
         <Styled.TaskDropLine
-          $active={!isDragging && !!hoveredBy}
+          $active={!isDragging && !!hovered}
           $stopAnimation={stopAnimation}
         />
         <Styled.Task>
@@ -101,7 +100,7 @@ type TaskGroupProps = {
 const TaskGroup = ({ status, project, tasks }: TaskGroupProps) => {
   const { addTask, updateTask } = useTasks();
 
-  const { droppable, hoveredBy } = useDroppable({
+  const { droppable, hovered } = useDroppable({
     accepts: ({ kind, data }) =>
       kind === "TASK" && data.task.project === project.id,
     onDrop({ data, dropTargets }) {
@@ -128,7 +127,7 @@ const TaskGroup = ({ status, project, tasks }: TaskGroupProps) => {
   };
 
   return droppable(
-    <Styled.TaskGroup $hovered={!!hoveredBy}>
+    <Styled.TaskGroup $hovered={!!hovered}>
       <Styled.TaskGroupHeader>
         <Styled.TaskGroupTitle>{project.title}</Styled.TaskGroupTitle>
         <Styled.AddTaskButton onClick={showNewTask}>➕</Styled.AddTaskButton>

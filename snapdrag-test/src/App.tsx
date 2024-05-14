@@ -7,18 +7,14 @@ const DraggableSquare = ({ color }) => {
   const { draggable, isDragging } = useDraggable({
     kind: "SQUARE",
     data: { color },
-    move: false,
+    move: true,
   });
 
   const opacity = isDragging ? 0.5 : 1;
 
-  return (
-    <div className="drag">
-      {draggable(
-        <div className="square" style={{ backgroundColor: color, opacity }}>
-          {isDragging ? "Dragging" : "Drag me"}
-        </div>
-      )}
+  return draggable(
+    <div className="square" style={{ backgroundColor: color, opacity }}>
+      {isDragging ? "Dragging" : "Drag me"}
     </div>
   );
 };
@@ -26,17 +22,17 @@ const DraggableSquare = ({ color }) => {
 const DroppableSquare = ({ color }) => {
   const [text, setText] = React.useState("Drop here");
 
-  const { droppable, hoveredBy } = useDroppable({
-    accepts: ["SQUARE"],
-    onDrop() {
-      setText("Dropped");
+  const { droppable, hovered } = useDroppable({
+    accepts: "SQUARE",
+    onDrop({ data }) {
+      setText(`Dropped ${data.color}`);
     },
   });
 
-  const backgroundColor = hoveredBy ? hoveredBy.data.color : color;
+  const backgroundColor = hovered ? hovered.data.color : color;
 
   return droppable(
-    <div className="square drop" style={{ backgroundColor }}>
+    <div className="square" style={{ backgroundColor }}>
       {text}
     </div>
   );
@@ -46,8 +42,12 @@ export default function App() {
   return (
     <>
       <div style={{ position: "relative" }}>
-        <DraggableSquare color="red" />
-        <DroppableSquare color="green" />
+        <div style={{ position: "absolute", top: 100, left: 100 }}>
+          <DraggableSquare color="red" />
+        </div>
+        <div style={{ position: "absolute", top: 100, left: 300 }}>
+          <DroppableSquare color="green" />
+        </div>
       </div>
       <Overlay />
     </>
