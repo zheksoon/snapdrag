@@ -14,9 +14,11 @@
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "snapdrag-beta": "^0.7.2",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",

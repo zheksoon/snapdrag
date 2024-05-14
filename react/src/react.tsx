@@ -1,120 +1,336 @@
-import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useRef, useState, useMemo, useCallback, useEffect } from "react";
+
 import {
   DragSourceConfig,
   DragSourceType,
+  DragStarHandlerArgs,
   DropTargetConfig,
+  IDropTarget,
+  MouseConfig,
   createDragSource,
   createDropTarget,
-} from "snapdrag";
+} from "../../core";
 
-type DragSourceProps = PropsWithChildren<{
-  config: DragSourceConfig<any>;
-}>;
+let setDragElementFn: ((element: React.ReactElement | null) => void) | null = null;
+let setDragElementPositionFn: ((position: { top: number; left: number; }) => void) | null = null;
 
-type DropTargetProps = PropsWithChildren<{
-  config: DropTargetConfig<any>;
-}>;
+const setDragElement = (element: React.ReactElement | null) => {
+  Promise.resolve().then(() => {
+    setDragElementFn?.(element);
+  });
+};
 
-export const WithDragSource = React.forwardRef(function DragSource(
-  props: DragSourceProps,
-  componentRef: any
-) {
-  const { children, config } = props;
+const setDragElementPosition = (position: { top: number; left: number; }) => {
+  Promise.resolve().then(() => {
+    setDragElementPositionFn?.(position);
+  });
+};
 
-  const child = React.Children.only(children) as any;
+let mouseConfig: MouseConfig | null = null;
 
-  const originalRef = child.ref;
+export function setMouseConfig(config: MouseConfig) {
+  mouseConfig = config;
+}
 
-  const dragSource = useMemo(() => createDragSource(config), []);
-
-  const dragSourceDestructor = useRef<(() => void) | null>(null);
-
-  useEffect(() => {
-    dragSource.setConfig(config);
-  }, [config]);
-
-  const childRef = useCallback(
-    (element: HTMLElement) => {
-      if (dragSourceDestructor.current) {
-        dragSourceDestructor.current();
-      }
-
-      if (element) {
-        dragSourceDestructor.current = dragSource.listen(element);
-      }
-
-      if (typeof originalRef === "function") {
-        originalRef(element);
-      } else if (originalRef && originalRef.hasOwnProperty("current")) {
-        originalRef.current = element;
-      }
-
-      if (typeof componentRef === "function") {
-        componentRef(element);
-      } else if (componentRef && componentRef.hasOwnProperty("current")) {
-        componentRef.current = element;
-      }
-    },
-    [originalRef]
-  );
-
-  return React.cloneElement(child, { ref: childRef });
-});
-
-export const WithDropTarget = React.forwardRef(function DropTarget(
-  props: DropTargetProps,
-  componentRef: any
-) {
-  const { children, config } = props;
-
-  const child = React.Children.only(children) as any;
-
-  const originalRef = child.ref;
-
-  const dropTarget = useMemo(() => createDropTarget(config), []);
-
-  const dropTargetDestructor = useRef<(() => void) | null>(null);
+export function Overlay({ style = {}, className = "" }) {
+  const [dragElement, _setDragElement] = useState<React.ReactElement | null>(null);
+  const [dragElementPosition, _setDragElementPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
-    dropTarget.setConfig(config);
-  }, [config]);
+    setDragElementFn = _setDragElement;
+    setDragElementPositionFn = _setDragElementPosition;
 
-  const childRef = useCallback(
-    (element: HTMLElement) => {
-      if (dropTargetDestructor.current) {
-        dropTargetDestructor.current();
-      }
+    return () => {
+      setDragElementFn = null;
+      setDragElementPositionFn = null;
+    };
+  }, []);
+
+  const { top, left } = dragElementPosition;
+
+  const dragWrapperStyle = {
+    position: "relative" as const,
+    transform: `translateX(${left}px) translateY(${top}px)`,
+  };
+
+  const dragOverlayStyle = {
+    position: "fixed" as const,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    ...style,
+  };
+
+  return dragElement ? (
+    <div style={dragOverlayStyle} className={className}>
+      <div style={dragWrapperStyle}>{dragElement}</div>
+    </div>
+  ) : null;
+}
+
+type Kind = string | symbol;
+
+type DraggableConfig = {
+  component?: () => React.ReactElement;
+  kind: Kind;
+  data: any;
+  shouldDrag?: (args: { event: MouseEvent; element: HTMLElement }) => boolean;
+  onDragStart?: (args: { event: MouseEvent; element: HTMLElement; data: any }) => void;
+  onDragMove?: (args: {
+    event: MouseEvent;
+    dropTargets: IDropTarget<any>[];
+    data: any;
+    top: number;
+    left: number;
+  }) => void;
+  onDragEnd?: (args: { event: MouseEvent; data: any; dropTargets: IDropTarget<any>[] }) => void;
+  move?: boolean;
+  disabled?: boolean;
+  mouseConfig?: any;
+  plugins?: any;
+};
+
+export function useDraggable(config: DraggableConfig) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const refs = useRef({
+    dragComponentSnapshot: null as React.ReactElement | null,
+    element: null as HTMLElement | null,
+    elementOffset: { top: 0, left: 0 },
+    originalRef: null as any,
+    component: null as any,
+    isDragging: false,
+  });
+
+  refs.current.component = config.component;
+
+  const shouldDrag = (props: DragStarHandlerArgs) => {
+    const shouldDrag = config.shouldDrag?.({
+      event: props.dragStartEvent,
+      element: props.dragElement,
+    });
+    return shouldDrag ?? true;
+  };
+
+  const trueConfig: DragSourceConfig<any> = {
+    disabled: config.disabled,
+    type: config.kind,
+    data: config.data,
+    shouldDrag: config.shouldDrag && shouldDrag,
+    onDragStart(props) {
+      const current = refs.current;
+
+      const { top, left } = current.element!.getBoundingClientRect();
+
+      current.elementOffset = {
+        top: top - props.dragStartEvent.pageY,
+        left: left - props.dragStartEvent.pageX,
+      };
+
+      current.isDragging = true;
+
+      setIsDragging(true);
+
+      config.onDragStart?.({
+        element: props.dragElement,
+        event: props.dragStartEvent,
+        data: props.data,
+      });
+    },
+    onDragMove(props) {
+      const top = refs.current.elementOffset.top + props.event.pageY;
+      const left = refs.current.elementOffset.left + props.event.pageX;
+
+      setDragElementPosition({ top, left });
+
+      const dropTargets = [...props.dropTargets.values()];
+
+      config.onDragMove?.({ event: props.event, dropTargets, data: props.data, top, left });
+    },
+    onDragEnd(props) {
+      const current = refs.current;
+
+      current.dragComponentSnapshot = null;
+
+      current.isDragging = false;
+
+      current.elementOffset = { top: 0, left: 0 };
+
+      setIsDragging(false);
+
+      setDragElementPosition({ top: 0, left: 0 });
+
+      setDragElement(null);
+
+      const dropTargets = [...props.dropTargets.values()];
+
+      config.onDragEnd?.({
+        event: props.event,
+        data: props.data,
+        dropTargets,
+      });
+    },
+    mouseConfig: config.mouseConfig ?? mouseConfig,
+    plugins: config.plugins,
+  };
+
+  const dragSource = useMemo(() => createDragSource(trueConfig), []);
+
+  dragSource.setConfig(trueConfig);
+
+  const componentRef = useCallback(
+    (element: HTMLElement | null) => {
+      const current = refs.current;
 
       if (element) {
-        dropTargetDestructor.current = dropTarget.listen(element);
+        current.element = element;
+
+        dragSource.listen(element);
       }
 
-      if (typeof originalRef === "function") {
-        originalRef(element);
-      } else if (originalRef && originalRef.hasOwnProperty("current")) {
-        originalRef.current = element;
-      }
+      const ref = current.originalRef;
 
-      if (typeof componentRef === "function") {
-        componentRef(element);
-      } else if (componentRef && componentRef.hasOwnProperty("current")) {
-        componentRef.current = element;
+      if (typeof ref === "function") {
+        ref(element);
+      } else if (ref && ref.hasOwnProperty("current")) {
+        ref.current = element;
       }
     },
-    [originalRef]
+    [dragSource]
   );
 
-  return React.cloneElement(child, { ref: childRef });
-});
+  const dragComponentRef = useCallback(
+    (element: HTMLElement | null) => {
+      if (element) {
+        dragSource.listen(element);
+      }
+    },
+    [dragSource]
+  );
 
-export function useDragSource<T extends DragSourceType<any>>(config: DragSourceConfig<T>) {
-  return (component: React.ReactElement) => {
-    return <WithDragSource config={config}>{component}</WithDragSource>;
+  const draggable = useCallback(
+    (child: React.ReactElement) => {
+      if (!child) {
+        return null;
+      }
+
+      const current = refs.current;
+
+      // @ts-ignore
+      current.originalRef = child.ref;
+
+      const clone = React.cloneElement(child, { ref: componentRef });
+
+      current.dragComponentSnapshot ??= clone;
+
+      if (current.isDragging) {
+        let dragComponent = current.component?.() ?? child;
+
+        dragComponent = React.cloneElement(dragComponent, { ref: dragComponentRef });
+
+        setDragElement(dragComponent);
+
+        if (config.move) {
+          return null;
+        }
+
+        return current.dragComponentSnapshot;
+      }
+
+      return clone;
+    },
+    [componentRef, dragComponentRef]
+  );
+
+  return {
+    draggable,
+    isDragging,
   };
 }
 
-export function useDropTarget<T extends Array<DragSourceType<any>>>(config: DropTargetConfig<T>) {
-  return (component: React.ReactElement) => {
-    return <WithDropTarget config={config}>{component}</WithDropTarget>;
+export type DroppableConfig = {
+  accepts: Kind | Kind[] | ((props: { kind: string; data: any }) => boolean);
+  data?: any;
+  onDragIn?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDragOut?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDragMove?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDrop?: (props: { kind: string; data: any; dropTargets: IDropTarget<any>[] }) => void;
+};
+
+type HoveredData = {
+  kind: Kind,
+  data: any,
+  element: HTMLElement,
+}
+
+export function useDroppable(config: DroppableConfig) {
+  const [hovered, setHovered] = useState<HoveredData | null>(null);
+
+  let { accepts } = config;
+
+  const trueAccepts = Array.isArray(accepts) || typeof accepts === "function" ? accepts : [accepts];
+
+  const trueConfig: DropTargetConfig<any> = {
+    sourceTypes: trueAccepts as unknown as DragSourceType<any>[],
+    data: config.data,
+    onDragIn(props) {
+      setHovered({ kind: props.sourceType, data: props.sourceData, element: props.dragElement });
+
+      config.onDragIn?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
+    },
+    onDragOut(props) {
+      setHovered(null);
+
+      config.onDragOut?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
+    },
+    onDragMove(props) {
+      config.onDragMove?.({ kind: props.sourceType, data: props.sourceData, event: props.event });
+    },
+    onDrop(props) {
+      setHovered(null);
+
+      config.onDrop?.({
+        kind: props.sourceType,
+        data: props.sourceData,
+        dropTargets: [...props.dropTargets.values()],
+      });
+    },
+  };
+
+  const dropTarget = useMemo(() => createDropTarget(trueConfig), []);
+
+  dropTarget.setConfig(trueConfig);
+
+  const originalRef = useRef(null as any);
+
+  const dropComponentRef = useCallback((element: HTMLElement | null) => {
+    if (element) {
+      dropTarget.listen(element);
+    }
+
+    const ref = originalRef.current;
+
+    if (typeof ref === "function") {
+      ref(element);
+    } else if (ref && ref.hasOwnProperty("current")) {
+      ref.current = element;
+    }
+  }, []);
+
+  const droppable = useCallback((child: React.ReactElement | null) => {
+    if (!child) {
+      return null;
+    }
+
+    // @ts-ignore
+    originalRef.current = child.ref;
+
+    return React.cloneElement(child, { ref: dropComponentRef });
+  }, []);
+
+  return {
+    droppable,
+    hovered,
   };
 }

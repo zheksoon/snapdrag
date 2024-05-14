@@ -1,4 +1,4 @@
-import { PluginType } from "../core/types";
+import { PluginType } from "../core/src/types";
 
 type AxisConfig = {
   threshold?: number;

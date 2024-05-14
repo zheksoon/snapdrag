@@ -1,9 +1,9 @@
 import "./styles.css";
 
 import React, { useState, useEffect } from "react";
-import { Overlay, useDraggable, useDroppable } from "../../react/src/react-new";
+import { Overlay, useDraggable, useDroppable } from "../../react/src/react";
 
-const DraggableSquare = ({ color }) => {
+const DraggableSquare = ({ color }: { color: string; }) => {
   const { draggable, isDragging } = useDraggable({
     kind: "SQUARE",
     data: { color },
@@ -19,7 +19,7 @@ const DraggableSquare = ({ color }) => {
   );
 };
 
-const DroppableSquare = ({ color }) => {
+const DroppableSquare = ({ color }: { color: string; }) => {
   const [text, setText] = React.useState("Drop here");
 
   const { droppable, hovered } = useDroppable({

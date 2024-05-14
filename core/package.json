@@ -1,5 +1,5 @@
 {
-  "name": "@snapdrag/react",
+  "name": "@snapdrag/core",
   "type": "module",
   "version": "1.0.0",
   "source": "src/index.ts",
@@ -20,15 +20,8 @@
       }
     }
   },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "../../core": "npm:../core@*"
-  },
-  "devDependencies": {
-    "@types/react": ">=16.8.0"
-  },
   "scripts": {
-    "build": "rm -rf ./dist && microbundle --jsx React.createElement"
+    "build": "rm -rf ./dist && microbundle"
   },
   "author": "Eugene Daragan",
   "license": "MIT"

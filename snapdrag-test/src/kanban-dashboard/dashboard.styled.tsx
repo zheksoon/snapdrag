@@ -128,6 +128,7 @@ export const TaskTitle = styled.div`
 `;
 
 export const TaskWrapper = styled.div.attrs({
+  // @ts-expect-error
   "data-drag-source": "false",
 })<{ $isDragging: boolean; }>`
   position: relative;
@@ -137,6 +138,7 @@ export const TaskWrapper = styled.div.attrs({
 `;
 
 export const DragHandle = styled.div.attrs({
+  // @ts-expect-error
   "data-drag-source": "true",
 })`
   cursor: move;

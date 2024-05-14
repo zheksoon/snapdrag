@@ -100,7 +100,11 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
       data: this.currentData!,
     };
 
-    const shouldProceed = shouldDrag?.(dragStartArgs) ?? true;
+    let shouldProceed = true;
+
+    if (shouldDrag) {
+      shouldProceed = shouldDrag(dragStartArgs);
+    }
 
     if (!shouldProceed) {
       this.cleanup();

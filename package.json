@@ -1,50 +1,50 @@
 {
-  "name": "snapdrag",
-  "version": "0.6.0",
+  "name": "snapdrag-beta",
+  "version": "0.7.2",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zheksoon/snapdrag.git"
   },
   "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/snapdrag.cjs",
-  "umd:main": "./dist/snapdrag.umd.js",
-  "module": "dist/snapdrag.module.js",
-  "unpkg": "dist/snapdrag.umd.js",
-  "types": "dist/types/index.d.ts",
+  "main": "./react/dist/index.cjs",
+  "module": "./react/dist/index.js",
+  "umd:main": "./react/dist/index.umd.js",
+  "unpkg": "./react/dist/index.umd.js",
+  "types": "./react/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/snapdrag.js",
-      "require": "./dist/snapdrag.cjs",
-      "umd": "./dist/snapdrag.umd.js",
-      "browser": "./dist/snapdrag.module.cjs"
+      "import": {
+        "types": "./react/dist/types/index.d.ts",
+        "default": "./react/dist/index.js"
+      },
+      "require": {
+        "types": "./react/dist/types/index.d.cts",
+        "default": "./react/dist/index.cjs"
+      }
     },
-    "./react": {
-      "types": "./react/dist/types/index.d.ts",
-      "import": "./react/dist/index.js",
-      "require": "./react/dist/index.cjs",
-      "umd": "./react/dist/index.umd.js",
-      "browser": "./react/dist/index.module.cjs"
-    },
-    "./package.json": "./package.json"
+    "./core": {
+      "import": {
+        "types": "./core/dist/types/index.d.ts",
+        "default": "./core/dist/index.js"
+      },
+      "require": {
+        "types": "./core/dist/types/index.d.cts",
+        "default": "./core/dist/index.cjs"
+      }
+    }
   },
   "scripts": {
-    "build": "yarn build:snapdrag && yarn build:react",
-    "build:snapdrag": "microbundle --no-compress",
-    "build:react": "cd react/ && microbundle --no-compress --jsx React.createElement --external 'snapdrag'",
-    "start": "microbundle watch"
-  },
-  "devDependencies": {
-    "microbundle": "^0.15.1",
-    "typescript": "^5.0.4"
+    "build": "yarn build:core && yarn build:react",
+    "build:core": "cd ./core && yarn build",
+    "build:react": "cd ./react && yarn build"
   },
   "files": [
-    "dist",
-    "src",
-    "react/dist",
-    "react/src",
+    "core/dist/**/*",
+    "core/src/**/*",
+    "core/package.json",
+    "react/dist/**/*",
+    "react/src/**/*",
     "react/package.json",
     "package.json",
     "README.md",
@@ -63,5 +63,8 @@
   "author": {
     "name": "Eugene Daragan"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "microbundle": "^0.15.1"
+  }
 }

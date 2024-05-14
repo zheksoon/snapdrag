@@ -3,7 +3,7 @@ import {
   Overlay,
   useDraggable,
   useDroppable,
-} from "../../../react/src/react-new";
+} from "snapdrag-beta"
 
 import { TasksProvider, useTasks } from "./store";
 import { columns, projects } from "./data";

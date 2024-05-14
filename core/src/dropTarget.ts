@@ -27,7 +27,7 @@ export class DropTarget<T extends Array<DragSourceType<any>>> implements IDropTa
   }
 
   get disabled(): boolean {
-    return this.config.disabled;
+    return !!this.config.disabled;
   }
 }
 
