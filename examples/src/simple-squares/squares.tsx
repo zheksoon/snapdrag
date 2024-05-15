@@ -1,7 +1,7 @@
-import "./styles.css";
+import { useState } from "react";
+import { Overlay, useDraggable, useDroppable } from "snapdrag-beta";
 
-import React, { useState, useEffect } from "react";
-import { Overlay, useDraggable, useDroppable } from "../../react/src/react";
+import "./styles.css";
 
 const DraggableSquare = ({ color }: { color: string; }) => {
   const { draggable, isDragging } = useDraggable({
@@ -20,7 +20,7 @@ const DraggableSquare = ({ color }: { color: string; }) => {
 };
 
 const DroppableSquare = ({ color }: { color: string; }) => {
-  const [text, setText] = React.useState("Drop here");
+  const [text, setText] = useState("Drop here");
 
   const { droppable, hovered } = useDroppable({
     accepts: "SQUARE",

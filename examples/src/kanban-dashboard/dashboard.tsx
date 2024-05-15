@@ -1,16 +1,9 @@
 import { useState } from "react";
-import {
-  Overlay,
-  useDraggable,
-  useDroppable,
-} from "snapdrag-beta"
-
+import { Overlay, useDraggable, useDroppable } from "snapdrag-beta";
 import { TasksProvider, useTasks } from "./store";
 import { columns, projects } from "./data";
 import type { ITask, IColumn, IProject } from "./data";
-import * as Styled from "./dashboard.styled";
-
-import "../App.css";
+import * as Styled from "./styled";
 
 const Task = ({ task }: { task: ITask }) => {
   const { updateTask, removeTask } = useTasks();
