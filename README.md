@@ -189,7 +189,7 @@ const { useDraggable, isDragging } = useDraggable({
   // should react to drag interactions. It's executed once on drag start
   shouldDrag: ({ event, element }) => {
     // event: pointerdown DOM event
-    // element: the element on which the drag interaction occured
+    // element: the element on which the drag interaction occurs
     // Must return `true` or `false`
     return true;
   },
@@ -236,7 +236,7 @@ The `isDragging` prop from the hook is just a sugar over manually changing a sta
 
 ### `useDroppable`
 
-Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`:
+Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
 
 ```tsx
 export const DroppableSquare = ({ color }: { color: string }) => {
@@ -254,6 +254,8 @@ export const DroppableSquare = ({ color }: { color: string }) => {
 ```
 
 When the droppable is hovered by the corresponding draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
+
+### `useDroppable` config
 
 
 

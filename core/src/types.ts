@@ -77,7 +77,7 @@ export type DropHandler<T extends Array<DragSourceType<any>>> = (
 
 export type DropTargetConfig<T extends Array<DragSourceType<any>>> = {
   disabled?: boolean;
-  sourceTypes: T;
+  accepts: T;
   data?: any;
   shouldAccept?: (args: DropHandlerArgs<T>) => boolean;
   onDragIn?: DropHandler<T>;

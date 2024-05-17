@@ -5,6 +5,7 @@ import {
   DragSourceType,
   DragStarHandlerArgs,
   DropTargetConfig,
+  DropTargetsMap,
   IDropTarget,
   MouseConfig,
   createDragSource,
@@ -12,7 +13,7 @@ import {
 } from "../../core";
 
 let setDragElementFn: ((element: React.ReactElement | null) => void) | null = null;
-let setDragElementPositionFn: ((position: { top: number; left: number; }) => void) | null = null;
+let setDragElementPositionFn: ((position: { top: number; left: number }) => void) | null = null;
 
 const setDragElement = (element: React.ReactElement | null) => {
   Promise.resolve().then(() => {
@@ -20,7 +21,7 @@ const setDragElement = (element: React.ReactElement | null) => {
   });
 };
 
-const setDragElementPosition = (position: { top: number; left: number; }) => {
+const setDragElementPosition = (position: { top: number; left: number }) => {
   Promise.resolve().then(() => {
     setDragElementPositionFn?.(position);
   });
@@ -71,25 +72,54 @@ export function Overlay({ style = {}, className = "" }) {
 
 type Kind = string | symbol;
 
+type DropTargetData = {
+  data: any;
+  element: HTMLElement;
+};
+
 type DraggableConfig = {
   component?: () => React.ReactElement;
   kind: Kind;
   data: any;
   shouldDrag?: (args: { event: MouseEvent; element: HTMLElement }) => boolean;
-  onDragStart?: (args: { event: MouseEvent; element: HTMLElement; data: any }) => void;
+  onDragStart?: (args: {
+    event: MouseEvent;
+    dragStartEvent: MouseEvent;
+    element: HTMLElement;
+    data: any;
+  }) => void;
   onDragMove?: (args: {
     event: MouseEvent;
-    dropTargets: IDropTarget<any>[];
+    dragStartEvent: MouseEvent;
+    dropTargets: DropTargetData[];
     data: any;
     top: number;
     left: number;
   }) => void;
-  onDragEnd?: (args: { event: MouseEvent; data: any; dropTargets: IDropTarget<any>[] }) => void;
+  onDragEnd?: (args: {
+    event: MouseEvent;
+    dragStartEvent: MouseEvent;
+    data: any;
+    dropTargets: DropTargetData[];
+  }) => void;
   move?: boolean;
   disabled?: boolean;
   mouseConfig?: any;
   plugins?: any;
 };
+
+function getDropTargets(dropTargets: DropTargetsMap) {
+  const result = [] as Array<{ data: any; element: HTMLElement }>;
+
+  dropTargets.forEach((target, element) => {
+    result.push({
+      data: target.data,
+      element,
+    });
+  });
+
+  return result;
+}
 
 export function useDraggable(config: DraggableConfig) {
   const [isDragging, setIsDragging] = useState(false);
@@ -107,6 +137,7 @@ export function useDraggable(config: DraggableConfig) {
 
   const shouldDrag = (props: DragStarHandlerArgs) => {
     const shouldDrag = config.shouldDrag?.({
+      // TODO: change semantics and add dragStartEvent
       event: props.dragStartEvent,
       element: props.dragElement,
     });
@@ -135,6 +166,7 @@ export function useDraggable(config: DraggableConfig) {
       config.onDragStart?.({
         element: props.dragElement,
         event: props.dragStartEvent,
+        dragStartEvent: props.dragStartEvent,
         data: props.data,
       });
     },
@@ -144,9 +176,16 @@ export function useDraggable(config: DraggableConfig) {
 
       setDragElementPosition({ top, left });
 
-      const dropTargets = [...props.dropTargets.values()];
+      const dropTargets = getDropTargets(props.dropTargets);
 
-      config.onDragMove?.({ event: props.event, dropTargets, data: props.data, top, left });
+      config.onDragMove?.({
+        event: props.event,
+        dragStartEvent: props.dragStartEvent,
+        dropTargets,
+        data: props.data,
+        top,
+        left,
+      });
     },
     onDragEnd(props) {
       const current = refs.current;
@@ -163,10 +202,11 @@ export function useDraggable(config: DraggableConfig) {
 
       setDragElement(null);
 
-      const dropTargets = [...props.dropTargets.values()];
+      const dropTargets = getDropTargets(props.dropTargets);
 
       config.onDragEnd?.({
         event: props.event,
+        dragStartEvent: props.dragStartEvent,
         data: props.data,
         dropTargets,
       });
@@ -259,10 +299,10 @@ export type DroppableConfig = {
 };
 
 type HoveredData = {
-  kind: Kind,
-  data: any,
-  element: HTMLElement,
-}
+  kind: Kind;
+  data: any;
+  element: HTMLElement;
+};
 
 export function useDroppable(config: DroppableConfig) {
   const [hovered, setHovered] = useState<HoveredData | null>(null);
@@ -272,7 +312,7 @@ export function useDroppable(config: DroppableConfig) {
   const trueAccepts = Array.isArray(accepts) || typeof accepts === "function" ? accepts : [accepts];
 
   const trueConfig: DropTargetConfig<any> = {
-    sourceTypes: trueAccepts as unknown as DragSourceType<any>[],
+    accepts: trueAccepts as unknown as DragSourceType<any>[],
     data: config.data,
     onDragIn(props) {
       setHovered({ kind: props.sourceType, data: props.sourceData, element: props.dragElement });
