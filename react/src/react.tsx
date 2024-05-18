@@ -81,7 +81,12 @@ type DraggableConfig = {
   component?: () => React.ReactElement;
   kind: Kind;
   data: any;
-  shouldDrag?: (args: { event: MouseEvent; element: HTMLElement }) => boolean;
+  shouldDrag?: (args: {
+    event: MouseEvent;
+    dragStartEvent: MouseEvent;
+    element: HTMLElement;
+    data: any;
+  }) => boolean;
   onDragStart?: (args: {
     event: MouseEvent;
     dragStartEvent: MouseEvent;
@@ -137,10 +142,12 @@ export function useDraggable(config: DraggableConfig) {
 
   const shouldDrag = (props: DragStarHandlerArgs) => {
     const shouldDrag = config.shouldDrag?.({
-      // TODO: change semantics and add dragStartEvent
-      event: props.dragStartEvent,
+      event: props.event,
+      dragStartEvent: props.dragStartEvent,
       element: props.dragElement,
+      data: props.data,
     });
+
     return shouldDrag ?? true;
   };
 
@@ -171,8 +178,10 @@ export function useDraggable(config: DraggableConfig) {
       });
     },
     onDragMove(props) {
-      const top = refs.current.elementOffset.top + props.event.pageY;
-      const left = refs.current.elementOffset.left + props.event.pageX;
+      const { elementOffset } = refs.current;
+
+      const top = elementOffset.top + props.event.pageY;
+      const left = elementOffset.left + props.event.pageX;
 
       setDragElementPosition({ top, left });
 

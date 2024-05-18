@@ -75,32 +75,20 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     return dropTargets;
   }
 
-  private handleDragStart() {
+  private handleDragStart(event: MouseEvent) {
     const { shouldDrag, onDragStart, data } = this.config;
 
     const dragElement = this.dragElement!;
     const dragStartEvent = this.dragStartEvent!;
 
-    this.currentData =
-      typeof data === "function"
-        ? (data as DragSourceDataFactory<T>)({ dragElement, dragStartEvent })
-        : data;
-
     const dragStartArgs: DragStarHandlerArgs<T> = {
+      event,
       dragElement,
       dragStartEvent,
       data: this.currentData!,
     };
 
-    let shouldProceed = true;
-
-    if (shouldDrag) {
-      shouldProceed = shouldDrag(dragStartArgs);
-    }
-
-    if (!shouldProceed) {
-      this.cleanup();
-
+    if (shouldDrag && !shouldDrag(dragStartArgs)) {
       return false;
     }
 
@@ -238,23 +226,30 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
   }
 
   private mouseDownHandler(event: MouseEvent) {
-    if (this.config.disabled) {
+    const { disabled, data, mouseConfig } = this.config;
+
+    if (disabled) {
       return;
     }
 
     const target = event.target as HTMLElement;
 
-    const dragElement = target.closest(`[${DRAG_SOURCE_ATTRIBUTE}]`);
+    const dragElement = target.closest(`[${DRAG_SOURCE_ATTRIBUTE}]`) as HTMLElement;
 
     if (!dragElement || dragElement.getAttribute(DRAG_SOURCE_ATTRIBUTE) === "false") {
       return;
     }
 
-    this.dragElement = dragElement as HTMLElement;
+    this.dragElement = dragElement;
     this.dragStartEvent = event;
 
-    const mouseMoveHandler = this.config.mouseConfig?.mouseMove ?? defaultMouseMoveHandler;
-    const mouseUpHandler = this.config.mouseConfig?.mouseUp ?? defaultMouseUpHandler;
+    this.currentData =
+      typeof data === "function"
+        ? (data as DragSourceDataFactory<T>)({ dragElement, dragStartEvent: event })
+        : data;
+
+    const mouseMoveHandler = mouseConfig?.mouseMove ?? defaultMouseMoveHandler;
+    const mouseUpHandler = mouseConfig?.mouseUp ?? defaultMouseUpHandler;
 
     const mouseMoveDestructor = mouseMoveHandler(this.safeMouseMoveHandler);
     const mouseUpDestructor = mouseUpHandler(this.safeMouseUpHandler);
@@ -303,11 +298,11 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
 
   private mouseMoveHandler(event: MouseEvent) {
     if (!this.dragStartTriggered) {
-      this.dragStartTriggered = true;
-
-      if (!this.handleDragStart()) {
+      if (!this.handleDragStart(event)) {
         return;
       }
+
+      this.dragStartTriggered = true;
     }
 
     this.newDropTargets = this.getDropTargets(event);

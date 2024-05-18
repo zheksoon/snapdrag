@@ -18,6 +18,7 @@ export type DropTargetsMap = Map<HTMLElement, IDropTarget<any>>;
 
 export type DragStarHandlerArgs<T = any> = {
   dragElement: HTMLElement;
+  event: MouseEvent;
   dragStartEvent: MouseEvent;
   data?: DragSourceDataType<T>;
 };

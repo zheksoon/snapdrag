@@ -14,6 +14,12 @@ const Task = ({ task }: { task: ITask }) => {
     kind: "TASK",
     data: { task },
     move: true,
+    // shouldDrag({ event, dragStartEvent }) {
+    //   return (
+    //     Math.abs(event.pageX - dragStartEvent.pageX) > 15 ||
+    //     Math.abs(event.pageY - dragStartEvent.pageY) > 15
+    //   );
+    // },
   });
 
   const { droppable, hovered } = useDroppable({

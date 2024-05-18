@@ -135,7 +135,7 @@ const DraggableSquare = () => {
 };
 ```
 
-**Important note:** For sure, the wrapped component should take a ref to DOM node to be draggable. If you specify another ref for the component explicitly, `draggable` will handle it, like this:
+**Important note:** For sure, the wrapped component must take a ref to DOM node to be draggable. If you specify another ref for the component explicitly, `draggable` will handle it correctly, like this:
 
 ```tsx
 const ref = useRef(null); // ref for your own logic
@@ -151,13 +151,10 @@ return draggable(<div ref={ref} />);
 Moreover, the return result of the `draggable` wrapper is just the same component (but with ref to internals). As usual, it can be wrapped in another wrapper, say, `droppable`. This allows your component to be draggable and droppable at the same time:
 
 ```tsx
-// make is draggable
 const { draggable, isDragging } = useDraggable({
   kind: "SQUARE", 
-  move: true, 
 });
 
-// make it droppable and accept squares
 const { droppable, hovered } = useDroppable({
   accepts: "SQUARE",
 });
@@ -165,9 +162,7 @@ const { droppable, hovered } = useDroppable({
 const text = isDragging ? "Dragging" : hovered && "Hovered" : "Drag me";
 
 // the order doesn't matter
-return draggable(
-  droppable(<div className="square">{text}</div>)
-);
+return draggable(droppable(<div className="square">{text}</div>));
 ```
 
 ### `useDraggable` config
@@ -189,7 +184,7 @@ const { useDraggable, isDragging } = useDraggable({
   // should react to drag interactions. It's executed once on drag start
   shouldDrag: ({ event, element }) => {
     // event: pointerdown DOM event
-x    // element: the element on which the drag interaction occurs
+    // element: the element on which the drag interaction occurs
     // Must return `true` or `false`
     return true;
   },
