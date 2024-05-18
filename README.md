@@ -189,7 +189,7 @@ const { useDraggable, isDragging } = useDraggable({
   // should react to drag interactions. It's executed once on drag start
   shouldDrag: ({ event, element }) => {
     // event: pointerdown DOM event
-    // element: the element on which the drag interaction occurs
+x    // element: the element on which the drag interaction occurs
     // Must return `true` or `false`
     return true;
   },
@@ -257,7 +257,19 @@ When the droppable is hovered by the corresponding draggable, the `hovered` retu
 
 ### `useDroppable` config
 
-
+```ts
+const { droppable, hovered } = useDroppable({
+  // "accepts" defines what draggable kinds it should accept
+  // It can single string or symbol, an array of strings or symbols, and a function
+  // The function is 
+  accepts: Kind | Kind[] | ((props: { kind: string; data: any }) => boolean);
+  data?: any;
+  onDragIn?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDragOut?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDragMove?: (props: { kind: string; data: any; event: MouseEvent }) => void;
+  onDrop?: (props: { kind: string; data: any; dropTargets: IDropTarget<any>[] }) => void;
+})
+```
 
 ## Author
 

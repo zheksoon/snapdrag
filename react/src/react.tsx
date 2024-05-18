@@ -295,7 +295,12 @@ export type DroppableConfig = {
   onDragIn?: (props: { kind: string; data: any; event: MouseEvent }) => void;
   onDragOut?: (props: { kind: string; data: any; event: MouseEvent }) => void;
   onDragMove?: (props: { kind: string; data: any; event: MouseEvent }) => void;
-  onDrop?: (props: { kind: string; data: any; dropTargets: IDropTarget<any>[] }) => void;
+  onDrop?: (props: {
+    kind: string;
+    data: any;
+    event: MouseEvent;
+    dropTargets: IDropTarget<any>[];
+  }) => void;
 };
 
 type HoveredData = {
@@ -333,6 +338,7 @@ export function useDroppable(config: DroppableConfig) {
       config.onDrop?.({
         kind: props.sourceType,
         data: props.sourceData,
+        event: props.event,
         dropTargets: [...props.dropTargets.values()],
       });
     },
