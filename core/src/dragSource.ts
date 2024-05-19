@@ -64,12 +64,10 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
         return;
       }
       const dropTarget = registeredDropTargets.get(element);
-
-      if (!dropTarget || dropTarget.disabled) {
-        return;
+      
+      if (dropTarget) {
+        dropTargets.set(element, dropTarget);
       }
-
-      dropTargets.set(element, dropTarget);
     });
 
     return dropTargets;

@@ -1,6 +1,6 @@
 {
   "name": "snapdrag-beta",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
@@ -36,13 +36,14 @@
   },
   "scripts": {
     "build": "yarn build:core && yarn build:react",
-    "build:core": "cd ./core && yarn build",
-    "build:react": "cd ./react && yarn build"
+    "build:core": "cd ./core && yarn && yarn build",
+    "build:react": "cd ./react && yarn && yarn build"
   },
   "files": [
     "core/dist/**/*",
     "core/src/**/*",
     "core/package.json",
+    "core/README.md",
     "react/dist/**/*",
     "react/src/**/*",
     "react/package.json",

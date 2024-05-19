@@ -181,6 +181,7 @@ export const DragHandle = styled.div.attrs({
   user-select: none;
   margin-right: 10px;
   color: ${theme.colors.primary};
+  touch-action: none;
 `;
 
 
