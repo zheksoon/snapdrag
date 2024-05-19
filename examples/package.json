@@ -14,7 +14,7 @@
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "snapdrag-beta": "^0.7.2",
+    "snapdrag-beta": "^0.7.7",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

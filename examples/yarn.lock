@@ -1637,10 +1637,10 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-snapdrag-beta@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/snapdrag-beta/-/snapdrag-beta-0.7.2.tgz#82e6ef7e94dc23d7761d4271b9766a4f211e1e80"
-  integrity sha512-9aqZqxm/XWkyBc/rTIa6t2WIwoG6ST/78cMlfHupIukCa5jLIcNMA+TssdEq7VwaqrUltrGT1c2Z7QpKzpYLIQ==
+snapdrag-beta@^0.7.7:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/snapdrag-beta/-/snapdrag-beta-0.7.7.tgz#22bde438522490ae5f40d992db770c45daec4f72"
+  integrity sha512-cQriAuvt7PYEN7PkvOwo4vfsONRST6ngGfCRtGQ/jfqGZAIP9GYxy+edEFQGXPwLUf5kW9Nmt6Al+6zSAeBdrw==
 
 source-map-js@^1.0.2, source-map-js@^1.2.0:
   version "1.2.0"

@@ -64,7 +64,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
         return;
       }
       const dropTarget = registeredDropTargets.get(element);
-      
+
       if (dropTarget) {
         dropTargets.set(element, dropTarget);
       }
@@ -74,7 +74,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
   }
 
   private handleDragStart(event: MouseEvent) {
-    const { shouldDrag, onDragStart, data } = this.config;
+    const { shouldDrag, onDragStart } = this.config;
 
     const dragElement = this.dragElement!;
     const dragStartEvent = this.dragStartEvent!;
@@ -260,7 +260,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
     this.pluginsSnapshot = this.config.plugins?.slice() ?? [];
   }
 
-  private populateDisableDropTargets() {
+  private populateDisableDropTargets(event: MouseEvent) {
     this.newDropTargets.forEach((dropTarget, element) => {
       const { accepts } = dropTarget.config;
 
@@ -281,7 +281,12 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
         !disabledDropTargets.has(element) &&
         !acceptedDropTargets.has(element)
       ) {
-        shouldAccept = accepts({ kind: this.config.type, data: this.currentData });
+        shouldAccept = accepts({
+          kind: this.config.type,
+          data: this.currentData!,
+          element: this.dragElement!,
+          event,
+        });
       }
 
       if (!shouldAccept) {
@@ -305,7 +310,7 @@ export class DragSource<T extends DragSourceType<any>> implements IDragSource<T>
 
     this.newDropTargets = this.getDropTargets(event);
 
-    this.populateDisableDropTargets();
+    this.populateDisableDropTargets(event);
 
     const dropHandlerArgs = this.getDropHandlerArgs(event);
 

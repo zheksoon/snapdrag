@@ -1,8 +1,6 @@
 export type DragSourceType<Data> = symbol & { __data: Data };
 
-export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<
-  infer DataType
->
+export type DragSourceDataType<SourceType> = SourceType extends DragSourceType<infer DataType>
   ? DataType
   : never;
 
@@ -72,15 +70,19 @@ export type DropHandlerArgs<T extends Array<DragSourceType<any>>> = {
   dropElement: HTMLElement;
 };
 
-export type DropHandler<T extends Array<DragSourceType<any>>> = (
-  args: DropHandlerArgs<T>
-) => void;
+export type DropHandler<T extends Array<DragSourceType<any>>> = (args: DropHandlerArgs<T>) => void;
+
+export type DropTargetAccepts = (args: {
+  kind: string | symbol;
+  data: any;
+  element: HTMLElement;
+  event: MouseEvent;
+}) => boolean;
 
 export type DropTargetConfig<T extends Array<DragSourceType<any>>> = {
   disabled?: boolean;
-  accepts: T;
+  accepts: (string | symbol)[] | DropTargetAccepts;
   data?: any;
-  shouldAccept?: (args: DropHandlerArgs<T>) => boolean;
   onDragIn?: DropHandler<T>;
   onDragOut?: DropHandler<T>;
   onDragMove?: DropHandler<T>;

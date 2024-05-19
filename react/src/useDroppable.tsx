@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DragSourceType, DropTargetConfig, createDropTarget } from "snapdrag/core";
+import { DragSourceType, DropTargetConfig, createDropTarget } from "snapdrag-beta/core";
 import { DroppableConfig, Kind } from "./typings";
 import { getDropTargets } from "./utils/getDropTargets";
 
@@ -18,6 +18,7 @@ export function useDroppable(config: DroppableConfig) {
   const trueAccepts = Array.isArray(accepts) || typeof accepts === "function" ? accepts : [accepts];
 
   const trueConfig: DropTargetConfig<any> = {
+    disabled: config.disabled,
     accepts: trueAccepts as unknown as DragSourceType<any>[],
     data: config.data,
     onDragIn(props) {

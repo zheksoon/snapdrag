@@ -22,11 +22,11 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "snapdrag/core": "../core"
+    "snapdrag-beta": "*"
   },
   "devDependencies": {
     "@types/react": ">=16.8.0",
-    "snapdrag/core": "../core"
+    "snapdrag-beta": "*"
   },
   "scripts": {
     "build": "rm -rf ./dist && microbundle --jsx React.createElement"

@@ -33,10 +33,9 @@ yarn add snapdrag
 
 ## Show me the code!
 
-The simplest example of two squares. A draggable square carries color in its data, droppable square reacts to the drag interaction and sets its color according to the color. When dropped, the text of the droppable square is updated.
+Here's the simplest example of two squares. The draggable square carries color in its data, the droppable square reacts to the drag interaction and sets its color according to the color. When dropped, the text of the droppable square is updated.
 
 <details>
-
 <summary><b>DraggableSquare.tsx</b></summary>
 
 ```tsx
@@ -122,7 +121,7 @@ So basically, Snapdrag has two hooks, `useDraggable` and `useDroppable`, and the
 
 ### `useDraggable`
 
-`useDraggable` hook returns an object with `draggable` and `isDragging` properties. To make it work, just wrap your component with `draggable`, and then use `isDragging` to get the drag status. The only required field in the hook config is `kind` - it defines how to differentiate the draggable from each other:
+`useDraggable` hook returns an object with `draggable` and `isDragging` properties. To make it work, just wrap your component with `draggable`, and then use `isDragging` to get the drag status. The only required field in the hook config is `kind` - it defines how to differentiate the draggable from others:
 
 ```ts
 const DraggableSquare = () => {
@@ -135,7 +134,7 @@ const DraggableSquare = () => {
 };
 ```
 
-**Important note:** For sure, the wrapped component must take a ref to DOM node to be draggable. If you specify another ref for the component explicitly, `draggable` will handle it correctly, like this:
+**Important note:** the wrapped component must take a ref to the DOM node to be draggable. If you specify another ref for the component explicitly, `draggable` will handle it correctly, like this:
 
 ```tsx
 const ref = useRef(null); // ref for your own logic
@@ -173,55 +172,64 @@ Here's a detailed description of each config field:
 
 ```ts
 const { useDraggable, isDragging } = useDraggable({
-  // "kind" is the type of the draggable. Drop targets specify the kinds in `accepts` field,
-  // so they react only for drag interactions for this kind.
-  // The kind might be a string or symbol
+  // "kind" is the type of the draggable. 
+  // Drop targets specify the kind they accept in "accepts" field,
+  // The kind can be a string or symbol
   kind: "SQUARE",
-  // "data" is the the data associated with the draggable.
+
+  // "data" is the data associated with the draggable.
   // It's visible to drop targets when drag interaction occurs
   data: { color: "red" },
+
+  // It can also be a function that returns the data:
+  data: ({ dragElement, dragStartEvent }) => ({ color: "red" }),
+
   // "shouldDrag" is an optional callback to define if the element
   // should react to drag interactions. It's executed once on drag start
-  shouldDrag: ({ event, element }) => {
-    // event: pointerdown DOM event
+  shouldDrag: ({ event, dragStartEvent, element, data }) => {
+    // event: MouseEvent from the pointerdown handler
+    // dragStartEvent: MouseEvent from the pointerdown handler
     // element: the element on which the drag interaction occurs
+    // data: the data associated with the draggable
     // Must return `true` or `false`
     return true;
   },
-  // "disabled" mean no drag at all, you know :)
+
+  // "disabled" means no drag at all, you know :)
   disabled: false,
+
   // by default, drag interaction clones the component to the overlay layer
-  // "move" means that the component is moved instead of be cloned, so null is rendered instead
+  // "move" means that the component is moved instead of being cloned, so null is rendered instead
   move: true,
-  // "component" is a callback to get a component that will be shown on drag interaction
-  // instead of the current one
-  component: () => <Square color="blue" />,
+
+  // "component" is a callback to get a component that will be shown instead of the current one
+  // "data" is the current data for the draggable
+  component: ({ data }) => <Square color="blue" />,
+
   // "onDragStart" is optional callback. It's called when drag interaction starts
-  onDragStart: ({ event, element, data }) => {
-    // event: pointerdown DOM event
+  onDragStart: ({ event, dragStartEvent, element, data }) => {
+    // event: MouseEvent from the pointermove handler
+    // dragStartEvent: MouseEvent from the pointerdown handler
     // element: the element on which the drag interaction occurred
     // data: current data of the draggable
   },
-  // "onDragMove" is called on every mouse move during the interaction
-  // Don't put expensive logic here
-  onDragMove: ({ event, dropTargets, data, top, left }) => {
-    // event: pointermove DOM event
+
+  // "onDragMove" is called on every mouse move during the interaction. Don't put expensive logic here
+  onDragMove: ({ event, dragStartEvent, element, data, dropTargets, top, left }) => {
     // dropTargets: an array of drop targets where the draggable is currently over
-    // data: current data of the draggable
     // top and left: coordinates of rendered draggable element (not mouse coordinates)
   },
-  // "onDragEnd" is called when drag interaction ends
-  // Note that it doesn't mean the draggable was dropped on drop target
-  // To check this, use "dropTargets" argument - it will be empty in this case
-  onDragEnd: ({ event, data, dropTargets }) => {
-    // event: pointerup DOM event
-    // data: current data of the draggable
-    // dropTargets: an array of drop targets where the draggable was dropped on
-    // Note that it will be empty if the draggable was dropped not on drop target
+
+  // "onDragEnd" is called when drag interaction ends.
+  // "dropTargets" will be empty array if the draggable wasn't dropped
+  onDragEnd: ({ event, dragStartEvent, element, data, dropTargets }) => {
+    // arguments are all the same as is "onDragMove" except "top" and "left"
   },
+
   // `mouseConfig` is an option from snapdrag/core
   // See the core documentation for it
   mouseConfig: undefined,
+
   // `plugins` is also an option from snapdrag/core
   plugins: undefined,
 });
@@ -254,16 +262,42 @@ When the droppable is hovered by the corresponding draggable, the `hovered` retu
 
 ```ts
 const { droppable, hovered } = useDroppable({
-  // "accepts" defines what draggable kinds it should accept
-  // It can single string or symbol, an array of strings or symbols, and a function
-  // The function is 
-  accepts: Kind | Kind[] | ((props: { kind: string; data: any }) => boolean);
-  data?: any;
-  onDragIn?: (props: { kind: string; data: any; event: MouseEvent }) => void;
-  onDragOut?: (props: { kind: string; data: any; event: MouseEvent }) => void;
-  onDragMove?: (props: { kind: string; data: any; event: MouseEvent }) => void;
-  onDrop?: (props: { kind: string; data: any; dropTargets: IDropTarget<any>[] }) => void;
-})
+  // "accepts" defines the kinds of draggable items this droppable area can accept.
+  // It can be a single kind, an array of kinds,
+  accepts: "TASK",
+
+  // or be a function that gets "kind" and "data" from draggable and returns bool
+  accepts: ({ kind, data,  }) => kind === "TASK" && data.task.project === task.project,
+
+  // "data" is optional and can be used to store additional information related to the droppable area.
+  data: { maxCapacity: 5 },
+
+  // "onDragIn" is called when a draggable item of an accepted kind enters the droppable area.
+  onDragIn: ({ kind, data, event, element, dropElement, dropTargets }) => {
+    // kind: the kind of the draggable
+    // data: the data associated with the draggable
+    // event: the MouseEvent associated with the drag
+    // element: the element being dragged
+    // dropElement: the droppable element
+    // dropTargets: an array of current drop targets
+    console.log(`Draggable ${kind} entered with data`, data);
+  },
+
+  // "onDragOut" is called when a draggable item leaves the droppable area.
+  onDragOut: ({ kind, data, event, element, dropElement, dropTargets }) => {
+    console.log(`Draggable ${kind} left with data`, data);
+  },
+
+  // "onDragMove" is called when a draggable item moves within the droppable area.
+  onDragMove: ({ kind, data, event, element, dropElement, dropTargets }) => {
+    console.log(`Draggable ${kind} moved with data`, data);
+  },
+
+  // "onDrop" is called when a draggable item is dropped within the droppable area.
+  onDrop: ({ kind, data, event, element, dropElement, dropTargets }) => {
+    console.log(`Draggable ${kind} dropped with data`, data);
+  },
+});
 ```
 
 ## Author

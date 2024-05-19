@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DragSourceConfig, DragStarHandlerArgs, createDragSource } from "snapdrag/core";
+import { DragSourceConfig, DragStarHandlerArgs, createDragSource } from "snapdrag-beta/core";
 import { DraggableConfig } from "./typings";
 import { setDragElementPosition, setDragElement } from "./Overlay";
 import { getDropTargets } from "./utils/getDropTargets";

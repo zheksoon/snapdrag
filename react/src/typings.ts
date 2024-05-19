@@ -9,7 +9,7 @@ export type DropTargetData = {
 
 export type DraggableConfig = {
   kind: Kind;
-  data: any;
+  data?: any;
   component?: (args: { data: any }) => React.ReactElement;
   shouldDrag?: (args: {
     event: MouseEvent;
@@ -46,6 +46,7 @@ export type DraggableConfig = {
 };
 
 export type DroppableConfig = {
+  disabled?: boolean;
   accepts: Kind | Kind[] | ((props: { kind: string; data: any }) => boolean);
   data?: any;
   onDragIn?: (props: {
