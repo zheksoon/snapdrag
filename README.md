@@ -12,11 +12,11 @@
 
 ## What is it?
 
-**Snapdrag** is a library for drag-and-drop with React in the first place. I was tired of the bulky APIs other libraries offer, so decided to experiment a bit on the ergonomics and simplicity, while maintaining flexibility and customization. It's built on top of `snapdrag/core`, the universal building block for any framework or vanilla JS.
+**Snapdrag** is a library for drag-and-drop with React in the first place. I was tired of the bulky APIs other libraries offer, so decided to experiment a bit on the ergonomics and simplicity, while maintaining flexibility and customization. It's built on top of `snapdrag/core`, the universal building block for any framework and vanilla JS.
 
 ## Key Features
 
-- **Dead** simple - just two hooks and an overlay to go
+- **Dead** simple - just two hooks and overlay component to go
 - **Super** ergonomic - no need for memoizing callbacks or config
 - **Full** customization - rich event system
 - **Two-way** data exchange for draggable and droppable
@@ -257,6 +257,8 @@ export const DroppableSquare = ({ color }: { color: string }) => {
 ```
 
 When the droppable is hovered by the corresponding draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
+
+As said above, the component can be wrapped both in draggable and droppable, the order doesn't matter.
 
 ### `useDroppable` config
 

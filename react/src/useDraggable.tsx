@@ -28,7 +28,7 @@ export function useDraggable(config: DraggableConfig) {
       data: props.data,
     });
 
-    return shouldDrag ?? true;
+    return !!shouldDrag;
   };
 
   const trueConfig: DragSourceConfig<any> = {
@@ -41,10 +41,27 @@ export function useDraggable(config: DraggableConfig) {
 
       const { top, left } = current.element!.getBoundingClientRect();
 
-      current.elementOffset = {
-        top: top - props.dragStartEvent.pageY,
-        left: left - props.dragStartEvent.pageX,
-      };
+      let offset;
+
+      if (current.config.offset) {
+        if (typeof current.config.offset === "function") {
+          offset = current.config.offset({
+            element: current.element!,
+            event: props.dragStartEvent,
+          });
+        } else {
+          offset = current.config.offset;
+        }
+      } else {
+        offset = {
+          top: top - props.dragStartEvent.clientY,
+          left: left - props.dragStartEvent.clientX,
+        };
+      }
+
+      current.elementOffset = offset;
+
+      setDragElementPosition({ top, left });
 
       current.isDragging = true;
 
@@ -63,8 +80,8 @@ export function useDraggable(config: DraggableConfig) {
     onDragMove(props) {
       const { elementOffset } = refs.current;
 
-      const top = elementOffset.top + props.event.pageY;
-      const left = elementOffset.left + props.event.pageX;
+      const top = elementOffset.top + props.event.clientY;
+      const left = elementOffset.left + props.event.clientX;
 
       setDragElementPosition({ top, left });
 
@@ -167,7 +184,11 @@ export function useDraggable(config: DraggableConfig) {
 
         setDragElement(dragComponent);
 
-        if (config.move) {
+        if (current.config.placeholder) {
+          return current.config.placeholder?.({ data: current.data }) ?? null;
+        }
+
+        if (current.config.move) {
           return null;
         }
 

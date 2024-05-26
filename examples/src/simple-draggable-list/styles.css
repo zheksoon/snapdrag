@@ -1,0 +1,36 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
+}
+
+.item-wrapper {
+  position: relative;
+  user-select: none;
+  width: 300px;
+  cursor: pointer;
+}
+
+.dropline {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: blue;
+}
+
+.item-wrapper.dragging {
+  opacity: 0.8;
+}
+
+.item {
+  background-color: coral;
+  margin: 10px;
+  padding: 10px;
+  font-size: 20px;
+  line-height: 20px;
+  color: black;
+  position: relative;
+}

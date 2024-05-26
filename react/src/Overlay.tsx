@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import React, { useState, useEffect, ReactElement, useCallback, useRef } from "react";
 
 const NOOP = () => {};
 
@@ -7,19 +7,21 @@ export let setDragElementPosition: (position: { top: number; left: number }) => 
 
 export function Overlay({ style = {}, className = "" }) {
   const [dragElement, _setDragElement] = useState<React.ReactElement | null>(null);
-  const [dragElementPosition, _setDragElementPosition] = useState({ top: 0, left: 0 });
+  const dragWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setDragElement = (element: ReactElement | null) => {
-      Promise.resolve().then(() => {
-        _setDragElement(element);
-      });
+      _setDragElement(element);
     };
 
     setDragElementPosition = (position: { top: number; left: number }) => {
-      Promise.resolve().then(() => {
-        _setDragElementPosition(position);
-      });
+      const { current } = dragWrapperRef;
+
+      if (!current) return;
+
+      current.style.transform = `
+        translateX(${position.left}px) translateY(${position.top}px)
+      `;
     };
 
     return () => {
@@ -28,11 +30,10 @@ export function Overlay({ style = {}, className = "" }) {
     };
   }, []);
 
-  const { top, left } = dragElementPosition;
-
   const dragWrapperStyle = {
     position: "relative" as const,
-    transform: `translateX(${left}px) translateY(${top}px)`,
+    transform: `translateX(0px) translateY(0px)`,
+    willChange: "transform",
   };
 
   const dragOverlayStyle = {
@@ -41,12 +42,15 @@ export function Overlay({ style = {}, className = "" }) {
     bottom: 0,
     left: 0,
     right: 0,
+    display: dragElement ? "block" : "none",
     ...style,
   };
 
-  return dragElement ? (
+  return (
     <div style={dragOverlayStyle} className={className}>
-      <div style={dragWrapperStyle}>{dragElement}</div>
+      <div ref={dragWrapperRef} style={dragWrapperStyle}>
+        {dragElement}
+      </div>
     </div>
-  ) : null;
+  );
 }

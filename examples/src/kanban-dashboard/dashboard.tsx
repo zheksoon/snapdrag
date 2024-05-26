@@ -14,7 +14,9 @@ const Task = ({ task }: { task: ITask }) => {
     kind: "TASK",
     data: { task },
     move: true,
-    shouldDrag({ event, dragStartEvent }) {
+    shouldDrag(props) {
+      const { dragStartEvent, event } = props;
+
       return (
         Math.abs(event.pageX - dragStartEvent.pageX) > 15 ||
         Math.abs(event.pageY - dragStartEvent.pageY) > 15
@@ -35,23 +37,25 @@ const Task = ({ task }: { task: ITask }) => {
     },
   });
 
-  return droppable(
-    draggable(
-      <Styled.TaskWrapper $isDragging={isDragging}>
-        <Styled.TaskDropLine
-          $active={!isDragging && !!hovered}
-          $stopAnimation={stopAnimation}
-        />
-        <Styled.Task>
-          <Styled.DragHandle>☰</Styled.DragHandle>
-          <Styled.TaskTitle>{task.title}</Styled.TaskTitle>
+  const wrapped = draggable(
+    <Styled.TaskWrapper $isDragging={isDragging}>
+      <Styled.TaskDropLine
+        $active={!isDragging && !!hovered}
+        $stopAnimation={stopAnimation}
+      />
+      <Styled.Task>
+        <Styled.DragHandle>☰</Styled.DragHandle>
+        <Styled.TaskTitle>{task.title}</Styled.TaskTitle>
+        {!isDragging && (
           <Styled.RemoveTaskButton onClick={() => removeTask(task)}>
             ❌
           </Styled.RemoveTaskButton>
-        </Styled.Task>
-      </Styled.TaskWrapper>
-    )
+        )}
+      </Styled.Task>
+    </Styled.TaskWrapper>
   );
+
+  return isDragging ? wrapped : droppable(wrapped);
 };
 
 type NewTaskProps = {
