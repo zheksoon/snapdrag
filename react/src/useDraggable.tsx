@@ -48,6 +48,7 @@ export function useDraggable(config: DraggableConfig) {
           offset = current.config.offset({
             element: current.element!,
             event: props.dragStartEvent,
+            data: props.data,
           });
         } else {
           offset = current.config.offset;

@@ -202,9 +202,27 @@ const { useDraggable, isDragging } = useDraggable({
   // "move" means that the component is moved instead of being cloned, so null is rendered instead
   move: true,
 
-  // "component" is a callback to get a component that will be shown instead of the current one
+  // "component" is a function to get a component that will be shown as draggable
   // "data" is the current data for the draggable
   component: ({ data }) => <Square color="blue" />,
+
+  // "placeholder" is a function to get a component that will be shown in place of draggable component
+  // When specified, the "move" option is ignored
+  placeholder: ({ data }) => <Square color="gray" />,
+
+  // "offset" determines where to show the dragging component relative the the cursor position
+  // If not specified, it computes it in that way, so the component position matches 
+  // rendered position before the drag
+  offset: { top: 0, left: 0 },
+
+  // alternatively, you can put complex computation of the offset in the function
+  // It's called only once when drag starts
+  offset: ({ element, event, data }) => {
+    // element: native element of draggable
+    // event: pointerdown event
+    // data: associated data
+    return { top: 0, left: 0 };
+  },
 
   // "onDragStart" is optional callback. It's called when drag interaction starts
   onDragStart: ({ event, dragStartEvent, element, data }) => {

@@ -14,7 +14,10 @@ export type DraggableConfig = {
   placeholder?: (args: { data: any }) => React.ReactElement;
   offset?:
     | { top: number; left: number }
-    | ((args: { element: HTMLElement; event: MouseEvent }) => { top: number; left: number });
+    | ((args: { element: HTMLElement; event: MouseEvent; data: any }) => {
+        top: number;
+        left: number;
+      });
   shouldDrag?: (args: {
     event: MouseEvent;
     dragStartEvent: MouseEvent;

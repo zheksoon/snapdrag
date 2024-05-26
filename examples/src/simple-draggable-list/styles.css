@@ -25,6 +25,10 @@
   opacity: 0.8;
 }
 
+.item-wrapper.dragging .item {
+  margin: 0;
+}
+
 .item {
   background-color: coral;
   margin: 10px;
