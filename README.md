@@ -119,7 +119,7 @@ export default function App() {
 
 So basically, Snapdrag has two hooks, `useDraggable` and `useDroppable`, and the `Overlay` component. The overlay must be rendered on top of the app to show the drag interactions, see the example and notes below.
 
-### `useDraggable`
+## `useDraggable`
 
 `useDraggable` hook returns an object with `draggable` and `isDragging` properties. To make it work, just wrap your component with `draggable`, and then use `isDragging` to get the drag status. The only required field in the hook config is `kind` - it defines how to differentiate the draggable from others:
 
@@ -185,9 +185,10 @@ const { useDraggable, isDragging } = useDraggable({
   data: ({ dragElement, dragStartEvent }) => ({ color: "red" }),
 
   // "shouldDrag" is an optional callback to define if the element
-  // should react to drag interactions. It's executed once on drag start
+  // should react to drag interactions. It will keep executing on every move
+  // until it returns true or the drag interaction ends
   shouldDrag: ({ event, dragStartEvent, element, data }) => {
-    // event: MouseEvent from the pointerdown handler
+    // event: MouseEvent from the pointermove handler
     // dragStartEvent: MouseEvent from the pointerdown handler
     // element: the element on which the drag interaction occurs
     // data: the data associated with the draggable
@@ -253,9 +254,10 @@ const { useDraggable, isDragging } = useDraggable({
 });
 ```
 
+
 The `isDragging` prop from the hook is just a sugar over manually changing a state from `onDragStart` and `onDragEnd` (not exactly, it has some internal usage).
 
-### `useDroppable`
+## `useDroppable`
 
 Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
 
