@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Overlay, useDraggable, useDroppable } from "snapdrag-beta";
+import { Overlay, useDraggable, useDroppable } from "snapdrag";
 
 import "./styles.css";
 

@@ -20,7 +20,7 @@ csstype@^3.0.2:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.3.tgz#d80ff294d114fb0e6ac500fbf85b60137d7eff81"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
 
-snapdrag-beta@*:
+snapdrag@*:
   version "0.7.5"
-  resolved "https://registry.yarnpkg.com/snapdrag-beta/-/snapdrag-beta-0.7.5.tgz#b776e2b270a820f28baeba002934ec3971deab84"
+  resolved "https://registry.yarnpkg.com/snapdrag/-/snapdrag-0.7.5.tgz#b776e2b270a820f28baeba002934ec3971deab84"
   integrity sha512-Gkg8Ggy6V1lT+b+wxz7jJ4NXraM07AqD4bwXWP6HNSjF97e27og+uX2bA8x5B8fxS3BPWeRotmReSlPQVkaEuw==

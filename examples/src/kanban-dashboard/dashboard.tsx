@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Overlay, useDraggable, useDroppable } from "snapdrag-beta";
+import { Overlay, useDraggable, useDroppable } from "snapdrag";
 import { TasksProvider, useTasks } from "./store";
 import { columns, projects } from "./data";
 import type { ITask, IColumn, IProject } from "./data";

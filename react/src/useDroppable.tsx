@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DragSourceType, DropTargetConfig, createDropTarget } from "snapdrag-beta/core";
+import { DragSourceType, DropTargetConfig, createDropTarget } from "snapdrag/core";
 import { DroppableConfig, Kind } from "./typings";
 import { getDropTargets } from "./utils/getDropTargets";
 

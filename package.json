@@ -1,6 +1,6 @@
 {
-  "name": "snapdrag-beta",
-  "version": "0.7.8",
+  "name": "snapdrag",
+  "version": "0.7.9",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
