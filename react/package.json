@@ -22,11 +22,11 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "snapdrag": "*"
+    "snapdrag/core": "file:../core"
   },
   "devDependencies": {
     "@types/react": ">=16.8.0",
-    "snapdrag": "file:../"
+    "snapdrag/core": "file:../core"
   },
   "scripts": {
     "build": "vite build --minify=false --sourcemap=true && cp dist/types/index.d.ts dist/types/index.d.cts"
