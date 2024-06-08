@@ -164,6 +164,202 @@ const text = isDragging ? "Dragging" : hovered && "Hovered" : "Drag me";
 return draggable(droppable(<div className="square">{text}</div>));
 ```
 
+### `useDraggable` Configuration
+
+The `useDraggable` hook takes a configuration object that allows you to customize its behavior. Below are the configuration options available:
+
+#### Basic Configuration
+
+| Option         | Type                                    | Default | Description                                                                                          |
+|----------------|-----------------------------------------|---------|------------------------------------------------------------------------------------------------------|
+| `kind`         | `string` or `symbol`                    | Required| Defines the type of the draggable. Must be unique to differentiate from other draggables.            |
+| `data`         | `object` or `function`                  | `{}`    | Data associated with the draggable. It can also be a function returning the data object.             |
+| `disabled`     | `boolean`                               | `false` | Disables the drag functionality when set to true.                                                    |
+| `move`         | `boolean`                               | `false` | Moves the component instead of cloning it to the overlay layer.                                      |
+| `component`    | `function`                              | `null`  | Function that returns a component to be shown as the draggable.                                      |
+| `placeholder`  | `function`                              | `null`  | Function that returns a placeholder component to be shown in place of the draggable component.       |
+| `offset`       | `{ top: number, left: number }` or `function` | `{ top: 0, left: 0 }` | Determines the offset of the dragging component relative to the cursor position.                     |
+
+#### Callbacks
+
+| Callback         | Description                                                                                           |
+|------------------|-------------------------------------------------------------------------------------------------------|
+| `shouldDrag`     | Function to define if the element should react to drag interactions. Must return `true` or `false`.  |
+| `onDragStart`    | Called when the drag interaction starts.                                                              |
+| `onDragMove`     | Called on every mouse move during the drag interaction.                                               |
+| `onDragEnd`      | Called when the drag interaction ends.                                                                |
+
+### Detailed Configuration Options
+
+#### `kind`
+Defines the type of the draggable item. It must be a unique string or symbol.
+
+```tsx
+const { draggable, isDragging } = useDraggable({
+  kind: "SQUARE",
+});
+```
+
+#### `data`
+Data associated with the draggable item. It can be a static object or a function returning the data object.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  data: { color: "red" }, // Static object
+});
+
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  data: ({ dragElement, dragStartEvent }) => ({ color: "red" }), // Function
+});
+```
+
+#### `disabled`
+Disables the drag functionality when set to true.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  disabled: true,
+});
+```
+
+#### `move`
+Moves the component instead of cloning it to the overlay layer.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  move: true,
+});
+```
+
+#### `component`
+Function that returns a component to be shown as the draggable.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  component: ({ data }) => <Square color="blue" />,
+});
+```
+
+#### `placeholder`
+Function that returns a placeholder component to be shown in place of the draggable component. When specified, the `move` option is ignored.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  placeholder: ({ data }) => <Square color="gray" />,
+});
+```
+
+#### `offset`
+Determines the offset of the dragging component relative to the cursor position. It can be a static object or a function.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  offset: { top: 0, left: 0 }, // Static object
+});
+
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  offset: ({ element, event, data }) => {
+    return { top: 0, left: 0 }; // Function
+  },
+});
+```
+
+### Callbacks
+
+#### `shouldDrag`
+Function to define if the element should react to drag interactions. Must return `true` or `false`.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  shouldDrag: ({ event, dragStartEvent, element, data }) => {
+    return true;
+  },
+});
+```
+
+#### `onDragStart`
+Called when the drag interaction starts.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  onDragStart: ({ event, dragStartEvent, element, data }) => {
+    console.log("Drag started", data);
+  },
+});
+```
+
+#### `onDragMove`
+Called on every mouse move during the drag interaction. Avoid putting expensive logic here.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  onDragMove: ({ event, dragStartEvent, element, data, dropTargets, top, left }) => {
+    console.log("Dragging", data);
+  },
+});
+```
+
+#### `onDragEnd`
+Called when the drag interaction ends. `dropTargets` will be an empty array if the draggable wasn't dropped.
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "SQUARE",
+  onDragEnd: ({ event, dragStartEvent, element, data, dropTargets }) => {
+    console.log("Drag ended", data);
+  },
+});
+```
+
+### Full Example
+
+Here’s a complete example demonstrating the use of all the configuration options:
+
+```tsx
+import { useDraggable } from "snapdrag";
+
+const DraggableSquare = () => {
+  const { draggable, isDragging } = useDraggable({
+    kind: "SQUARE",
+    data: { color: "red" },
+    shouldDrag: ({ event, dragStartEvent, element, data }) => true,
+    disabled: false,
+    move: true,
+    component: ({ data }) => <Square color="blue" />,
+    placeholder: ({ data }) => <Square color="gray" />,
+    offset: { top: 0, left: 0 },
+    onDragStart: ({ event, dragStartEvent, element, data }) => {
+      console.log("Drag started", data);
+    },
+    onDragMove: ({ event, dragStartEvent, element, data, dropTargets, top, left }) => {
+      console.log("Dragging", data);
+    },
+    onDragEnd: ({ event, dragStartEvent, element, data, dropTargets }) => {
+      console.log("Drag ended", data);
+    },
+  });
+
+  const opacity = isDragging ? 0.5 : 1;
+
+  return draggable(
+    <div className="square" style={{ backgroundColor: "red", opacity }}>
+      {isDragging ? "Dragging" : "Drag me"}
+    </div>
+  );
+};
+```
+
 ### `useDraggable` config
 
 `useDraggable` takes a config that carries the kind, data, and event handlers. You don't have to memoize the config and its handlers, it's fine to swap it anytime with new closures and data.
