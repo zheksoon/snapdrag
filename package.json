@@ -1,5 +1,5 @@
 {
-  "name": "snapdrag-beta",
+  "name": "snapdrag",
   "version": "0.7.16",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {

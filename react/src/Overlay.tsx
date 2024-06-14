@@ -1,12 +1,12 @@
-import React, { useState, useEffect, ReactElement, useCallback, useRef } from "react";
+import React, { useState, useEffect, ReactElement, useRef } from "react";
 
 const NOOP = () => {};
 
-export let setDragElement: (element: React.ReactElement | null) => void = NOOP;
+export let setDragElement: (element: ReactElement | null) => void = NOOP;
 export let setDragElementPosition: (position: { top: number; left: number }) => void = NOOP;
 
 export function Overlay({ style = {}, className = "" }) {
-  const [dragElement, _setDragElement] = useState<React.ReactElement | null>(null);
+  const [dragElement, _setDragElement] = useState<ReactElement | null>(null);
   const dragWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

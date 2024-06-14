@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "baseUrl": ".",
     "strict": true,
-    "declaration": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
     "moduleResolution": "node",
-    "module": "esnext"
+    "sourceMap": true,
+    "target": "ES2018",
+    "lib": ["ES2018", "DOM"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "src/__tests__/**/*"]
+  "exclude": ["node_modules", "dist", "test"]
 }
