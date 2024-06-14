@@ -1,6 +1,6 @@
 {
   "name": "snapdrag-beta",
-  "version": "0.7.13",
+  "version": "0.7.14",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
@@ -8,9 +8,9 @@
   },
   "type": "module",
   "main": "./react/dist/snapdrag-react.cjs",
-  "module": "/react/dist/snapdrag-react.js",
-  "umd:main": "/react/dist/snapdrag-react.umd.cjs",
-  "unpkg": "/react/dist/snapdrag-react.umd.cjs",
+  "module": "./react/dist/snapdrag-react.js",
+  "umd:main": "./react/dist/snapdrag-react.umd.cjs",
+  "unpkg": "./react/dist/snapdrag-react.umd.cjs",
   "types": "./react/types/index.d.ts",
   "exports": {
     ".": {
@@ -20,7 +20,7 @@
       },
       "require": {
         "types": "./react/dist/types/snapdrag-react.d.cts",
-        "default": "./react/dist/index.cjs"
+        "default": "./react/dist/snapdrag-react.cjs"
       }
     },
     "./core": {
