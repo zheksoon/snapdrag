@@ -1,36 +1,36 @@
 {
-  "name": "snapdrag",
-  "version": "0.7.9",
+  "name": "snapdrag-beta",
+  "version": "0.7.12",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zheksoon/snapdrag.git"
   },
   "type": "module",
-  "main": "./react/dist/index.cjs",
-  "module": "./react/dist/index.js",
-  "umd:main": "./react/dist/index.umd.js",
-  "unpkg": "./react/dist/index.umd.js",
+  "main": "./react/dist/snapdrag-react.cjs",
+  "module": "/react/dist/snapdrag-react.js",
+  "umd:main": "/react/dist/snapdrag-react.umd.cjs",
+  "unpkg": "/react/dist/snapdrag-react.umd.cjs",
   "types": "./react/types/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./react/dist/types/index.d.ts",
-        "default": "./react/dist/index.js"
+        "default": "./react/dist/snapdrag-react.js"
       },
       "require": {
-        "types": "./react/dist/types/index.d.cts",
+        "types": "./react/dist/types/snapdrag-react.d.cts",
         "default": "./react/dist/index.cjs"
       }
     },
     "./core": {
       "import": {
         "types": "./core/dist/types/index.d.ts",
-        "default": "./core/dist/index.js"
+        "default": "./core/dist/snapdrag-core.js"
       },
       "require": {
         "types": "./core/dist/types/index.d.cts",
-        "default": "./core/dist/index.cjs"
+        "default": "./core/dist/snapdrag-core.cjs"
       }
     }
   },
@@ -66,6 +66,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "microbundle": "^0.15.1"
+    "vite": "^5.2.7",
+    "vite-plugin-dts": "^3.8.1"
   }
 }
