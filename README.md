@@ -124,9 +124,15 @@ export default function App() {
 
 This example on CodeSandbox: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
 
+See more examples in the `examples` folder and in the [Examples](examples) section.
+
 ## How it works
 
-So basically, Snapdrag has two hooks, `useDraggable` and `useDroppable`, and the `Overlay` component. The overlay must be rendered on top of the app to show the drag interactions, see the example and notes below.
+Under the hood, Snapdrag attaches `pointerdown` event listener to draggable elements, and after it's triggered, it tracks `pointermove` on the document until `pointerup` happens. On every `pointermove` event it checks elements under the cursor using `document.elementsFromPoint()`, and then does the logic of tracking current and new droppables at the point. 
+
+Draggables aren't bound to config, so it can be changed any time (see core documentation), it makes it very flexible to use new closures, settings, etc. React bindings wraps this logic from core and adapts some arguments to be more convinient. 
+
+One important point for React is `draggable`/`drappable` wrappers - they keep the original ref to the React element and populate is as usual, so it makes it fully transparent and easy to compose.
 
 ## `useDraggable`
 
@@ -173,11 +179,37 @@ const text = isDragging ? "Dragging" : hovered && "Hovered" : "Drag me";
 return draggable(droppable(<div className="square">{text}</div>));
 ```
 
-### `useDraggable` Configuration
+
+## `useDroppable`
+
+Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
+
+```tsx
+export const DroppableSquare = ({ color }: { color: string }) => {
+  const { droppable, hovered } = useDroppable({
+    accepts: "SQUARE",
+    // other config fields are optional
+  });
+
+  const backgroundColor = hovered ? hovered.data.color : color;
+
+  return droppable(
+    <div className="square" style={{ backgroundColor }}></div>
+  );
+};
+```
+
+When the droppable is hovered by the draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
+
+Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
+
+## Examples
+
+## `useDraggable` Configuration
 
 The `useDraggable` hook takes a configuration object that allows you to customize its behavior. Below are the configuration options available:
 
-#### Basic Configuration
+### Basic Configuration
 
 | Option         | Type       | Description                        |
 |----------------|------------|------------------------------------|
@@ -189,7 +221,7 @@ The `useDraggable` hook takes a configuration object that allows you to customiz
 | [`placeholder`](#placeholder)  | `function`     | Function that returns a placeholder component to be shown in place of the draggable component.       |
 | [`offset`](#offset)       | `{ top: number, left: number }` or `function` | Determines the offset of the dragging component relative to the cursor position.                     |
 
-#### Callbacks
+### Callbacks
 
 | Callback         | Description                                                                                           |
 |------------------|-------------------------------------------------------------------------------------------------------|
@@ -198,7 +230,7 @@ The `useDraggable` hook takes a configuration object that allows you to customiz
 | [`onDragMove`](#ondragmove)     | Called on every mouse move during the drag interaction.                                               |
 | [`onDragEnd`](#ondragend)      | Called when the drag interaction ends.                                                                |
 
-### Detailed description of config
+### Detailed config description
 
 #### `kind`
 Defines the type of the draggable item. It must be a unique string or symbol.
@@ -418,32 +450,9 @@ const DraggableSquare = () => {
 };
 ```
 
-## `useDroppable`
+## `useDroppable` config
 
-Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
-
-```tsx
-export const DroppableSquare = ({ color }: { color: string }) => {
-  const { droppable, hovered } = useDroppable({
-    accepts: "SQUARE",
-    // other config fields are optional
-  });
-
-  const backgroundColor = hovered ? hovered.data.color : color;
-
-  return droppable(
-    <div className="square" style={{ backgroundColor }}></div>
-  );
-};
-```
-
-When the droppable is hovered by the corresponding draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
-
-As said above, the component can be wrapped both in draggable and droppable, the order doesn't matter.
-
-### `useDroppable` config
-
-#### Basic Configuration
+### Basic Configuration
 
 | Option         | Type       | Description                        |
 |----------------|------------|------------------------------------|
@@ -460,7 +469,7 @@ As said above, the component can be wrapped both in draggable and droppable, the
 | [`onDragMove`](#ondragmove-1)  | Called when a draggable item moves within the droppable area.                     |
 | [`onDrop`](#ondrop)  | Called when a draggable item is dropped within the droppable area.                |
 
-### Detailed description of config
+### Detailed config description
 
 #### `accepts`
 
@@ -607,7 +616,6 @@ const DroppableSquare = () => {
   );
 };
 ```
-
 
 ## Author
 
