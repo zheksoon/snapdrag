@@ -51,7 +51,7 @@ Here's the simplest example of two squares. The draggable square carries color i
 
 <img width=400 alt="simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
 
-The `DraggableSquare` uses `useDraggable` hook to make it draggable. The config of the hook defines the kind and the data of the draggable. The `draggable` wrapper is used to make the component draggable:
+The `DraggableSquare` uses `useDraggable` hook to make it draggable. The config of the hook defines the kind and the data of the draggable. The `draggable` wrapper is used to make the component actually draggable:
 
 ```tsx
 import { useDraggable } from "snapdrag";
@@ -204,6 +204,52 @@ When the droppable is hovered by the draggable, the `hovered` returns its data a
 Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
 
 ## Examples
+
+Here's some examples starting from the simplest to the most advanced
+
+### Simple squares
+
+<details>
+  <summary><b>How it looks like</b></summary>
+  <img alt="simple squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
+</details>
+
+This example was shown before in the [Show me the code!](#show-me-the-code) section. It demonstrates the basic principles of drag-and-drop: `onDraggable` and `onDroppable` hooks, `kind` and `acceps` values, data transfer, and `onDrop` handler.
+
+CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
+
+### Simple list
+
+<details>
+  <summary><b>How it looks like</b></summary>
+  <img alt="simple list" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-simple-list.avif" />
+</details>
+
+This example shows simple drag-and-drop list with items reordering. There is no animations, the place where the item should be inserted is highlighted with blue line. The used handlers are the same as in the squares example - `onDrop`, `data`, and the hooks.
+
+CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-list-w4njk5
+
+### Advanced list with animations
+
+<details>
+  <summary><b>How it looks like</b></summary>
+  <img alt="advanced list" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-advanced-list.avif" />
+</details>
+
+The advanced list example is, well, a bit more advanced version of the draggable list. It introduces smooth animations and bottom drop area for appending item as the last. The animations are done using CSS transition - on hover the animated placeholder appears on top of the item, and it created an empty space for drop. After the drop, the placeholder immediately collapses, so the dropped item is integrated into its place without visible artefacts.
+
+CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-advanced-list-5p44wd
+
+### Kanban dashboard
+
+<details>
+  <summary><b>How it looks like</b></summary>
+  <img alt="kanban dashboard" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-kanban.avif" />
+</details>
+
+The most advanced example that demostrate what can be achieved with Snapdrag :) There is a lot - multiple drop targets, data exchange, dynamic accepts, smooth animations, item addition and removal, separate projects, touch support, drag threshold, you count it :) Might sound a bit overcomplicated, but all the drag logic and layout is done in 200 lines (excluding state managing, initial data, and styled components). Just check it out and see how simple it might be!
+
+CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-kanban-board-jlj4wc
 
 ## `useDraggable` Configuration
 
