@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-  <b>⚡️Simple but powerful drag-and-drop for React⚡️</b>
+  <b>⚡️ Simple but powerful drag-and-drop for React and vanilla JS⚡️</b>
 </p>
 
 ## What is it?
@@ -46,10 +46,10 @@ yarn add snapdrag
 ```
 
 ## Show me the code!
-<span>
+
 Here's the simplest example of two squares. The draggable square carries color in its data, the droppable square reacts to the drag interaction and sets its color according to the color. When dropped, the text of the droppable square is updated.
-</span>
-![simple drag-and-drop squares](https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-1.webp)
+
+<img width=400 alt="simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-1.webp" />
 
 The `DraggableSquare` uses `useDraggable` hook to make it draggable. The config of the hook defines the kind and the data of the draggable. The `draggable` wrapper is used to make the component draggable:
 
@@ -123,8 +123,6 @@ export default function App() {
 ```
 
 This example on CodeSandbox: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
-
-
 
 ## How it works
 
