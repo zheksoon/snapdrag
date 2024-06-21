@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/zheksoon/snapdrag/react-concept/assets/Snapdrag.webp" alt="Snapdrag" />
+  <img width="200" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/Snapdrag.webp" alt="Snapdrag" />
 </p>
 
 <h1 align="center">
@@ -30,13 +30,11 @@
 - [How it works](#how-it-works)
 - [`useDraggable`](#usedraggable)
   - [Basic Configuration](#basic-configuration)
-  - [Callbacks](#callbacks)
-  - [Detailed description of config](#detailed-description-of-config)
-  - [Full Example](#full-example)
+  - [Detailed config](#detailed-description-of-config)
+  - [Config example](#full-example)
 - [`useDroppable`](#usedroppable)
   - [Basic Configuration](#basic-configuration-1)
-  - [Callbacks](#callbacks-1)
-  - [Detailed description of config](#detailed-description-of-config-1)
+  - [Detailed config](#detailed-description-of-config-1)
   - [Full Example](#full-example-1)
 
 ## Installation
@@ -48,8 +46,10 @@ yarn add snapdrag
 ```
 
 ## Show me the code!
-
+<span>
 Here's the simplest example of two squares. The draggable square carries color in its data, the droppable square reacts to the drag interaction and sets its color according to the color. When dropped, the text of the droppable square is updated.
+</span>
+![simple drag-and-drop squares](https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-1.webp)
 
 The `DraggableSquare` uses `useDraggable` hook to make it draggable. The config of the hook defines the kind and the data of the draggable. The `draggable` wrapper is used to make the component draggable:
 
@@ -121,6 +121,10 @@ export default function App() {
   );
 }
 ```
+
+This example on CodeSandbox: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
+
+
 
 ## How it works
 
