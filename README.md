@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-  <b>⚡️ Simple but powerful drag-and-drop for React and vanilla JS⚡️</b>
+  <b>⚡️ Simple but powerful drag-and-drop for React and vanilla JS ⚡️</b>
 </p>
 
 ## What is it?
@@ -123,7 +123,7 @@ export default function App() {
 }
 ```
 
-This example on CodeSandbox: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
+This example on __CodeSandbox__: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
 
 See more examples in the `examples` folder and in the [Examples](examples) section.
 
@@ -182,7 +182,7 @@ return draggable(droppable(<div className="square">{text}</div>));
 
 ## Draggable lifecycle
 
-Draggable configuration can have callbacks for different events in the lifecycle of the drag interaction.
+Draggable configuration has callbacks for different events in the lifecycle of the drag interaction.
 
 There are three of them: `onDragStart`, `onDragMove`, and `onDragEnd`.
 
@@ -202,9 +202,7 @@ const Square = () => {
 }
 ```
 
-`props` here contain data related to the interaction: `data`, `event`, `dragStartEvent`, and `element`. 
-
-It quite intuitive - `data` is the `data` field in config (or the result of data factory function if specified), `event` is `PointerEvent` from `pointermove` handler, and the `dragStartEvent`. 
+`props` here contain data related to the interaction: `data`, `event`, `dragStartEvent`, and `element`. It quite intuitive - `data` is the `data` field in config (or the result of data factory function if specified), `event` is `PointerEvent` from `pointermove` handler, and the `dragStartEvent`. 
 
 The `dragStartEvent` is a bit different - it's `PointerEvent` from `pointerdown` event, so it can be used to calculate some relative positions from the current `event`. The `element` is `HTMLElement`, no more.
 
@@ -230,8 +228,96 @@ const Square = () => {
 
 Props contain all the same data as in the [`onDragStart`](#ondragstart) callback, but with some additions:
 
-- `dropTargets` is an array that contain data about current drop targets under the cursor. It's an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with `data` and `element` fields. The `data` is `data` field from `useDraggable` config - it makes it possible to pass data between draggable and droppable in both ways. The `element` is droppable element, no surprise here.
+- `dropTargets` is an array that contain data about current drop targets under the cursor. It's an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with `data` and `element` fields. The `data` is `data` field from `useDroppable` config - it makes it possible to pass data between draggable and droppable in both ways. The `element` is droppable element, no surprise here.
 - `top` and `left` and screen coordinates of the draggable
+
+#### Example
+
+Lets modify the draggable squares example to show how the data can be transfered from droppable to draggable.
+
+First, we will change the `DraggableSquare.tsx` to be the following:
+
+<details>
+  <summary><b>DraggableSquare.tsx</b></summary>
+
+```tsx
+import { useState } from "react";
+import { useDraggable } from "snapdrag";
+
+export const DraggableSquare = ({ color: initialColor }: { color: string }) => {
+  const [color, setColor] = useState(initialColor);
+
+  const { draggable, isDragging } = useDraggable({
+    kind: "SQUARE",
+    data: { color },
+    move: true,
+    onDragMove({ dropTargets }) {
+      const color = dropTargets.length
+        ? dropTargets[0].data.color
+        : initialColor;
+
+      setColor(color);
+    },
+    onDragEnd(args) {
+      setColor(initialColor);
+    },
+  });
+
+  const opacity = isDragging ? 0.9 : 1;
+
+  return draggable(
+    <div className="square" style={{ backgroundColor: color, opacity }}>
+      {isDragging ? "Dragging" : "Drag me"}
+    </div>
+  );
+};
+```
+</details>
+
+Here we have `onDragMove` and `onDragEnd` callbacks that control the color of the draggable square. When there is a drop target over the cursor (so `dropTargets.length > 0`), we get the color from the first drop target's `data` field.
+
+The `DroppableSquare.tsx` is mostly the same, but we add the `data` there and remove color matching logic for convenience:
+
+<details>
+  <summary><b>DroppableSquare.tsx</b></summary>
+
+```tsx
+import React from "react";
+import { useDroppable } from "snapdrag";
+
+export const DroppableSquare = ({ color }: { color: string }) => {
+  const [text, setText] = React.useState("Drop here");
+
+  const { droppable } = useDroppable({
+    accepts: "SQUARE",
+    data: { color },
+    onDrop({ data }) {
+      setText(`Dropped ${data.color}`);
+    },
+  });
+
+  return droppable(
+    <div className="square" style={{ backgroundColor: color }}>
+      {text}
+    </div>
+  );
+};
+```
+</details>
+
+<details>
+  <summary><b>The result looks like this</b></summary>
+
+  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
+</details>
+
+### `onDragEnd`
+
+`onDragEnd` is triggered on drag interaction end - most commonly, on `pointerup` event (but it can be changed using [mouse config](#mouseconfig)). 
+
+There are two outcomes for the end - draggable was dropped on drop target(s) or not. Depending on this, `dropTargets` argument will be populated accordingly, like in the `onDragMove` handler.
+
+More about the props the of the hander you can read in the [config description](#ondragend-1).
 
 ## `useDroppable`
 
@@ -269,7 +355,7 @@ Here's some examples starting from the simplest to the most advanced
 
 This example was shown before in the [Show me the code!](#show-me-the-code) section. It demonstrates the basic principles of drag-and-drop: `onDraggable` and `onDroppable` hooks, `kind` and `acceps` values, data transfer, and `onDrop` handler.
 
-CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
 
 ### Simple list
 
@@ -280,7 +366,7 @@ CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96
 
 This example shows simple drag-and-drop list with items reordering. There is no animations, the place where the item should be inserted is highlighted with blue line. The used handlers are the same as in the squares example - `onDrop`, `data`, and the hooks.
 
-CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-list-w4njk5
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-simple-list-w4njk5
 
 ### Advanced list with animations
 
@@ -291,7 +377,7 @@ CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-simple-list-w4njk5
 
 The advanced list example is, well, a bit more advanced version of the draggable list. It introduces smooth animations and bottom drop area for appending item as the last. The animations are done using CSS transitions - on hover the animated placeholder appears on top of the item, and it created an empty space for drop. After the drop, the placeholder immediately collapses, so the dropped item is integrated into its place without visible artefacts.
 
-CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-advanced-list-5p44wd
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-advanced-list-5p44wd
 
 ### Kanban dashboard
 
@@ -300,9 +386,9 @@ CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-advanced-list-5p44wd
   <img alt="kanban dashboard" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-kanban.avif" />
 </details>
 
-The most advanced example that demostrate what can be achieved with Snapdrag :) There is a lot - multiple drop targets, data exchange, dynamic accepts, smooth animations, item addition and removal, separate projects, touch support, drag threshold, you count it :) Might sound a bit overcomplicated, but all the drag logic and layout is done in 200 lines (excluding state managing, initial data, and styled components). Just check it out and see how simple it might be!
+The most advanced example that demostrate what can be achieved with Snapdrag :) There is a lot - multiple drop targets, data exchange, dynamic accepts, smooth animations, item addition and removal, separate projects, touch support, drag threshold, you count it. Might sound a bit overcomplicated, but all the drag logic and layout is done in __200 lines__ (excluding state managing, initial data, and styled components). Just check it out and see how simple it might be!
 
-CodeSandbox link: https://codesandbox.io/p/sandbox/snapdrag-kanban-board-jlj4wc
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-kanban-board-jlj4wc
 
 ## `useDraggable` Configuration
 
