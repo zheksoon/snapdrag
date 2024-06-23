@@ -19,8 +19,8 @@
 - **Dead** simple - just `useDraggable`, `useDroppable` hooks, and `Overlay` component to go
 - **Super** ergonomic - no need for memoizing callbacks or config
 - **Full** customization - rich event system
-- **Two-way** data exchange for draggable and droppable
-- **Multiple** targets at the same point - do your logic for multilayer interactions
+- **Two-way** data exchange between draggable and droppable
+- **Multiple** drop targets at the same point - do your logic for multilayer interactions
 - **No HTML5** drag-and-drop used - for good and for bad
 
 ## Table of Contents
@@ -29,7 +29,12 @@
 - [Show me the code!](#show-me-the-code)
 - [How it works](#how-it-works)
 - [`useDraggable`](#usedraggable)
+  - [`onDragStart`](#ondragstart)
+  - [`onDragMove`](#ondragmove)
+  - [`onDragEnd`](#ondragend)  
 - [`useDroppable`](#usedroppable)
+  - [Example - dynamic border on DroppableSquare](example-dynamic-border-on-droppablesquare)
+  - [Example - data transfer from droppable to draggable](#example-data-transfer-from-droppable-to-draggable)
 - [Examples](#examples)
 - [`useDraggable` configuration](#usedraggable-configuration)
   - [Detailed description](#detailed-description)
@@ -231,7 +236,151 @@ Props contain all the same data as in the [`onDragStart`](#ondragstart) callback
 - `dropTargets` is an array that contain data about current drop targets under the cursor. It's an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with `data` and `element` fields. The `data` is `data` field from `useDroppable` config - it makes it possible to pass data between draggable and droppable in both ways. The `element` is droppable element, no surprise here.
 - `top` and `left` and screen coordinates of the draggable
 
-#### Example
+To get more of the idea of `dropTargets` and using their data, see the [Data transfer from droppable to draggable](#example-data-transfer-from droppable-to-draggable) example.
+
+### `onDragEnd`
+
+`onDragEnd` is triggered on drag interaction end - most commonly, on `pointerup` event (but it can be changed using [mouse config](#mouseconfig)). 
+
+There are two outcomes for the end - draggable was dropped on drop target(s) or not. Depending on this, `dropTargets` argument will be populated accordingly, like in the `onDragMove` handler.
+
+More about the props the of the hander you can read in the [config description](#ondragend-1).
+
+## `useDroppable`
+
+Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
+
+```tsx
+export const DroppableSquare = ({ color }: { color: string }) => {
+  const { droppable, hovered } = useDroppable({
+    accepts: "SQUARE",
+    // other config fields are optional
+  });
+
+  const backgroundColor = hovered ? hovered.data.color : color;
+
+  return droppable(
+    <div className="square" style={{ backgroundColor }}></div>
+  );
+};
+```
+
+When the droppable is hovered by the draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
+
+Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
+
+## Droppable lifecycyle
+
+The config of `useDroppable` can have the following callbacks: `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop`.
+Lets take a look into each of them.
+
+### `onDragIn`
+
+This callback is called when a draggable enters the area of the drop target. It's executed once, and can be used for different interactions like changing color, setting some state, etc.
+
+Here's an example:
+
+```tsx
+import { useState } from 'react';
+import { useDroppable } from 'snapdrag';
+
+const DroppableSquare = () => {
+  const [text, setText] = useState('drag on me!');
+
+  const { droppable } = useDroppable({
+    accepts: 'SQUARE',
+    onDragIn(props) {
+      setText(`dragged in ${props.data.color}`);
+    },
+    onDragOut(props) {
+      setText(`dragged out ${props.data.color}`);
+    },
+  });
+}
+```
+
+Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable square enters and leaves the droppable araa.
+
+### `onDragMove`
+
+`onDragMove` is called on every `pointermove` event over the drop target. It can be used for customization of drop target look during drag interaction.
+
+<hr />
+
+### Example - dynamic border on DroppableSquare
+
+Lets modify the squares example to do the following - render a border on DroppableSquare depending on the position of draggable.
+
+The `DroppableSquare` will be the same, the only changes will be in the `DroppableSquare` component.
+
+Here it is:
+
+<details>
+  <summary><b>DroppableSquare.tsx</b></summary>
+
+```tsx
+import { useState } from "react";
+import { useDroppable } from "snapdrag";
+
+export const DroppableSquare = ({ color }: { color: string }) => {
+  const [text, setText] = useState("Drop here");
+  const [borderPosition, setBorderPosition] = useState("");
+
+  const { droppable } = useDroppable({
+    accepts: "SQUARE",
+    onDragMove({ event, dropElement }) {
+      const { top, left, height } = dropElement.getBoundingClientRect();
+      const x = event.clientX - left;
+      const y = event.clientY - top;
+
+      if (x / y < 1.0) {
+        if (x / (height - y) < 1.0) {
+          setBorderPosition("borderLeft");
+        } else {
+          setBorderPosition("borderBottom");
+        }
+      } else {
+        if (x / (height - y) < 1.0) {
+          setBorderPosition("borderTop");
+        } else {
+          setBorderPosition("borderRight");
+        }
+      }
+    },
+    onDragOut() {
+      setBorderPosition("");
+    },
+    onDrop({ data }) {
+      setText(`Dropped ${data.color}`);
+      setBorderPosition("");
+    },
+  });
+
+  const style = {
+    backgroundColor: color,
+    [borderPosition]: "10px solid red",
+  };
+
+  return droppable(
+    <div className="square" style={style}>
+      {text}
+    </div>
+  );
+};
+```
+</details>
+
+Here we add `borderPosition` state, and in `onDragMove` handler we calculate a quadrant of the droppable square where we will be showing the border. On `onDragOut` and `onDrop` events we remove the border.
+
+<details>
+  <summary><b>The result looks like this:</b></summary>
+
+  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
+</details>
+
+<hr />
+
+### Example - data transfer from droppable to draggable
 
 Lets modify the draggable squares example to show how the data can be transfered from droppable to draggable.
 
@@ -311,36 +460,8 @@ export const DroppableSquare = ({ color }: { color: string }) => {
   <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
 </details>
 
-### `onDragEnd`
+<hr />
 
-`onDragEnd` is triggered on drag interaction end - most commonly, on `pointerup` event (but it can be changed using [mouse config](#mouseconfig)). 
-
-There are two outcomes for the end - draggable was dropped on drop target(s) or not. Depending on this, `dropTargets` argument will be populated accordingly, like in the `onDragMove` handler.
-
-More about the props the of the hander you can read in the [config description](#ondragend-1).
-
-## `useDroppable`
-
-Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
-
-```tsx
-export const DroppableSquare = ({ color }: { color: string }) => {
-  const { droppable, hovered } = useDroppable({
-    accepts: "SQUARE",
-    // other config fields are optional
-  });
-
-  const backgroundColor = hovered ? hovered.data.color : color;
-
-  return droppable(
-    <div className="square" style={{ backgroundColor }}></div>
-  );
-};
-```
-
-When the droppable is hovered by the draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
-
-Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
 
 ## Examples
 
