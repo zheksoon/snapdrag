@@ -385,8 +385,10 @@ Here we add `borderPosition` state, and in `onDragMove` handler we calculate a q
 <details>
   <summary><b>The result looks like this:</b></summary>
 
-  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
+  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-dynamic-border.avif" />
 </details>
+
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-dynamic-border-rcwn7m
 
 <hr />
 
@@ -486,6 +488,8 @@ export const DroppableSquare = ({ color }: { color: string }) => {
 </details>
 
 <hr />
+
+__CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-draggable-color-q4v3x7
 
 
 ## Examples
