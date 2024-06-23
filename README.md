@@ -34,7 +34,7 @@
   - [`onDragEnd`](#ondragend)  
 - [`useDroppable`](#usedroppable)
   - [`onDragIn`](#ondragin)
-  - [`onDragMove`](#ondragmove)
+  - [`onDragMove`](#ondragmove-1)
   - [`onDragOut`](#ondragout)
   - [`onDrop`](#ondrop)
 - [Examples](#examples)
@@ -311,6 +311,8 @@ const DroppableSquare = () => {
 
 Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable square enters and leaves the droppable araa.
 
+<hr />
+
 ### `onDragMove`
 
 `onDragMove` is called on every `pointermove` event over the drop target. It can be used for customization of drop target look during drag interaction.
@@ -406,6 +408,8 @@ Arguments are mostly the same as in the previous callbacks, more details is the 
 This is the most used callback - it defines the reaction of drop target to the end of drop operation. Arguments are the same like in [other callbacks](#ondragin-1), nothing new here.
 
 All the examples contain some usage of this callback, just see it :)
+
+<hr />
 
 ### Example - data transfer from droppable to draggable
 
