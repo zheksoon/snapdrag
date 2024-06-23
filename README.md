@@ -33,8 +33,10 @@
   - [`onDragMove`](#ondragmove)
   - [`onDragEnd`](#ondragend)  
 - [`useDroppable`](#usedroppable)
-  - [Example - dynamic border on DroppableSquare](example-dynamic-border-on-droppablesquare)
-  - [Example - data transfer from droppable to draggable](#example-data-transfer-from-droppable-to-draggable)
+  - [`onDragIn`](#ondragin)
+  - [`onDragMove`](#ondragmove)
+  - [`onDragOut`](#ondragout)
+  - [`onDrop`](#ondrop)
 - [Examples](#examples)
 - [`useDraggable` configuration](#usedraggable-configuration)
   - [Detailed description](#detailed-description)
@@ -191,6 +193,8 @@ Draggable configuration has callbacks for different events in the lifecycle of t
 
 There are three of them: `onDragStart`, `onDragMove`, and `onDragEnd`.
 
+<hr />
+
 ### `onDragStart`
 
 The callback is called when drag interaction starts - this means user clicked and started to move the element. In more details, it's called after the [`shouldDrag`](#shoulddrag) returns `true`. Here's how it looks like in the code:
@@ -212,6 +216,8 @@ const Square = () => {
 The `dragStartEvent` is a bit different - it's `PointerEvent` from `pointerdown` event, so it can be used to calculate some relative positions from the current `event`. The `element` is `HTMLElement`, no more.
 
 This callback is also [described later](#ondragstart-1) in the configuration documentation.
+
+<hr />
 
 ### `onDragMove`
 
@@ -236,7 +242,9 @@ Props contain all the same data as in the [`onDragStart`](#ondragstart) callback
 - `dropTargets` is an array that contain data about current drop targets under the cursor. It's an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with `data` and `element` fields. The `data` is `data` field from `useDroppable` config - it makes it possible to pass data between draggable and droppable in both ways. The `element` is droppable element, no surprise here.
 - `top` and `left` and screen coordinates of the draggable
 
-To get more of the idea of `dropTargets` and using their data, see the [Data transfer from droppable to draggable](#example-data-transfer-from droppable-to-draggable) example.
+To get more of the idea of `dropTargets` and using their data, see the [Data transfer from droppable to draggable](#example---data-transfer-from-droppable-to-draggable) example.
+
+<hr />
 
 ### `onDragEnd`
 
@@ -245,6 +253,8 @@ To get more of the idea of `dropTargets` and using their data, see the [Data tra
 There are two outcomes for the end - draggable was dropped on drop target(s) or not. Depending on this, `dropTargets` argument will be populated accordingly, like in the `onDragMove` handler.
 
 More about the props the of the hander you can read in the [config description](#ondragend-1).
+
+<hr />
 
 ## `useDroppable`
 
@@ -307,7 +317,7 @@ Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable squ
 
 <hr />
 
-### Example - dynamic border on DroppableSquare
+#### Example - dynamic border on DroppableSquare
 
 Lets modify the squares example to do the following - render a border on DroppableSquare depending on the position of draggable.
 
@@ -379,6 +389,21 @@ Here we add `borderPosition` state, and in `onDragMove` handler we calculate a q
 </details>
 
 <hr />
+
+### `onDragOut`
+
+This callback is called when draggable is left the drop target area. It's often used in complimentary with `onDragStart` to do something opposite, like restoring inital state, color, text.
+You can see its usage in the previous example with dynamic borders - it's used there to remove borders after cursor leaves the draggable square.
+
+Arguments are mostly the same as in the previous callbacks, more details is the [config docs](#ondragout-1).
+
+<hr />
+
+### `onDrop`
+
+This is the most used callback - it defines the reaction of drop target to the end of drop operation. Arguments are the same like in [other callbacks](#ondragin-1), nothing new here.
+
+All the examples contain some usage of this callback, just see it :)
 
 ### Example - data transfer from droppable to draggable
 
