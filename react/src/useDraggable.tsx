@@ -47,7 +47,7 @@ export function useDraggable(config: DraggableConfig) {
         if (typeof current.config.offset === "function") {
           offset = current.config.offset({
             element: current.element!,
-            event: props.dragStartEvent,
+            dragStartEvent: props.dragStartEvent,
             data: props.data,
           });
         } else {
@@ -61,13 +61,10 @@ export function useDraggable(config: DraggableConfig) {
       }
 
       current.elementOffset = offset;
-
-      setDragElementPosition({ top, left });
-
       current.isDragging = true;
-
       current.data = props.data;
 
+      setDragElementPosition({ top, left });
       setIsDragging(true);
       setData(props.data);
 
@@ -179,14 +176,15 @@ export function useDraggable(config: DraggableConfig) {
       current.dragElementSnapshot ??= clone;
 
       if (current.isDragging) {
-        let dragComponent = current.config.component?.({ data: current.data }) ?? child;
+        let dragComponent =
+          current.config.component?.({ data: current.data, props: child.props }) ?? child;
 
         dragComponent = React.cloneElement(dragComponent, { ref: dragComponentRef });
 
         setDragElement(dragComponent);
 
         if (current.config.placeholder) {
-          return current.config.placeholder?.({ data: current.data }) ?? null;
+          return current.config.placeholder?.({ data: current.data, props: child.props }) ?? null;
         }
 
         if (current.config.move) {
