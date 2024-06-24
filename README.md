@@ -134,6 +134,8 @@ This example on __CodeSandbox__: https://codesandbox.io/p/sandbox/snapdrag-simpl
 
 See more examples in the `examples` folder and in the [Examples](examples) section.
 
+<hr />
+
 ## How it works
 
 Under the hood, Snapdrag attaches `pointerdown` event listener to draggable elements, and after it's triggered, it tracks `pointermove` on the document until `pointerup` happens. On every `pointermove` event it checks elements under the cursor using `document.elementsFromPoint()`, and then does the logic of tracking current and new droppables at the point. 
@@ -141,6 +143,8 @@ Under the hood, Snapdrag attaches `pointerdown` event listener to draggable elem
 Draggables aren't bound to config, so it can be changed any time (see core documentation), it makes it very flexible to use new closures, settings, etc. React bindings wraps this logic from core and adapts some arguments to be more convinient. 
 
 One important point for React is `draggable`/`drappable` wrappers - they keep the original ref to the React element and populate is as usual, so it makes it fully transparent and easy to compose.
+
+<hr />
 
 ## `useDraggable`
 
@@ -186,6 +190,8 @@ const text = isDragging ? "Dragging" : hovered ? "Hovered" : "Drag me";
 // the order doesn't matter
 return draggable(droppable(<div className="square">{text}</div>));
 ```
+
+<hr />
 
 ## Draggable lifecycle
 
@@ -243,8 +249,6 @@ Props contain all the same data as in the [`onDragStart`](#ondragstart) callback
 - `top` and `left` and screen coordinates of the draggable
 
 To get more of the idea of `dropTargets` and using their data, see the [Data transfer from droppable to draggable](#example---data-transfer-from-droppable-to-draggable) example.
-
-<hr />
 
 ### Example - data transfer from droppable to draggable
 
@@ -363,6 +367,8 @@ When the droppable is hovered by the draggable, the `hovered` returns its data a
 
 Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
 
+<hr />
+
 ## Droppable lifecycyle
 
 The config of `useDroppable` can have the following callbacks: `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop`.
@@ -402,8 +408,6 @@ Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable squ
 ### `onDragMove`
 
 `onDragMove` is called on every `pointermove` event over the drop target. It can be used for customization of drop target look during drag interaction.
-
-<hr />
 
 ### Example - dynamic border on DroppableSquare
 
@@ -574,9 +578,11 @@ __Callbacks__:
 | Callback         | Description                                                                                           |
 |------------------|-------------------------------------------------------------------------------------------------------|
 | [`shouldDrag`](#shoulddrag)     | Function to define if the element should react to drag interactions. Must return `true` or `false`.  |
-| [`onDragStart`](#ondragstart)    | Called when the drag interaction starts.                                                              |
-| [`onDragMove`](#ondragmove)     | Called on every mouse move during the drag interaction.                                               |
-| [`onDragEnd`](#ondragend)      | Called when the drag interaction ends.                                                                |
+| [`onDragStart`](#ondragstart-1)    | Called when the drag interaction starts.                                                              |
+| [`onDragMove`](#ondragmove-2)     | Called on every mouse move during the drag interaction.                                               |
+| [`onDragEnd`](#ondragend-1)      | Called when the drag interaction ends.                                                                |
+
+<hr />
 
 ### Detailed description
 
@@ -760,6 +766,8 @@ const { draggable } = useDraggable({
 });
 ```
 
+<hr />
+
 ### Full Example
 
 Here’s a complete example demonstrating the use of all the configuration options:
@@ -798,6 +806,8 @@ const DraggableSquare = () => {
 };
 ```
 
+<hr />
+
 ## `useDroppable` configuration
 
 Here's a brief description of the configuration fields:
@@ -812,10 +822,12 @@ __Callbacks__:
 
 | Callback         | Description                                          |
 |------------------|------------------------------------------------------|
-| [`onDragIn`](#ondragin)  | Called when a draggable item of an accepted kind enters the droppable area.       |
-| [`onDragOut`](#ondragout) | Called when a draggable item leaves the droppable area.                           |
-| [`onDragMove`](#ondragmove-1)  | Called when a draggable item moves within the droppable area.                     |
-| [`onDrop`](#ondrop)  | Called when a draggable item is dropped within the droppable area.                |
+| [`onDragIn`](#ondragin-1)  | Called when a draggable item of an accepted kind enters the droppable area.       |
+| [`onDragOut`](#ondragout-1) | Called when a draggable item leaves the droppable area.                           |
+| [`onDragMove`](#ondragmove-3)  | Called when a draggable item moves within the droppable area.                     |
+| [`onDrop`](#ondrop-1)  | Called when a draggable item is dropped within the droppable area.                |
+
+<hr />
 
 ### Detailed description
 
@@ -930,6 +942,8 @@ const { droppable } = useDroppable({
 ```
 
 The arguments are the same as in `onDragIn`.
+
+<hr />
 
 ### Full Example
 
