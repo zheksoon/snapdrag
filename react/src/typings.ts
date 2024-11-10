@@ -10,8 +10,8 @@ export type DropTargetData = {
 export type DraggableConfig = {
   kind: Kind;
   data?: any;
-  component?: (args: { data: any }) => React.ReactElement;
-  placeholder?: (args: { data: any }) => React.ReactElement;
+  component?: (args: { data: any; props: Record<string, any> }) => React.ReactElement;
+  placeholder?: (args: { data: any, props: Record<string, any> }) => React.ReactElement;
   offset?:
     | { top: number; left: number }
     | ((args: { element: HTMLElement; dragStartEvent: MouseEvent; data: any }) => {

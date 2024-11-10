@@ -7,27 +7,28 @@
 </h1>
 
 <p align="center">
-  <b>⚡️ Simple but powerful drag-and-drop for React and vanilla JS ⚡️</b>
+  <b>⚡️ Simple yet powerful drag-and-drop for React and Vanilla JS ⚡️</b>
 </p>
 
-## What is it?
 
-**Snapdrag** is a library for drag-and-drop with React in the first place. I was tired of the bulky APIs other libraries offer, so decided to experiment a bit on the ergonomics and simplicity, while maintaining flexibility and customization. It's built on top of `snapdrag/core`, the universal building block for any framework and vanilla JS.
+## What is Snapdrag?
+
+**Snapdrag** is primarily a drag-and-drop library for React. Frustrated with the bulky APIs offered by other libraries, I developed Snapdrag to focus on ergonomics and simplicity while maintaining flexibility and customization. It’s built on top of snapdrag/core, a universal building block suitable for any framework and vanilla JavaScript.
 
 ## Key Features
 
-- **Dead** simple - just `useDraggable`, `useDroppable` hooks, and `Overlay` component to go
-- **Super** ergonomic - no need for memoizing callbacks or config
-- **Full** customization - rich event system
-- **Two-way** data exchange between draggable and droppable
-- **Multiple** drop targets at the same point - do your logic for multilayer interactions
-- **No HTML5** drag-and-drop used - for good and for bad
+-	**Extremely** simple—just use the useDraggable and useDroppable hooks, and the Overlay component to get started
+-	**Highly** ergonomic—no need to memoize callbacks or configurations
+- **Fully** customizable—rich event system
+-	**Two-way** data exchange between draggable and droppable components
+-	**Supports multiple** drop targets at the same point—enabling multilayer interactions
+-	**No reliance on HTML5** drag-and-drop—offering better control and consistency across browsers
 
 ## Table of Contents
 
 - [Installation](#installation)
-- [Show me the code!](#show-me-the-code)
-- [How it works](#how-it-works)
+- [Show Me the code!](#show-me-the-code)
+- [How It works](#how-it-works)
 - [`useDraggable`](#usedraggable)
   - [`onDragStart`](#ondragstart)
   - [`onDragMove`](#ondragmove)
@@ -40,10 +41,12 @@
 - [Examples](#examples)
 - [`useDraggable` configuration](#usedraggable-configuration)
   - [Detailed description](#detailed-description)
-  - [Config example](#full-example)
+  - [Full example](#full-example)
 - [`useDroppable` configuration](#usedroppable-configuration)
   - [Detailed description](#detailed-description-1)
   - [Full Example](#full-example-1)
+- [Author](#author)
+- [License](#license)
 
 ## Installation
 
@@ -53,13 +56,14 @@ npm i --save snapdrag
 yarn add snapdrag
 ```
 
-## Show me the code!
+Show Me the Code!
 
-Here's the simplest example of two squares. The draggable square carries color in its data, the droppable square reacts to the drag interaction and sets its color according to the color. When dropped, the text of the droppable square is updated.
+Here is the simplest example involving two squares. The draggable square carries a color in its data. The droppable square reacts to the drag interaction by setting its color according to the draggable’s color. When dropped, the text of the droppable square is updated.
 
-<img width=400 alt="simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
+<img width="400" alt="Simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
 
-The `DraggableSquare` uses `useDraggable` hook to make it draggable. The config of the hook defines the kind and the data of the draggable. The `draggable` wrapper is used to make the component actually draggable:
+
+The `DraggableSquare` component uses the `useDraggable` hook to make it draggable. The hook’s configuration defines the kind and the data of the draggable. The draggable wrapper is used to make the component actually draggable:
 
 ```tsx
 import { useDraggable } from "snapdrag";
@@ -81,7 +85,7 @@ export const DraggableSquare = ({ color }: { color: string }) => {
 };
 ```
 
-The `DroppableSquare` uses `useDroppable` hook to make it droppable. The config defines the accepted kind and the callback for the drop event. The `droppable` wrapper is used to make the component droppable. `hovered` is used to get the data of draggable when it's hovered:
+The `DroppableSquare` component uses the `useDroppable` hook to make it droppable. The configuration defines the accepted kind and the callback for the `onDrop` event. The droppable wrapper is used to make the component droppable. The `hovered` property is used to get the data of the draggable when it’s hovered over:
 
 ```tsx
 import { useDroppable } from "snapdrag";
@@ -136,32 +140,33 @@ See more examples in the `examples` folder and in the [Examples](examples) secti
 
 <hr />
 
-## How it works
+## How t works
 
-Under the hood, Snapdrag attaches `pointerdown` event listener to draggable elements, and after it's triggered, it tracks `pointermove` on the document until `pointerup` happens. On every `pointermove` event it checks elements under the cursor using `document.elementsFromPoint()`, and then does the logic of tracking current and new droppables at the point. 
+Under the hood, Snapdrag attaches a pointerdown event listener to draggable elements. After it’s triggered, it tracks `pointermove` events on the document until `pointerup` occurs. On every `pointermove` event, it checks elements under the cursor using `document.elementsFromPoint()`, and then handles the logic of tracking current and new droppables at that point.
 
-Draggables aren't bound to config, so it can be changed any time (see core documentation), it makes it very flexible to use new closures, settings, etc. React bindings wraps this logic from core and adapts some arguments to be more convinient. 
+Draggables aren’t bound to the initial configuration, so it can be changed at any time, making it very flexible to use new closures, settings, etc. The React bindings wrap this core logic and adapt some arguments to be more convenient.
 
-One important point for React is `draggable`/`drappable` wrappers - they keep the original ref to the React element and populate is as usual, so it makes it fully transparent and easy to compose.
+
+An important point for React is the draggable/droppable wrappers—they keep the original ref to the React element and populate it as usual, making it fully transparent and easy to compose.
 
 <hr />
 
 ## `useDraggable`
 
-`useDraggable` hook returns an object with `draggable` and `isDragging` properties. To make it work, just wrap your component with `draggable`, and then use `isDragging` to get the drag status. The only required field in the hook config is `kind` - it defines how to differentiate the draggable from others:
+The useDraggable hook returns an object with draggable and isDragging properties. To use it, wrap your component with draggable, and use isDragging to get the drag status. The only required field in the hook configuration is kind, which defines how to differentiate the draggable from others:
 
-```ts
+```tsx
 const DraggableSquare = () => {
   const { draggable, isDragging } = useDraggable({
     kind: "SQUARE",
     // other fields are optional
   });
 
-  return draggable(<div>{isDragging ? "dragging" : "drag me"}</div>);
+  return draggable(<div>{isDragging ? "Dragging" : "Drag me"}</div>);
 };
 ```
 
-**Important note:** the wrapped component must take a ref to the DOM node to be draggable. If you specify another ref for the component explicitly, `draggable` will handle it correctly, like this:
+**Important Note**: The wrapped component must accept a `ref` to the DOM node to be draggable. If you specify another `ref` for the component explicitly, draggable will handle it correctly, like this:
 
 ```tsx
 const ref = useRef(null); // ref for your own logic
@@ -174,11 +179,11 @@ const { draggable, isDragging } = useDraggable({
 return draggable(<div ref={ref} />);
 ```
 
-Moreover, the return result of the `draggable` wrapper is just the same component (but with ref to internals). As usual, it can be wrapped in another wrapper, say, `droppable`. This allows your component to be draggable and droppable at the same time:
+Moreover, the result of the `draggable` wrapper is just the same component (but with a ref to internals). As usual, it can be wrapped in another wrapper, such as `droppable`. This allows your component to be draggable and droppable at the same time:
 
 ```tsx
 const { draggable, isDragging } = useDraggable({
-  kind: "SQUARE", 
+  kind: "SQUARE",
 });
 
 const { droppable, hovered } = useDroppable({
@@ -193,9 +198,9 @@ return draggable(droppable(<div className="square">{text}</div>));
 
 <hr />
 
-## Draggable lifecycle
+## Draggable Lifecycle
 
-Draggable configuration has callbacks for different events in the lifecycle of the drag interaction.
+The draggable configuration has callbacks for different events in the lifecycle of the drag interaction.
 
 There are three of them: `onDragStart`, `onDragMove`, and `onDragEnd`.
 
@@ -203,23 +208,23 @@ There are three of them: `onDragStart`, `onDragMove`, and `onDragEnd`.
 
 ### `onDragStart`
 
-The callback is called when drag interaction starts - this means user clicked and started to move the element. In more details, it's called after the [`shouldDrag`](#shoulddrag) returns `true`. Here's how it looks like in the code:
+The callback is called when the drag interaction starts — this means the user clicked and started to move the element. In more detail, it’s called after the `shouldDrag` function returns `true`. Here’s how it looks in the code:
 
 ```tsx
 const Square = () => {
   const { draggable } = useDraggable({
-    kind: 'SQUARE',
-    data: { color: 'red' },
+    kind: "SQUARE",
+    data: { color: "red" },
     onDragStart(props) {
-      console.log('drag started');
-    }
+      console.log("Drag started");
+    },
   });
-}
+};
 ```
 
-`props` here contain data related to the interaction: `data`, `event`, `dragStartEvent`, and `element`. It quite intuitive - `data` is the `data` field in config (or the result of data factory function if specified), `event` is `PointerEvent` from `pointermove` handler, and the `dragStartEvent`. 
+The `props` here contain data related to the interaction: `data`, `event`, `dragStartEvent`, and `element`. It’s quite intuitive — data is the `data` field in the configuration (or the result of the data factory function if specified), `event` is the PointerEvent from the `pointermove` handler, and the `dragStartEvent` is the `PointerEvent` from the `pointerdown` event.
 
-The `dragStartEvent` is a bit different - it's `PointerEvent` from `pointerdown` event, so it can be used to calculate some relative positions from the current `event`. The `element` is `HTMLElement`, no more.
+The `dragStartEvent` can be used to calculate relative positions from the current event. The element is the `HTMLElement`.
 
 This callback is also [described later](#ondragstart-1) in the configuration documentation.
 
@@ -227,34 +232,35 @@ This callback is also [described later](#ondragstart-1) in the configuration doc
 
 ### `onDragMove`
 
-This callback is executed on every `pointermove` event. As you understand, it's quite time-sensitive, so try to avoid putting expensive logic here. 
+This callback is executed on every pointermove event. As you can imagine, it’s time-sensitive, so try to avoid putting expensive logic here.
 
-An example:
+Example:
 
 ```ts
 const Square = () => {
   const { draggable } = useDraggable({
-    kind: 'SQUARE',
-    data: { color: 'red' },
+    kind: "SQUARE",
+    data: { color: "red" },
     onDragMove(props) {
-      console.log('drag move');
-    }
+      console.log("Drag moving");
+    },
   });
-}
+};
 ```
 
-Props contain all the same data as in the [`onDragStart`](#ondragstart) callback, but with some additions:
+Props contain all the same data as in the onDragStart callback, but with some additions:
 
-- `dropTargets` is an array that contain data about current drop targets under the cursor. It's an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with `data` and `element` fields. The `data` is `data` field from `useDroppable` config - it makes it possible to pass data between draggable and droppable in both ways. The `element` is droppable element, no surprise here.
-- `top` and `left` and screen coordinates of the draggable
+-	`dropTargets` is an array containing data about current drop targets under the cursor. It’s an array, so if the current draggable is over multiple of them, they will be here. Each drop target is represented as an object with data and element fields. The `data` is the data field from the `useDroppable` configuration, allowing data exchange between draggable and droppable components. The `element` is the droppable element.
 
-To get more of the idea of `dropTargets` and using their data, see the [Data transfer from droppable to draggable](#example---data-transfer-from-droppable-to-draggable) example.
+-	`top` and `left` are the screen coordinates of the draggable.
 
-### Example - data transfer from droppable to draggable
+To get more of the idea of dropTargets and using their data, see the Data Transfer from Droppable to Draggable example.
 
-Lets modify the draggable squares example to show how the data can be transfered from droppable to draggable in `onDragMove` callback.
+## Example - Data Transfer from Droppable to Draggable
 
-First, we will change the `DraggableSquare.tsx` to be the following:
+Let’s modify the draggable squares example to show how data can be transferred from the droppable to the draggable in the `onDragMove` callback.
+
+First, we will change the` DraggableSquare.tsx` to the following:
 
 <details>
   <summary><b>DraggableSquare.tsx</b></summary>
@@ -293,9 +299,10 @@ export const DraggableSquare = ({ color: initialColor }: { color: string }) => {
 ```
 </details>
 
-Here we have `onDragMove` and `onDragEnd` callbacks that control the color of the draggable square. When there is a drop target over the cursor (so `dropTargets.length > 0`), we get the color from the first drop target's `data` field.
 
-The `DroppableSquare.tsx` is mostly the same, but we add the `data` there and remove color matching logic for convenience:
+Here we have `onDragMove` and `onDragEnd` callbacks that control the color of the draggable square. When there is a drop target under the cursor (so `dropTargets.length > 0`), we get the color from the first drop target’s data field.
+
+The `DroppableSquare.tsx` is mostly the same, but we add the data there and remove color matching logic for convenience:
 
 <details>
   <summary><b>DroppableSquare.tsx</b></summary>
@@ -325,9 +332,10 @@ export const DroppableSquare = ({ color }: { color: string }) => {
 </details>
 
 <details>
-  <summary><b>The result looks like this</b></summary>
+  <summary><b>The result looks like this:</b></summary>
 
-  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
+
+<img width="400" alt="Draggable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-draggable-color.avif" />
 </details>
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-draggable-color-q4v3x7
@@ -336,23 +344,23 @@ __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-draggabl
 
 ### `onDragEnd`
 
-`onDragEnd` is triggered on drag interaction end - most commonly, on `pointerup` event (but it can be changed using [mouse config](#mouseconfig)). 
+`onDragEnd` is triggered when the drag interaction ends — most commonly on a `pointerup` event.
 
-There are two outcomes for the end - draggable was dropped on drop target(s) or not. Depending on this, `dropTargets` argument will be populated accordingly, like in the `onDragMove` handler.
+There are two outcomes for the end — the draggable was dropped on drop target(s) or not. Depending on this, the `dropTargets` argument will be populated accordingly, as in the `onDragMove handler.
 
-More about the props the of the hander you can read in the [config description](#ondragend-1).
+More about the props the of the hander you can read in the  [configuration description](#ondragend-1).
 
 <hr />
 
 ## `useDroppable`
 
-Like `useDraggable`, `useDroppable` takes a config and returns an object with two fields: `draggable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see docs below):
+Like `useDraggable`, `useDroppable` takes a configuration and returns an object with two fields: `droppable` and `hovered`. To make your component react to drop interactions, wrap it with `droppable`. To define what draggable it should accept, define the required `accepts` field. It can be a string or symbol, an array of them, or a function (see documentation below):
 
 ```tsx
 export const DroppableSquare = ({ color }: { color: string }) => {
   const { droppable, hovered } = useDroppable({
     accepts: "SQUARE",
-    // other config fields are optional
+    // other configuration fields are optional
   });
 
   const backgroundColor = hovered ? hovered.data.color : color;
@@ -363,57 +371,58 @@ export const DroppableSquare = ({ color }: { color: string }) => {
 };
 ```
 
-When the droppable is hovered by the draggable, the `hovered` returns its data and kind. Elsewhere, it's null.
+When the droppable is hovered by the draggable, `hovered returns its data and kind; otherwise, it’s null.
 
-Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`, the order doesn't matter.
+Like the `draggable` wrapper, the component can be wrapped both in `draggable` and `droppable`; the order doesn't matter.
 
 <hr />
 
 ## Droppable lifecycyle
 
-The config of `useDroppable` can have the following callbacks: `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop`.
-Lets take a look into each of them.
+The configuration of `useDroppable` can have the following callbacks: `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop`.
+
+Let’s take a look at each of them.
 
 <hr />
 
 ### `onDragIn`
 
-This callback is called when a draggable enters the area of the drop target. It's executed once, and can be used for different interactions like changing color, setting some state, etc.
+This callback is called when a draggable item enters the area of the drop target. It’s executed once and can be used for different interactions like changing color, setting some state, etc.
 
 Here's an example:
 
 ```tsx
-import { useState } from 'react';
-import { useDroppable } from 'snapdrag';
+import { useState } from "react";
+import { useDroppable } from "snapdrag";
 
 const DroppableSquare = () => {
-  const [text, setText] = useState('drag on me!');
+  const [text, setText] = useState("Drag on me!");
 
   const { droppable } = useDroppable({
-    accepts: 'SQUARE',
-    onDragIn(props) {
-      setText(`dragged in ${props.data.color}`);
+    accepts: "SQUARE",
+    onDragIn({ data }) {
+      setText(`Dragged in ${data.color}`);
     },
-    onDragOut(props) {
-      setText(`dragged out ${props.data.color}`);
+    onDragOut({ data }) {
+      setText(`Dragged out ${data.color}`);
     },
   });
 }
 ```
 
-Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable square enters and leaves the droppable araa.
+Here we add `onDragIn` and `onDragOut` handlers to set text when a draggable square enters and leaves the droppable area.
 
 <hr />
 
 ### `onDragMove`
 
-`onDragMove` is called on every `pointermove` event over the drop target. It can be used for customization of drop target look during drag interaction.
+`onDragMove` is called on every `pointermove` event over the drop target. It can be used for customization of the drop target’s look during the drag interaction.
 
-### Example - dynamic border on DroppableSquare
+### Example - Dynamic Border on DroppableSquare
 
-Lets modify the squares example to do the following - render a border on DroppableSquare depending on the position of draggable.
+Let’s modify the squares example to render a border on `DroppableSquare` depending on the position of the draggable.
 
-The `DroppableSquare` will be the same, the only changes will be in the `DroppableSquare` component.
+The `DraggableSquare` will remain the same; the only changes will be in the `DroppableSquare component.
 
 Here it is:
 
@@ -477,7 +486,8 @@ Here we add `borderPosition` state, and in `onDragMove` handler we calculate a q
 <details>
   <summary><b>The result looks like this:</b></summary>
 
-  <img width=400 alt="drabbable squares color matching" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-dynamic-border.avif" />
+
+<img width="400" alt="Draggable squares with dynamic border" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-dynamic-border.avif" />
 </details>
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-dynamic-border-rcwn7m
@@ -486,35 +496,36 @@ __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-squares-dynamic-
 
 ### `onDragOut`
 
-This callback is called when draggable is left the drop target area. It's often used in complimentary with `onDragStart` to do something opposite, like restoring inital state, color, text.
-You can see its usage in the previous example with dynamic borders - it's used there to remove borders after cursor leaves the draggable square.
+This callback is called when the draggable leaves the drop target area. It’s often used in conjunction with `onDragIn` to perform opposite actions, like restoring initial state, color, or text.
 
-Arguments are mostly the same as in the previous callbacks, more details is the [config docs](#ondragout-1).
+You can see its usage in the previous example with dynamic borders — it’s used there to remove borders after the cursor leaves the droppable square.
+
+Arguments are mostly the same as in the previous callbacks; more details are in the [config docs](#ondragout-1).
 
 <hr />
 
 ### `onDrop`
 
-This is the most used callback - it defines the reaction of drop target to the end of drop operation. Arguments are the same like in [other callbacks](#ondragin-1), nothing new here.
+This is the most commonly used callback—it defines the reaction of the drop target to the end of a drop operation. Arguments are the same as in [other callbacks](#ondragin-1), nothing new here.
 
-All the examples contain some usage of this callback, just see it :)
+All the examples contain some usage of this callback, so feel free to check them out.
 
 <hr />
 
 ## Examples
 
-Here's some examples starting from the simplest to the most advanced
+Here's some examples starting from the simplest to the most advanced.
 
 <hr />
 
 ### Simple squares
 
 <details>
-  <summary><b>How it looks like</b></summary>
-  <img alt="simple squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
+  <summary><b>How it looks:</b></summary>
+  <img alt="Simple squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-squares.avif" />
 </details>
 
-This example was shown before in the [Show me the code!](#show-me-the-code) section. It demonstrates the basic principles of drag-and-drop: `onDraggable` and `onDroppable` hooks, `kind` and `acceps` values, data transfer, and `onDrop` handler.
+This example was shown earlier in the  [Show me the code!](#show-me-the-code) section. It demonstrates the basic principles of drag-and-drop: `onDraggable` and `onDroppable` hooks, `kind` and `acceps` values, data transfer, and the `onDrop` handler.
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s
 
@@ -527,33 +538,33 @@ __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8
   <img alt="simple list" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-simple-list.avif" />
 </details>
 
-This example shows simple drag-and-drop list with items reordering. There is no animations, the place where the item should be inserted is highlighted with blue line. The used handlers are the same as in the squares example - `onDrop`, `data`, and the hooks.
+This example shows a simple drag-and-drop list with item reordering. There are no animations; the place where the item should be inserted is highlighted with a blue line. The handlers used are the same as in the squares example — `onDrop`, `data`, and the hooks.
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-simple-list-w4njk5
 
-<hr />
-
-### Advanced list with animations
+### Advanced List with Animations
 
 <details>
-  <summary><b>How it looks like</b></summary>
-  <img alt="advanced list" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-advanced-list.avif" />
+  <summary><b>How it looks:</b></summary>
+  <img alt="Advanced list" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-advanced-list.avif" />
 </details>
 
-The advanced list example is, well, a bit more advanced version of the draggable list. It introduces smooth animations and bottom drop area for appending item as the last. The animations are done using CSS transitions - on hover the animated placeholder appears on top of the item, and it created an empty space for drop. After the drop, the placeholder immediately collapses, so the dropped item is integrated into its place without visible artefacts.
+The advanced list example is a more sophisticated version of the draggable list. It introduces smooth animations and a bottom drop area for appending an item as the last. The animations are done using CSS transitions—on hover, the animated placeholder appears on top of the item, creating an empty space for the drop. After the drop, the placeholder immediately collapses, so the dropped item is integrated into its place without visible artifacts.
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-advanced-list-5p44wd
 
+
 <hr />
 
-### Kanban dashboard
+### Kanban ashboard
 
 <details>
-  <summary><b>How it looks like</b></summary>
-  <img alt="kanban dashboard" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-kanban.avif" />
+  <summary><b>How it looks:</b></summary>
+  <img alt="Kanban dashboard" src="https://raw.githubusercontent.com/zheksoon/snapdrag/better-readme/assets/drag-and-drop-kanban.avif" />
 </details>
 
-The most advanced example that demostrate what can be achieved with Snapdrag :) There is a lot - multiple drop targets, data exchange, dynamic accepts, smooth animations, item addition and removal, separate projects, touch support, drag threshold, you count it. Might sound a bit overcomplicated, but all the drag logic and layout is done in __200 lines__ (excluding state managing, initial data, and styled components). Just check it out and see how simple it might be!
+
+This is the most advanced example that demonstrates what can be achieved with Snapdrag. It includes multiple drop targets, data exchange, dynamic accepts, smooth animations, item addition and removal, separate projects, touch support, drag threshold — you name it. It might sound a bit complex, but all the drag logic and layout is done in 200 lines (excluding state management, initial data, and styled components). Just check it out and see how simple it can be!
 
 __CodeSandbox link:__ https://codesandbox.io/p/sandbox/snapdrag-kanban-board-jlj4wc
 
@@ -565,22 +576,22 @@ The `useDraggable` hook takes a configuration object that allows you to customiz
 
 | Option         | Type       | Description                        |
 |----------------|------------|------------------------------------|
-| [`kind`](#kind) | `string` or `symbol` | Required| Defines the type of the draggable. Must be unique to differentiate from other draggables.            |
-| [`data`](#data) | `object` or `function` | Data associated with the draggable. It can also be a function returning the data object.             |
-| [`disabled`](#disabled)     | `boolean`      | Disables the drag functionality when set to true.                                                    |
-| [`move`](#move)         | `boolean`      | Moves the component instead of cloning it to the overlay layer.                                      |
-| [`component`](#component)    | `function`     | Function that returns a component to be shown as the draggable.                                      |
-| [`placeholder`](#placeholder)  | `function`     | Function that returns a placeholder component to be shown in place of the draggable component.       |
-| [`offset`](#offset)       | `{ top: number, left: number }` or `function` | Determines the offset of the dragging component relative to the cursor position.                     |
+| [`kind`](#kind) | `string` or `symbol` | Required| Defines the type of the draggable. Must be unique to differentiate it from other draggables.
+| [`data`](#data) | `object` or `function` | Data associated with the draggable. It can also be a function returning the data object.
+| [`disabled`](#disabled)     | `boolean`      | Disables the drag functionality when set to true.           |
+| [`move`](#move)         | `boolean`      | Moves the component instead of cloning it to the overlay layer.|
+| [`component`](#component)    | `function`     | Function that returns a component to be shown as the draggable.
+| [`placeholder`](#placeholder)  | `function`     | Function that returns a placeholder component to be shown in place of the draggable component.
+| [`offset`](#offset)       | `{ top: number, left: number }` or `function` | Determines the offset of the dragging component relative to the cursor position.                 |
 
 __Callbacks__:
 
 | Callback         | Description                                                                                           |
 |------------------|-------------------------------------------------------------------------------------------------------|
-| [`shouldDrag`](#shoulddrag)     | Function to define if the element should react to drag interactions. Must return `true` or `false`.  |
+| [`shouldDrag`](#shoulddrag)     | Function to determine if the element should react to drag interactions. Must return `true` or `false`.  |
 | [`onDragStart`](#ondragstart-1)    | Called when the drag interaction starts.                                                              |
 | [`onDragMove`](#ondragmove-2)     | Called on every mouse move during the drag interaction.                                               |
-| [`onDragEnd`](#ondragend-1)      | Called when the drag interaction ends.                                                                |
+| [`onDragEnd`](#ondragend-1)      | Called when the drag interaction ends.                                |
 
 <hr />
 
@@ -610,7 +621,8 @@ const { draggable } = useDraggable({
 });
 ```
 
-`dragElement` is the `HTMLElement` being dragged, and `dragStartEvent` is the `PointerEvent` that started the drag interaction (from `pointerdown` handler).
+- `dragElement` is the `HTMLElement` being dragged.
+- `dragStartEvent` is the `PointerEvent` that started the drag interaction (from the `pointerdown` handler).
 
 #### `disabled`
 Disables the drag functionality when set to true.
@@ -634,7 +646,7 @@ const { draggable } = useDraggable({
 
 If `move` is false or not defined, the draggable component is cloned to the overlay layer, and the original component is shown as is.
 
-Also, it's important to note that the original component will not receive props updates during the drag interaction - they all are applied to the dragging component.
+Also, it’s important to note that the original component will not receive prop updates during the drag interaction — they are all applied to the dragging component.
 
 `move` is ignored when the `placeholder` option is specified.
 
@@ -648,14 +660,15 @@ const { draggable } = useDraggable({
 });
 ```
 
-if specified, it will replace the dragging component with the one returned by the function.
+If specified, it will replace the dragging component with the one returned by the function.
+-	`data` is the data associated with the draggable.
+-	`props` are the props of the draggable component.
 
-`data` here is the data associated with the draggable. `props` are the props of the draggable component.
-
-The component function is called on every props update, so you can use it to update the draggable component based on it.
+The `component` function is called on every prop update, so you can use it to update the draggable component based on it.
 
 #### `placeholder`
-A function that returns a placeholder component to be shown in place of the draggable component. When specified, the `move` option is ignored.
+
+A function that returns a placeholder component to be shown in place of the draggable component. When specified, the move option is ignored.
 
 ```tsx
 const { draggable } = useDraggable({
@@ -685,14 +698,11 @@ const { draggable } = useDraggable({
 });
 ```
 
-**TODO**: add example demonstrating the offset
-
-Offset is calculated once when the drag interaction starts. It's the distance between the cursor position and the top-left corner of the dragging component. If not specified, it's computed in a way that the component position matches the rendered position before the drag.
-
+Note: Offset is calculated once when the drag interaction starts. It’s the distance between the cursor position and the top-left corner of the dragging component. If not specified, it’s computed so that the component’s position matches its rendered position before the drag.
 ### Callbacks
 
 #### `shouldDrag`
-Function to define if the element should react to drag interactions. Must return `true` or `false`.
+Function to determine if the element should react to drag interactions. Must return `true` or `false`.
 
 ```tsx
 const { draggable } = useDraggable({
@@ -703,9 +713,9 @@ const { draggable } = useDraggable({
 });
 ```
 
-`shouldDrag` is called on every mouse move during the drag interaction until it returns `true` or the drag interaction ends. It's useful to add a threshold or some other condition to start the drag interaction.
+`shouldDrag` is called on every mouse move during the drag interaction until it returns `true` or the drag interaction ends. It’s useful for adding a threshold or some other condition to start the drag interaction.
 
-The arguments are:
+Arguments:
 - `event` is the `PointerEvent` from the `pointermove` handler.
 - `dragStartEvent` is the `PointerEvent` from the `pointerdown` handler.
 - `element` is the element on which the drag interaction occurs.
@@ -723,15 +733,15 @@ const { draggable } = useDraggable({
 });
 ```
 
-The callback is an important place to do some initial setup or calculations before the drag interaction starts.
+The callback is an important place to perform initial setup or calculations before the drag interaction starts.
 
-The arguments of the callback are:
+Arguments:
 - `event` is the `PointerEvent` from the `pointermove` handler.
 - `dragStartEvent` is the `PointerEvent` from the `pointerdown` handler.
 - `element` is the element on which the drag interaction occurs.
 - `data` is the data associated with the draggable.
 
-`event` here is different from `dragStartEvent` because the `onDragStart` called only when `shouldDrag` returns `true`, so the `event` is the first `pointermove` event after that.
+Note: `event` here is different from `dragStartEvent` because the `onDragStart` is called only when `shouldDrag` returns `true`, so the `event` is the first `pointermove` event after that.
 
 #### `onDragMove`
 Called on every mouse move during the drag interaction. Avoid putting expensive logic here.
@@ -745,17 +755,16 @@ const { draggable } = useDraggable({
 });
 ```
 
-The callback is called on every mouse move during the drag interaction. It's not recommended to put expensive logic here because it's called frequently.
+The callback is called on every mouse move during the drag interaction. It’s not recommended to put expensive logic here because it’s called frequently.
 
-The  arguments are the same as in `onDragStart` with some additions:
-
-- `dropTargets` is an array of drop targets where the draggable is currently over. The drop target is an object with the following fields:
-  - `element` is the drop target element.
-  - `data` is the data associated with the drop target.
-- `top` and `left` are the coordinates of the rendered draggable element relative to the viewport (not mouse coordinates).
+Arguments are the same as in `onDragStart` with some additions:
+- `dropTargets` is an array of drop targets where the draggable is currently over. Each drop target is an object with:
+  -	`element` is the drop target element.
+  -	`data` is the data associated with the drop target.
+-	top and left are the coordinates of the rendered draggable element relative to the viewport (not mouse coordinates).
 
 #### `onDragEnd`
-Called when the drag interaction ends. `dropTargets` will be an empty array if the draggable wasn't dropped.
+Called when the drag interaction ends. `dropTargets` will be an empty array if the draggable wasn’t dropped on any drop target.
 
 ```tsx
 const { draggable } = useDraggable({
@@ -808,7 +817,7 @@ const DraggableSquare = () => {
 
 <hr />
 
-## `useDroppable` configuration
+## `useDroppable` Configuration
 
 Here's a brief description of the configuration fields:
 
@@ -829,7 +838,7 @@ __Callbacks__:
 
 <hr />
 
-### Detailed description
+### Detailed Description
 
 #### `accepts`
 
@@ -849,7 +858,8 @@ const { droppable } = useDroppable({
 });
 ```
 
-`kind` is the kind of the draggable item, and `data` is the data associated with the draggable item.
+-	`kind` is the kind of the draggable item.
+-	`data` is the data associated with the draggable item.
 
 #### `data`
 
@@ -862,7 +872,7 @@ const { droppable } = useDroppable({
 });
 ```
 
-The data can be accessed from the `hovered` object when a draggable item is hovered over the droppable area, or `dropTargets` in the `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop` callbacks.
+The data can be accessed from the `hovered` object when a draggable item is hovered over the droppable area, or from `dropTargets` in the `onDragIn`, `onDragOut`, `onDragMove`, and `onDrop` callbacks.
 
 #### `disabled`
 
@@ -877,8 +887,7 @@ const { droppable } = useDroppable({
 
 #### `onDragIn`
 
-Called when a draggable item of an accepted kind enters the droppable area. 
-It's not called if the drop target is disabled, or the draggable item is not accepted.
+Called when a draggable item of an accepted kind enters the droppable area.
 
 ```tsx
 const { droppable } = useDroppable({
@@ -911,11 +920,11 @@ const { droppable } = useDroppable({
 });
 ```
 
-The arguments are the same as in `onDragIn`.
+Arguments are the same as in `onDragIn`.
 
 #### `onDragMove`
 
-Called when a draggable item moves within the droppable area. It's called on every mouse move during the drag interaction, so avoid putting expensive logic here.
+Called when a draggable item moves within the droppable area. It’s called on every mouse move during the drag interaction, so avoid putting expensive logic here.
 
 ```tsx
 const { droppable } = useDroppable({
@@ -926,7 +935,7 @@ const { droppable } = useDroppable({
 });
 ```
 
-The arguments are the same as in `onDragIn`.
+Arguments are the same as in `onDragIn`.
 
 #### `onDrop`
 
@@ -941,7 +950,7 @@ const { droppable } = useDroppable({
 });
 ```
 
-The arguments are the same as in `onDragIn`.
+Arguments are the same as in `onDragIn`.
 
 <hr />
 
