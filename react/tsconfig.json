@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "lib": ["ES2015", "DOM"],
     "strict": true,
     "moduleResolution": "node",
     "sourceMap": true,

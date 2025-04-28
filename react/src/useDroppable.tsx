@@ -94,16 +94,19 @@ export function useDroppable(config: DroppableConfig) {
     }
   }, []);
 
-  const droppable = useCallback((child: React.ReactElement | null) => {
-    if (!child) {
-      return null;
-    }
+  const droppable = useCallback(
+    (child: React.ReactElement<React.ComponentPropsWithRef<any>> | null) => {
+      if (!child) {
+        return null;
+      }
 
-    // @ts-ignore
-    originalRef.current = child.ref;
+      // @ts-ignore React 16-19+ refs compatibility.
+      originalRef.current = child.props?.ref ?? child.ref;
 
-    return React.cloneElement(child, { ref: dropComponentRef });
-  }, []);
+      return React.cloneElement(child, { ref: dropComponentRef });
+    },
+    []
+  );
 
   return {
     droppable,
