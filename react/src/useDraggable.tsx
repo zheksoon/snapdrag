@@ -161,15 +161,15 @@ export function useDraggable(config: DraggableConfig) {
   );
 
   const draggable = useCallback(
-    (child: React.ReactElement) => {
+    (child: React.ReactElement<React.ComponentPropsWithRef<any>>) => {
       if (!child) {
         return null;
       }
 
       const current = refs.current;
 
-      // @ts-ignore
-      current.originalRef = child.ref;
+      // @ts-ignore React 16-19+ refs compatibility.
+      current.originalRef = child.props?.ref ?? child.ref;
 
       const clone = React.cloneElement(child, { ref: componentRef });
 
