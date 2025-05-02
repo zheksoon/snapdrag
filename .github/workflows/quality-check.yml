@@ -1,0 +1,39 @@
+name: Check code quality
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  APP_CI: true
+  APP_ENV: development
+  NODE_VERSION: 22.15.0
+  YARN_VERSION: 4.9.1
+
+concurrency:
+  group: qualityCheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualityCheck:
+    name: Check code quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Setup project"
+        uses: ./.github/actions/setup-project
+
+      - name: "Lint"
+        run: yarn lint
+
+      - name: "Test"
+        run: yarn test
+
+      - name: "Build project"
+        run: yarn build

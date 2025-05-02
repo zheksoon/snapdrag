@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["ES2015", "DOM"],
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
     "strict": true,
     "moduleResolution": "node",
     "sourceMap": true,

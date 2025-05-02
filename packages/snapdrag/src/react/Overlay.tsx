@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement, useRef } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 const NOOP = () => {};
 
@@ -10,6 +10,7 @@ export function Overlay({ style = {}, className = "" }) {
   const dragWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // TODO: fix React error (useEffect called while rendering the draggable element)
     setDragElement = (element: ReactElement | null) => {
       _setDragElement(element);
     };
