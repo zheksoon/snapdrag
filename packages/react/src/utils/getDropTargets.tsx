@@ -1,4 +1,4 @@
-import { DropTargetsMap } from "../../core";
+import { DropTargetsMap } from "@snapdrag/core";
 import { DropTargetData } from "../typings";
 
 export function getDropTargets(dropTargets: DropTargetsMap) {

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DragSourceConfig, DragStarHandlerArgs, createDragSource } from "../core";
+import { DragSourceConfig, DragStarHandlerArgs, createDragSource, PluginType } from "@snapdrag/core";
 import { DraggableConfig } from "./typings";
 import { setDragElementPosition, setDragElement } from "./Overlay";
 import { getDropTargets } from "./utils/getDropTargets";
@@ -123,7 +123,7 @@ export function useDraggable(config: DraggableConfig) {
       });
     },
     mouseConfig: config.mouseConfig,
-    plugins: config.plugins,
+    plugins: config.plugins as PluginType[],
   };
 
   const dragSource = useMemo(() => createDragSource(trueConfig), []);
