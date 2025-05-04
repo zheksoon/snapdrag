@@ -1,5 +1,6 @@
 build/
 
+.yarn/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

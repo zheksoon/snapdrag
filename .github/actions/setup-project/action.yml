@@ -1,0 +1,16 @@
+name: 'Setup project'
+description: 'Sets up project and its dependencies'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'yarn'
+        cache-dependency-path: './yarn.lock'
+
+    - shell: bash
+      run: |
+        corepack enable
+        corepack prepare yarn@${{ env.YARN_VERSION }} --activate
+        yarn install --frozen-lockfile
