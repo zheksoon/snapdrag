@@ -1,5 +1,5 @@
 import { DropTargetsMap } from "@snapdrag/core";
-import { DropTargetData } from "../typings";
+import { DropTargetData } from "../types";
 
 export function getDropTargets(dropTargets: DropTargetsMap) {
   const result = [] as Array<DropTargetData>;

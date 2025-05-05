@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { DragSourceType, DropTargetConfig, createDropTarget } from "@snapdrag/core";
-import { DroppableConfig, Kind } from "./typings";
+import { DroppableConfig as DroppableCoreConfig, createDroppable, Kind } from "@snapdrag/core";
+import { DroppableConfig } from "./types";
 import { getDropTargets } from "./utils/getDropTargets";
 
 type HoveredData = {
@@ -15,11 +15,9 @@ export function useDroppable(config: DroppableConfig) {
 
   let { accepts } = config;
 
-  const trueAccepts = Array.isArray(accepts) || typeof accepts === "function" ? accepts : [accepts];
-
-  const trueConfig: DropTargetConfig<any> = {
+  const trueConfig: DroppableCoreConfig = {
     disabled: config.disabled,
-    accepts: trueAccepts as unknown as DragSourceType<any>[],
+    accepts: accepts,
     data: config.data,
     onDragIn(props) {
       setHovered({
@@ -74,7 +72,7 @@ export function useDroppable(config: DroppableConfig) {
     },
   };
 
-  const dropTarget = useMemo(() => createDropTarget(trueConfig), []);
+  const dropTarget = useMemo(() => createDroppable(trueConfig), []);
 
   dropTarget.setConfig(trueConfig);
 
