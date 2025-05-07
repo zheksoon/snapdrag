@@ -1,5 +1,10 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DraggableConfig as DraggableCoreConfig, DragStarHandlerArgs, createDraggable, PluginType } from "@snapdrag/core";
+import {
+  DraggableConfig as DraggableCoreConfig,
+  DragStarHandlerArgs,
+  createDraggable,
+  PluginType,
+} from "@snapdrag/core";
 import { DraggableConfig } from "./types";
 import { setDragElementPosition, setDragElement } from "./Overlay";
 import { getDropTargets } from "./utils/getDropTargets";
@@ -32,7 +37,7 @@ export function useDraggable(config: DraggableConfig) {
     return !!shouldDrag;
   };
 
-  const coreConfig: DraggableCoreConfig = {
+  const draggableCoreConfig: DraggableCoreConfig = {
     disabled: config.disabled,
     kind: config.kind,
     data: config.data,
@@ -138,9 +143,9 @@ export function useDraggable(config: DraggableConfig) {
     plugins: config.plugins as PluginType[],
   };
 
-  const dragSource = useMemo(() => createDraggable(coreConfig), []);
+  const dragSource = useMemo(() => createDraggable(draggableCoreConfig), []);
 
-  dragSource.setConfig(coreConfig);
+  dragSource.setConfig(draggableCoreConfig);
 
   const componentRef = useCallback(
     (element: HTMLElement | null) => {
@@ -168,7 +173,7 @@ export function useDraggable(config: DraggableConfig) {
       if (element) {
         dragSource.listen(element);
       }
-      
+
       refs.current.dragElement = element;
     },
     [dragSource]

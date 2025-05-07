@@ -15,7 +15,7 @@ export function useDroppable(config: DroppableConfig) {
 
   let { accepts } = config;
 
-  const trueConfig: DroppableCoreConfig = {
+  const droppableCoreConfig: DroppableCoreConfig = {
     disabled: config.disabled,
     accepts: accepts,
     data: config.data,
@@ -72,9 +72,9 @@ export function useDroppable(config: DroppableConfig) {
     },
   };
 
-  const dropTarget = useMemo(() => createDroppable(trueConfig), []);
+  const dropTarget = useMemo(() => createDroppable(droppableCoreConfig), []);
 
-  dropTarget.setConfig(trueConfig);
+  dropTarget.setConfig(droppableCoreConfig);
 
   const originalRef = useRef(null as any);
 

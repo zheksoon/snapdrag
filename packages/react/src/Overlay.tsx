@@ -20,9 +20,7 @@ export function Overlay({ style = {}, className = "" }) {
 
       if (!current) return;
 
-      current.style.transform = `
-        translateX(${position.left}px) translateY(${position.top}px)
-      `;
+      current.style.transform = `translateX(${position.left}px) translateY(${position.top}px)`;
     };
 
     return () => {
