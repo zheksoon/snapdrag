@@ -1,6 +1,5 @@
 import React from "react";
-
-export type Kind = string | symbol;
+import { Kind } from "@snapdrag/core";
 
 export type DropTargetData = {
   data: any;
@@ -18,6 +17,14 @@ export type DraggableConfig = {
         top: number;
         left: number;
       });
+  mapCoords?: (args: {
+    top: number;
+    left: number;
+    event: MouseEvent;
+    dragStartEvent: MouseEvent;
+    element: HTMLElement;
+    data: any;
+  }) => { top: number; left: number };
   shouldDrag?: (args: {
     event: MouseEvent;
     dragStartEvent: MouseEvent;
@@ -36,8 +43,6 @@ export type DraggableConfig = {
     dropTargets: DropTargetData[];
     element: HTMLElement;
     data: any;
-    top: number;
-    left: number;
   }) => void;
   onDragEnd?: (args: {
     event: MouseEvent;
@@ -48,16 +53,16 @@ export type DraggableConfig = {
   }) => void;
   move?: boolean;
   disabled?: boolean;
-  mouseConfig?: any;
+  pointerConfig?: any;
   plugins?: any;
 };
 
 export type DroppableConfig = {
   disabled?: boolean;
-  accepts: Kind | Kind[] | ((props: { kind: string; data: any }) => boolean);
+  accepts: Kind | Kind[] | ((props: { kind: Kind; data: any }) => boolean);
   data?: any;
   onDragIn?: (props: {
-    kind: string;
+    kind: Kind;
     data: any;
     event: MouseEvent;
     element: HTMLElement;
@@ -65,7 +70,7 @@ export type DroppableConfig = {
     dropTargets: DropTargetData[];
   }) => void;
   onDragOut?: (props: {
-    kind: string;
+    kind: Kind;
     data: any;
     event: MouseEvent;
     element: HTMLElement;
@@ -73,7 +78,7 @@ export type DroppableConfig = {
     dropTargets: DropTargetData[];
   }) => void;
   onDragMove?: (props: {
-    kind: string;
+    kind: Kind;
     data: any;
     event: MouseEvent;
     element: HTMLElement;
@@ -81,7 +86,7 @@ export type DroppableConfig = {
     dropTargets: DropTargetData[];
   }) => void;
   onDrop?: (props: {
-    kind: string;
+    kind: Kind;
     data: any;
     event: MouseEvent;
     element: HTMLElement;

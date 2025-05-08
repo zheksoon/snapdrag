@@ -1,23 +1,14 @@
-import { type Options, defineConfig } from "tsup";
+import { defineConfig } from 'tsup';
 
-const config: Options = {
-  entry: {
-    index: "./src/react/index.ts",
-    core: "./src/core/index.ts",
-    plugins: "./src/plugins/index.ts",
-  },
-  outDir: "./dist",
-  format: ["esm", "cjs"],
-  target: "es2020",
-  ignoreWatch: ["**/dist/**", "**/node_modules/**", "*.test.ts"],
-  // clean: true,
+export default defineConfig({
+  entry: ['src/index.ts', 'src/core.ts', 'src/plugins.ts'],
+  format: ['esm', 'cjs'],
   dts: true,
+  splitting: false,
   sourcemap: true,
-  splitting: true,
-  treeshake: true,
-  minify: process.env.NODE_ENV === "production",
-  skipNodeModulesBundle: true,
-  external: ["node_modules"],
-};
-
-export default defineConfig([config]);
+  clean: true,
+  target: 'es2020',
+  esbuildOptions(options) {
+    options.mangleProps = /^_/;
+  },
+});

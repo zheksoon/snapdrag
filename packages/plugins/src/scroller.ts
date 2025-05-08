@@ -1,4 +1,4 @@
-import { PluginType } from "../core/types";
+import { PluginType } from "@snapdrag/core";
 
 type AxisConfig = {
   threshold?: number;

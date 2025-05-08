@@ -1,8 +1,9 @@
 {
-  "name": "snapdrag",
-  "version": "0.8.3",
-  "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
+  "name": "@snapdrag/react",
+  "version": "0.8.2",
+  "description": "React hooks for Snapdrag drag and drop library",
   "keywords": [
+    "snapdrag",
     "drag",
     "drop",
     "draggable",
@@ -22,12 +23,12 @@
     "sortablejs",
     "dragula",
     "interactjs",
-    "draggablejs",
-    "typescript"
+    "draggablejs"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zheksoon/snapdrag.git"
+    "url": "git+https://github.com/zheksoon/snapdrag.git",
+    "directory": "packages/react"
   },
   "license": "MIT",
   "author": {
@@ -44,47 +45,28 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    },
-    "./core": {
-      "import": {
-        "types": "./dist/core.d.ts",
-        "default": "./dist/core.js"
-      },
-      "require": {
-        "types": "./dist/core.d.cts",
-        "default": "./dist/core.cjs"
-      }
-    },
-    "./plugins": {
-      "import": {
-        "types": "./dist/plugins.d.ts",
-        "default": "./dist/plugins.js"
-      },
-      "require": {
-        "types": "./dist/plugins.d.cts",
-        "default": "./dist/plugins.cjs"
-      }
     }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
   "files": [
     "dist/**/*",
+    "src/**/*",
     "package.json",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup --clean && cp ../../README.md ../../LICENSE ./",
+    "build": "tsup --clean && yarn copy-files && yarn publint",
+    "copy-files": "cp ../../README.md ../../LICENSE dist",
     "dev": "tsup --watch",
     "lint": "yarn typecheck",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@snapdrag/core": "workspace:*",
-    "@snapdrag/plugins": "workspace:*",
-    "@snapdrag/react": "workspace:*"
+    "@snapdrag/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": ">=20.18.0",

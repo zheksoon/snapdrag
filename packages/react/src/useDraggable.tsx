@@ -1,6 +1,11 @@
 import React, { useRef, useState, useMemo, useCallback } from "react";
-import { DragSourceConfig, DragStarHandlerArgs, createDragSource } from "../core";
-import { DraggableConfig } from "./typings";
+import {
+  DraggableConfig as DraggableCoreConfig,
+  DragStarHandlerArgs,
+  createDraggable,
+  PluginType,
+} from "@snapdrag/core";
+import { DraggableConfig } from "./types";
 import { setDragElementPosition, setDragElement } from "./Overlay";
 import { getDropTargets } from "./utils/getDropTargets";
 
@@ -10,6 +15,7 @@ export function useDraggable(config: DraggableConfig) {
 
   const refs = useRef({
     dragElementSnapshot: null as React.ReactElement | null,
+    dragElement: null as HTMLElement | null,
     element: null as HTMLElement | null,
     elementOffset: { top: 0, left: 0 },
     originalRef: null as any,
@@ -31,9 +37,9 @@ export function useDraggable(config: DraggableConfig) {
     return !!shouldDrag;
   };
 
-  const trueConfig: DragSourceConfig<any> = {
+  const draggableCoreConfig: DraggableCoreConfig = {
     disabled: config.disabled,
-    type: config.kind,
+    kind: config.kind,
     data: config.data,
     shouldDrag: config.shouldDrag && shouldDrag,
     onDragStart(props) {
@@ -78,38 +84,49 @@ export function useDraggable(config: DraggableConfig) {
     onDragMove(props) {
       const { elementOffset } = refs.current;
 
-      const top = elementOffset.top + props.event.clientY;
-      const left = elementOffset.left + props.event.clientX;
+      let top = elementOffset.top + props.event.clientY;
+      let left = elementOffset.left + props.event.clientX;
+
+      if (config.mapCoords) {
+        const coords = config.mapCoords({
+          top,
+          left,
+          event: props.event,
+          dragStartEvent: props.dragStartEvent,
+          element: refs.current.dragElement!,
+          data: props.data,
+        });
+
+        top = coords.top;
+        left = coords.left;
+      }
 
       setDragElementPosition({ top, left });
+
+      if (!refs.current.dragElement) {
+        return;
+      }
 
       const dropTargets = getDropTargets(props.dropTargets);
 
       config.onDragMove?.({
         event: props.event,
         dragStartEvent: props.dragStartEvent,
-        element: props.dragElement,
+        element: refs.current.dragElement!,
         dropTargets,
         data: props.data,
-        top,
-        left,
       });
     },
     onDragEnd(props) {
       const current = refs.current;
 
       current.dragElementSnapshot = null;
-
       current.isDragging = false;
-
       current.elementOffset = { top: 0, left: 0 };
 
       setIsDragging(false);
-
       setData(null);
-
       setDragElementPosition({ top: 0, left: 0 });
-
       setDragElement(null);
 
       const dropTargets = getDropTargets(props.dropTargets);
@@ -117,18 +134,18 @@ export function useDraggable(config: DraggableConfig) {
       config.onDragEnd?.({
         event: props.event,
         dragStartEvent: props.dragStartEvent,
-        element: props.dragElement,
+        element: refs.current.dragElement!,
         data: props.data,
         dropTargets,
       });
     },
-    mouseConfig: config.mouseConfig,
-    plugins: config.plugins,
+    pointerConfig: config.pointerConfig,
+    plugins: config.plugins as PluginType[],
   };
 
-  const dragSource = useMemo(() => createDragSource(trueConfig), []);
+  const dragSource = useMemo(() => createDraggable(draggableCoreConfig), []);
 
-  dragSource.setConfig(trueConfig);
+  dragSource.setConfig(draggableCoreConfig);
 
   const componentRef = useCallback(
     (element: HTMLElement | null) => {
@@ -156,6 +173,8 @@ export function useDraggable(config: DraggableConfig) {
       if (element) {
         dragSource.listen(element);
       }
+
+      refs.current.dragElement = element;
     },
     [dragSource]
   );
@@ -181,7 +200,10 @@ export function useDraggable(config: DraggableConfig) {
 
         dragComponent = React.cloneElement(dragComponent, { ref: dragComponentRef });
 
-        setDragElement(dragComponent);
+        // We should not set the drag element in the render phase
+        Promise.resolve().then(() => {
+          setDragElement(dragComponent);
+        });
 
         if (current.config.placeholder) {
           return current.config.placeholder?.({ data: current.data, props: child.props }) ?? null;
