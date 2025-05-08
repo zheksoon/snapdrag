@@ -1,1 +1,1 @@
-export * from '@snapdrag/plugins';
+export * from "@snapdrag/plugins";

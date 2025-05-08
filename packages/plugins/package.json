@@ -1,8 +1,9 @@
 {
   "name": "@snapdrag/plugins",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "Plugins for Snapdrag drag and drop library",
   "keywords": [
+    "snapdrag",
     "drag",
     "drop",
     "drag-and-drop",
@@ -64,5 +65,8 @@
   "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=20.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

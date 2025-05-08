@@ -36,10 +36,6 @@ function Item({ text, index, moveItem }: ItemProps) {
     kind: "ITEM",
     data: { index },
     move: true,
-    onDragMove({ element }) {
-      const { top, left } = element.getBoundingClientRect();
-      console.log("Drag Move", { top, left });
-    }
   });
 
   const { droppable, hovered } = useDroppable({

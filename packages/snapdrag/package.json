@@ -1,16 +1,29 @@
 {
   "name": "snapdrag",
-  "version": "0.8.0",
+  "version": "0.8.3",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "keywords": [
     "drag",
     "drop",
-    "drag-and-drop",
     "draggable",
+    "droppable",
+    "sortable",
+    "kanban",
+    "react",
     "vanilla",
     "typescript",
-    "react",
-    "react-dnd"
+    "performance",
+    "customizable",
+    "touch",
+    "dnd",
+    "react-dnd",
+    "dnd-kit",
+    "beautiful-dnd",
+    "sortablejs",
+    "dragula",
+    "interactjs",
+    "draggablejs",
+    "typescript"
   ],
   "repository": {
     "type": "git",
@@ -63,7 +76,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup --clean",
+    "build": "tsup --clean && cp ../../README.md ../../LICENSE ./",
     "dev": "tsup --watch",
     "lint": "yarn typecheck",
     "typecheck": "tsc --noEmit"
@@ -87,5 +100,8 @@
   "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=20.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

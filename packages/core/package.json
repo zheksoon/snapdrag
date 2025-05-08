@@ -1,13 +1,28 @@
 {
   "name": "@snapdrag/core",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "Core logic for Snapdrag drag and drop library",
   "keywords": [
+    "snapdrag",
     "drag",
     "drop",
-    "drag-and-drop",
     "draggable",
+    "droppable",
+    "sortable",
+    "kanban",
     "vanilla",
+    "typescript",
+    "performance",
+    "customizable",
+    "touch",
+    "dnd",
+    "react-dnd",
+    "dnd-kit",
+    "beautiful-dnd",
+    "sortablejs",
+    "dragula",
+    "interactjs",
+    "draggablejs",
     "typescript"
   ],
   "repository": {
@@ -59,5 +74,8 @@
   "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=20.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

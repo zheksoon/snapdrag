@@ -1,1 +1,1 @@
-export * from '@snapdrag/core';
+export * from "@snapdrag/core";

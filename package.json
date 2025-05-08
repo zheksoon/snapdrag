@@ -19,7 +19,7 @@
     "lint": "yarn ws-exec-parallel lint",
     "test": "yarn ws-exec-parallel test",
     "typecheck": "yarn ws-exec-parallel typecheck",
-    "publish": "yarn ws-exec version \"$@\" && yarn ws-exec npm publish --access public",
+    "publish": "yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --exclude snapdrag-examples --verbose version \"$@\" && yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --exclude snapdrag-examples --verbose npm publish --access public",
     "ws-exec": "yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --verbose run",
     "ws-exec-parallel": "yarn workspaces foreach --all --parallel --exclude snapdrag-monorepo --verbose run"
   },

@@ -1,15 +1,29 @@
 {
   "name": "@snapdrag/react",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "React hooks for Snapdrag drag and drop library",
   "keywords": [
+    "snapdrag",
     "drag",
     "drop",
-    "drag-and-drop",
     "draggable",
+    "droppable",
+    "sortable",
+    "kanban",
     "react",
+    "vanilla",
+    "typescript",
+    "performance",
+    "customizable",
+    "touch",
+    "dnd",
     "react-dnd",
-    "hooks"
+    "dnd-kit",
+    "beautiful-dnd",
+    "sortablejs",
+    "dragula",
+    "interactjs",
+    "draggablejs"
   ],
   "repository": {
     "type": "git",
@@ -68,5 +82,8 @@
   "packageManager": "yarn@4.9.1",
   "engines": {
     "node": ">=20.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
