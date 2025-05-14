@@ -11,10 +11,11 @@ import { createScroller } from "snapdrag/plugins";
 const borderWidth = "5px";
 
 function getBorderStyle(position: string) {
-  let style = {
+  const style = {
     borderColor: "red",
     borderStyle: "solid",
   } as React.CSSProperties;
+
   switch (position) {
     case "top":
       style.borderTopWidth = borderWidth;
@@ -43,7 +44,7 @@ const scroller = createScroller({
 });
 
 function TargetSquare({ model }: { model: SquareModel }) {
-  const [style, setStyle] = useState<any>(null);
+  const [style, setStyle] = useState<React.CSSProperties | null>(null);
   const [opacity, setOpacity] = useState(1.0);
 
   // Do a trick - at the moment of render the canvas element

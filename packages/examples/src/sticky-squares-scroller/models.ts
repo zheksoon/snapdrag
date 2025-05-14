@@ -23,7 +23,7 @@ export const squares = Array.from(
     new SquareModel(
       Math.random() * 1000,
       Math.random() * 4000,
-      // @ts-ignore
+      // @ts-expect-error strange way to generate a color
       "#" + (Math.random() * 256 ** 3).toFixed(10).toString(16).slice(0, 6)
     )
 );

@@ -4,7 +4,7 @@ import { SquareModel } from "./models";
 
 type SquareProps = {
   model: SquareModel;
-  style?: Record<string, any>;
+  style?: React.CSSProperties;
 };
 
 export const Square = React.forwardRef<HTMLDivElement, SquareProps>(
