@@ -8,6 +8,7 @@ import {
   DropHandlerArgs,
   DropTargetsMap,
   IDraggable,
+  IDroppable,
   PluginType,
 } from "./types";
 import {
@@ -38,7 +39,7 @@ export class Draggable implements IDraggable {
 
   private _disabledDropTargets = new Set<HTMLElement>();
 
-  private _acceptedDropTargets = new Set<HTMLElement>();
+  private _acceptedDropTargets = new Map<HTMLElement, IDroppable>();
 
   constructor(public config: DraggableConfig) {}
 
@@ -55,6 +56,7 @@ export class Draggable implements IDraggable {
       if (!dropTargetAttribute || dropTargetAttribute === "false") {
         return;
       }
+
       const dropTarget = registeredDropTargets.get(element);
 
       if (dropTarget) {
@@ -91,7 +93,7 @@ export class Draggable implements IDraggable {
       event,
       dragElement: this._dragElement!,
       dragStartEvent: this._dragStartEvent!,
-      dropTargets: this._getEnabledDropTargets(),
+      dropTargets: this._acceptedDropTargets,
       data: this._currentData!,
     };
 
@@ -105,11 +107,7 @@ export class Draggable implements IDraggable {
   private _handleDragSourceEnd(event: PointerEvent) {
     const dropArgs = this._getDropHandlerArgs(event);
 
-    dropArgs.dropTargets.forEach((dropTarget, dropElement) => {
-      if (this._disabledDropTargets.has(dropElement)) {
-        return;
-      }
-
+    this._acceptedDropTargets.forEach((dropTarget, dropElement) => {
       dropTarget.config.onDrop?.({
         ...dropArgs,
         dropTarget,
@@ -132,35 +130,19 @@ export class Draggable implements IDraggable {
     });
   }
 
-  private _getEnabledDropTargets() {
-    const enabledDropTargets = new Map() as DropTargetsMap;
-
-    this._newDropTargets.forEach((dropTarget, dropElement) => {
-      if (!this._disabledDropTargets.has(dropElement)) {
-        enabledDropTargets.set(dropElement, dropTarget);
-      }
-    });
-
-    return enabledDropTargets;
-  }
-
   private _getDropHandlerArgs(event: PointerEvent) {
     return {
       event,
       dragElement: this._dragElement!,
       dragStartEvent: this._dragStartEvent!,
-      dropTargets: this._getEnabledDropTargets(),
+      dropTargets: this._acceptedDropTargets,
       sourceType: this.config.kind,
       sourceData: this._currentData!,
     } as PartialDropArgs;
   }
 
   private _handleTargetDragInOrMove(dropHandlerArgs: PartialDropArgs) {
-    this._newDropTargets.forEach((dropTarget, dropElement) => {
-      if (this._disabledDropTargets.has(dropElement)) {
-        return;
-      }
-
+    this._acceptedDropTargets.forEach((dropTarget, dropElement) => {
       const args = {
         ...dropHandlerArgs,
         dropTarget,
@@ -257,7 +239,7 @@ export class Draggable implements IDraggable {
       if (Array.isArray(accepts)) {
         shouldAccept = accepts.includes(this.config.kind);
       } else if (typeof accepts === "function") {
-        if (!this._disabledDropTargets.has(element) && !this._acceptedDropTargets.has(element)) {
+        if (!this._acceptedDropTargets.has(element)) {
           shouldAccept = accepts({
             kind: this.config.kind,
             data: this._currentData!,
@@ -271,11 +253,10 @@ export class Draggable implements IDraggable {
 
       if (!shouldAccept) {
         this._disabledDropTargets.add(element);
-
         return;
       }
 
-      this._acceptedDropTargets.add(element);
+      this._acceptedDropTargets.set(element, dropTarget);
     });
   }
 
