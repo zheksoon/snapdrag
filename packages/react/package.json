@@ -58,6 +58,7 @@
     "README.md",
     "LICENSE"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "tsup --clean && yarn copy-files && yarn publint",
     "copy-files": "cp ../../README.md ../../LICENSE dist",
