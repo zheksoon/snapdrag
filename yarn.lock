@@ -2692,6 +2692,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"onek@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "onek@npm:0.2.0"
+  checksum: 10c0/c822fdd8eeab931798df56c43ed04fb1698f01ffd643c73d9630a74411b9fb0426c1af5989f9d159b264ce1db166ea8bac3575cf3096c246661b7bc49595365b
+  languageName: node
+  linkType: hard
+
 "optionator@npm:^0.9.3":
   version: 0.9.4
   resolution: "optionator@npm:0.9.4"
@@ -3179,6 +3186,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-react-refresh: "npm:^0.4.6"
     lodash: "npm:^4.17.21"
+    onek: "npm:^0.2.0"
     react: "npm:>=18.3.0"
     react-dom: "npm:>=18.3.0"
     snapdrag: "workspace:../snapdrag"

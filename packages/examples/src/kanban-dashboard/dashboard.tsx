@@ -10,7 +10,7 @@ const Task = ({ task }: { task: ITask }) => {
 
   const [stopAnimation, setStopAnimation] = useState(false);
 
-  const { draggable, isDragging } = useDraggable({
+  const { draggable, dragHandle, isDragging } = useDraggable({
     kind: "TASK",
     data: { task },
     move: true,
@@ -31,31 +31,31 @@ const Task = ({ task }: { task: ITask }) => {
       setStopAnimation(true);
       updateTask(data.task, { status: task.status, order: task.order - 0.5 });
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         setStopAnimation(false);
-      }, 200);
+      });
     },
   });
 
-  const wrapped = draggable(
-    <Styled.TaskWrapper $isDragging={isDragging}>
-      <Styled.TaskDropLine
-        $active={!isDragging && !!hovered}
-        $stopAnimation={stopAnimation}
-      />
-      <Styled.Task>
-        <Styled.DragHandle>☰</Styled.DragHandle>
-        <Styled.TaskTitle>{task.title}</Styled.TaskTitle>
-        {!isDragging && (
-          <Styled.RemoveTaskButton onClick={() => removeTask(task)}>
-            ❌
-          </Styled.RemoveTaskButton>
-        )}
-      </Styled.Task>
-    </Styled.TaskWrapper>
+  return droppable(
+    draggable(
+      <Styled.TaskWrapper $isDragging={isDragging}>
+        <Styled.TaskDropLine
+          $active={!isDragging && !!hovered}
+          $stopAnimation={stopAnimation}
+        />
+        <Styled.Task>
+          {dragHandle(<Styled.DragHandle>☰</Styled.DragHandle>)}
+          <Styled.TaskTitle>{task.title}</Styled.TaskTitle>
+          {!isDragging && (
+            <Styled.RemoveTaskButton onClick={() => removeTask(task)}>
+              ❌
+            </Styled.RemoveTaskButton>
+          )}
+        </Styled.Task>
+      </Styled.TaskWrapper>
+    )
   );
-
-  return isDragging ? wrapped : droppable(wrapped);
 };
 
 type NewTaskProps = {

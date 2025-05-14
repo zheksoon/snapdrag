@@ -1,4 +1,4 @@
-import { DRAGGABLE_ATTRIBUTE, DROPPABLE_ATTRIBUTE } from "./constants";
+import { DRAGGABLE_ATTRIBUTE, DROPPABLE_ATTRIBUTE, DROPPABLE_FORCE_ATTRIBUTE } from "./constants";
 import { registeredDropTargets } from "./droppable";
 import {
   Destructor,
@@ -98,7 +98,7 @@ export class Draggable implements IDraggable {
       event,
       dragElement: this._dragElement!,
       dragStartEvent: this._dragStartEvent!,
-      dropTargets: this._currentDropTargets,
+      dropTargets: this._getEnabledDropTargets(),
       data: this._currentData!,
     };
 
@@ -110,22 +110,11 @@ export class Draggable implements IDraggable {
   }
 
   private _handleDragSourceEnd(event: PointerEvent) {
-    const { kind: type, onDragEnd } = this.config!;
+    const { onDragEnd } = this.config!;
 
-    const dropTargets = this._currentDropTargets;
-    const dragElement = this._dragElement!;
-    const dragStartEvent = this._dragStartEvent!;
+    const dropArgs = this._getDropHandlerArgs(event);
 
-    const dropArgs = {
-      event,
-      dragElement,
-      dragStartEvent,
-      dropTargets,
-      sourceType: type,
-      sourceData: this._currentData!,
-    };
-
-    dropTargets.forEach((dropTarget, dropElement) => {
+    dropArgs.dropTargets.forEach((dropTarget, dropElement) => {
       if (disabledDropTargets.has(dropElement)) {
         return;
       }
@@ -139,9 +128,9 @@ export class Draggable implements IDraggable {
 
     const dragEndArgs = {
       event,
-      dragElement,
-      dragStartEvent,
-      dropTargets,
+      dragElement: dropArgs.dragElement,
+      dragStartEvent: dropArgs.dragStartEvent,
+      dropTargets: dropArgs.dropTargets,
       data: this._currentData!,
     };
 
@@ -261,31 +250,32 @@ export class Draggable implements IDraggable {
 
   private _populateDisableDropTargets(event: PointerEvent) {
     this._newDropTargets.forEach((dropTarget, element) => {
-      const { accepts } = dropTarget.config;
-
-      if (dropTarget.disabled) {
-        disabledDropTargets.add(element);
-
+      if (disabledDropTargets.has(element)) {
         return;
       }
 
-      let shouldAccept = accepts ? accepts === this.config.kind : true;
+      if (dropTarget.disabled || element.closest(`[${DROPPABLE_FORCE_ATTRIBUTE}="false"]`)) {
+        disabledDropTargets.add(element);
+        return;
+      }
+
+      const { accepts } = dropTarget.config;
+
+      let shouldAccept = true;
 
       if (Array.isArray(accepts)) {
         shouldAccept = accepts.includes(this.config.kind);
-      }
-
-      if (
-        typeof accepts === "function" &&
-        !disabledDropTargets.has(element) &&
-        !acceptedDropTargets.has(element)
-      ) {
-        shouldAccept = accepts({
-          kind: this.config.kind,
-          data: this._currentData!,
-          element: this._dragElement!,
-          event,
-        });
+      } else if (typeof accepts === "function") {
+        if (!disabledDropTargets.has(element) && !acceptedDropTargets.has(element)) {
+          shouldAccept = accepts({
+            kind: this.config.kind,
+            data: this._currentData!,
+            element: this._dragElement!,
+            event,
+          });
+        }
+      } else {
+        shouldAccept = accepts === this.config.kind;
       }
 
       if (!shouldAccept) {

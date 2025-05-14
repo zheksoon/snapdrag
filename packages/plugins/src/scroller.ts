@@ -25,8 +25,32 @@ function getAxisConfig(axisConfig: AxisConfig | boolean) {
   return { ...defaultAxisConfig, ...axisConfig } as Required<AxisConfig>;
 }
 
+function getContainerBoundingRect(container: HTMLElement | Window, scale: number) {
+  if (container instanceof Window) {
+    return {
+      top: 0,
+      left: 0,
+      bottom: container.innerHeight,
+      right: container.innerWidth,
+    };
+  } else {
+    let { top, bottom, left, right } = container.getBoundingClientRect();
+
+    return {
+      top: top * scale,
+      bottom: bottom * scale,
+      left: left * scale,
+      right: right * scale,
+    };
+  }
+}
+
 export function createScroller(config: ScrollerConfig) {
-  return function Scroller(container: HTMLElement): PluginType {
+  return function Scroller(container: HTMLElement | Window | null): PluginType {
+    if (!container) {
+      return {};
+    }
+
     const configX = config.x ? getAxisConfig(config.x) : null;
     const configY = config.y ? getAxisConfig(config.y) : null;
 
@@ -36,26 +60,6 @@ export function createScroller(config: ScrollerConfig) {
     let lastMouseX: number = 0;
     let lastMouseY: number = 0;
     let scale = 1.0;
-
-    function getContainerBoundingRect() {
-      if (container instanceof Window) {
-        return {
-          top: 0,
-          left: 0,
-          bottom: container.innerHeight,
-          right: container.innerWidth,
-        };
-      } else {
-        let { top, bottom, left, right } = container.getBoundingClientRect();
-
-        return {
-          top: top * scale,
-          bottom: bottom * scale,
-          left: left * scale,
-          right: right * scale,
-        };
-      }
-    }
 
     function animationLoop(timestamp: number) {
       if (!isMouseDown) {
@@ -68,7 +72,7 @@ export function createScroller(config: ScrollerConfig) {
       let scrollDeltaX = 0;
       let scrollDeltaY = 0;
 
-      const { top, bottom, left, right } = getContainerBoundingRect();
+      const { top, bottom, left, right } = getContainerBoundingRect(container!, scale);
 
       if (configX) {
         const { threshold, speed, distancePower } = configX;
@@ -110,7 +114,11 @@ export function createScroller(config: ScrollerConfig) {
         }
       }
 
-      container.scrollBy(scrollDeltaX, scrollDeltaY);
+      // prevent scroll from firing every animation frame
+      // if there is nothing to scroll
+      if (scrollDeltaX !== 0 || scrollDeltaY !== 0) {
+        container?.scrollBy(scrollDeltaX, scrollDeltaY);
+      }
 
       lastAnimationFrame = requestAnimationFrame(animationLoop);
     }
@@ -138,7 +146,7 @@ export function createScroller(config: ScrollerConfig) {
       lastMouseX = (event as MouseEvent).x * scale;
       lastMouseY = (event as MouseEvent).y * scale;
 
-      const { top, bottom, left, right } = getContainerBoundingRect();
+      const { top, bottom, left, right } = getContainerBoundingRect(container!, scale);
 
       let shouldRun = false;
 
@@ -161,10 +169,15 @@ export function createScroller(config: ScrollerConfig) {
       }
     }
 
+    function cleanup() {
+      onDragEnd();
+    }
+
     return {
       onDragStart,
       onDragEnd,
       onDragMove,
+      cleanup,
     };
   };
 }

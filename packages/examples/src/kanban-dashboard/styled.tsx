@@ -28,7 +28,6 @@ export const DashboardColumns = styled.div`
   height: 100vh;
 `;
 
-
 export const Column = styled.div`
   flex: 1;
   padding: 16px;
@@ -39,9 +38,7 @@ export const Column = styled.div`
   overflow: scroll;
 `;
 
-
 export const ColumnHeader = styled.h1``;
-
 
 export const TaskGroup = styled.div<{ $hovered: boolean }>`
   position: relative;
@@ -59,13 +56,11 @@ export const TaskGroup = styled.div<{ $hovered: boolean }>`
   ${(props) => props.$hovered && `background-color: ${theme.colors.hover}`}
 `;
 
-
 export const TaskGroupHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: start;
 `;
-
 
 export const TaskGroupTitle = styled.h2`
   margin: 0;
@@ -74,13 +69,11 @@ export const TaskGroupTitle = styled.h2`
   font-size: 1.2em;
 `;
 
-
 export const NoTasksPlaceholder = styled.div`
   color: ${theme.colors.text.muted};
   font-style: italic;
   margin-top: 10px;
 `;
-
 
 export const Button = styled.button`
   font-size: 14px;
@@ -95,7 +88,6 @@ export const Button = styled.button`
   box-shadow: 0 2px 4px ${theme.colors.shadow};
 `;
 
-
 export const NewTask = styled.div`
   position: relative;
   margin: 10px 0;
@@ -107,7 +99,6 @@ export const NewTask = styled.div`
   box-shadow: 0 1px 3px ${theme.colors.shadow};
 `;
 
-
 export const NewTaskInput = styled.input.attrs({
   type: "text",
 })`
@@ -117,7 +108,6 @@ export const NewTaskInput = styled.input.attrs({
   border-radius: 4px;
   min-width: 100px;
 `;
-
 
 export const AddTaskButton = styled(Button)`
   color: ${theme.colors.success};
@@ -129,7 +119,6 @@ export const AddTaskButton = styled(Button)`
   flex: 0;
   margin-left: 8px;
 `;
-
 
 export const RemoveTaskButton = styled(Button)`
   padding: 4px;
@@ -144,7 +133,6 @@ export const RemoveTaskButton = styled(Button)`
   }
 `;
 
-
 export const Task = styled.div`
   padding: 8px;
   background-color: ${theme.colors.background.placeholder};
@@ -155,27 +143,18 @@ export const Task = styled.div`
   box-shadow: 0 1px 3px ${theme.colors.shadow};
 `;
 
-
 export const TaskTitle = styled.div`
   flex: 1;
 `;
 
-
-export const TaskWrapper = styled.div.attrs({
-  // @ts-expect-error
-  "data-drag-source": "false",
-})<{ $isDragging: boolean }>`
+export const TaskWrapper = styled.div<{ $isDragging?: boolean }>`
   position: relative;
   margin: 10px 0;
 
   ${(props) => props.$isDragging && `opacity: 0.8; width: 300px;`}
 `;
 
-
-export const DragHandle = styled.div.attrs({
-  // @ts-expect-error
-  "data-drag-source": "true",
-})`
+export const DragHandle = styled.div`
   cursor: move;
   padding: 4px 8px;
   user-select: none;
@@ -183,7 +162,6 @@ export const DragHandle = styled.div.attrs({
   color: ${theme.colors.primary};
   touch-action: none;
 `;
-
 
 export const TaskDropLine = styled.div<{
   $active: boolean;
