@@ -1,6 +1,6 @@
-import { PointerEventHandler } from "../types"; // Update import
+import { PointerEventHandler } from "../types";
 
-export function defaultPointerDownHandler(element: HTMLElement, handler: PointerEventHandler) { // Rename defaultMouseDownHandler to defaultPointerDownHandler
+export function defaultPointerDownHandler(element: HTMLElement, handler: PointerEventHandler) {
   element.addEventListener("pointerdown", handler);
 
   return () => {
