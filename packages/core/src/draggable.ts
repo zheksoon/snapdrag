@@ -19,10 +19,6 @@ import {
 
 type PartialDropArgs = Omit<DropHandlerArgs, "dropTarget" | "dropElement">;
 
-const disabledDropTargets = new Set<HTMLElement>();
-
-const acceptedDropTargets = new Set<HTMLElement>();
-
 export class Draggable implements IDraggable {
   private _dragElement: HTMLElement | null = null;
 
@@ -39,6 +35,10 @@ export class Draggable implements IDraggable {
   private _pluginsSnapshot: PluginType[] = [];
 
   private _currentData: any | null = null;
+
+  private _disabledDropTargets = new Set<HTMLElement>();
+
+  private _acceptedDropTargets = new Set<HTMLElement>();
 
   constructor(public config: DraggableConfig) {}
 
@@ -66,23 +66,18 @@ export class Draggable implements IDraggable {
   }
 
   private _handleDragStart(event: PointerEvent) {
-    const { shouldDrag, onDragStart } = this.config;
-
-    const dragElement = this._dragElement!;
-    const dragStartEvent = this._dragStartEvent!;
-
     const dragStartArgs: DragStarHandlerArgs = {
       event,
-      dragElement,
-      dragStartEvent,
+      dragElement: this._dragElement!,
+      dragStartEvent: this._dragStartEvent!,
       data: this._currentData!,
     };
 
-    if (shouldDrag && !shouldDrag(dragStartArgs)) {
+    if (this.config.shouldDrag && !this.config.shouldDrag(dragStartArgs)) {
       return false;
     }
 
-    onDragStart?.(dragStartArgs);
+    this.config.onDragStart?.(dragStartArgs);
 
     this._pluginsSnapshot.forEach((plugin) => {
       plugin.onDragStart?.(dragStartArgs);
@@ -92,8 +87,6 @@ export class Draggable implements IDraggable {
   }
 
   private _handleDragMove(event: PointerEvent) {
-    const { onDragMove } = this.config!;
-
     const dragMoveArgs = {
       event,
       dragElement: this._dragElement!,
@@ -102,7 +95,7 @@ export class Draggable implements IDraggable {
       data: this._currentData!,
     };
 
-    onDragMove?.(dragMoveArgs);
+    this.config.onDragMove?.(dragMoveArgs);
 
     this._pluginsSnapshot.forEach((plugin) => {
       plugin.onDragMove?.(dragMoveArgs);
@@ -110,12 +103,10 @@ export class Draggable implements IDraggable {
   }
 
   private _handleDragSourceEnd(event: PointerEvent) {
-    const { onDragEnd } = this.config!;
-
     const dropArgs = this._getDropHandlerArgs(event);
 
     dropArgs.dropTargets.forEach((dropTarget, dropElement) => {
-      if (disabledDropTargets.has(dropElement)) {
+      if (this._disabledDropTargets.has(dropElement)) {
         return;
       }
 
@@ -134,7 +125,7 @@ export class Draggable implements IDraggable {
       data: this._currentData!,
     };
 
-    onDragEnd?.(dragEndArgs);
+    this.config.onDragEnd?.(dragEndArgs);
 
     this._pluginsSnapshot.forEach((plugin) => {
       plugin.onDragEnd?.(dragEndArgs);
@@ -145,7 +136,7 @@ export class Draggable implements IDraggable {
     const enabledDropTargets = new Map() as DropTargetsMap;
 
     this._newDropTargets.forEach((dropTarget, dropElement) => {
-      if (!disabledDropTargets.has(dropElement)) {
+      if (!this._disabledDropTargets.has(dropElement)) {
         enabledDropTargets.set(dropElement, dropTarget);
       }
     });
@@ -159,14 +150,14 @@ export class Draggable implements IDraggable {
       dragElement: this._dragElement!,
       dragStartEvent: this._dragStartEvent!,
       dropTargets: this._getEnabledDropTargets(),
-      sourceType: this.config!.kind,
+      sourceType: this.config.kind,
       sourceData: this._currentData!,
     } as PartialDropArgs;
   }
 
   private _handleTargetDragInOrMove(dropHandlerArgs: PartialDropArgs) {
     this._newDropTargets.forEach((dropTarget, dropElement) => {
-      if (disabledDropTargets.has(dropElement)) {
+      if (this._disabledDropTargets.has(dropElement)) {
         return;
       }
 
@@ -190,9 +181,9 @@ export class Draggable implements IDraggable {
         return;
       }
 
-      acceptedDropTargets.delete(dropElement);
+      this._acceptedDropTargets.delete(dropElement);
 
-      if (disabledDropTargets.delete(dropElement)) {
+      if (this._disabledDropTargets.delete(dropElement)) {
         return;
       }
 
@@ -248,14 +239,14 @@ export class Draggable implements IDraggable {
     this._pluginsSnapshot = this.config.plugins?.slice() ?? [];
   }
 
-  private _populateDisableDropTargets(event: PointerEvent) {
+  private _populateDisabledDropTargets(event: PointerEvent) {
     this._newDropTargets.forEach((dropTarget, element) => {
-      if (disabledDropTargets.has(element)) {
+      if (this._disabledDropTargets.has(element)) {
         return;
       }
 
       if (dropTarget.disabled || element.closest(`[${DROPPABLE_FORCE_ATTRIBUTE}="false"]`)) {
-        disabledDropTargets.add(element);
+        this._disabledDropTargets.add(element);
         return;
       }
 
@@ -266,7 +257,7 @@ export class Draggable implements IDraggable {
       if (Array.isArray(accepts)) {
         shouldAccept = accepts.includes(this.config.kind);
       } else if (typeof accepts === "function") {
-        if (!disabledDropTargets.has(element) && !acceptedDropTargets.has(element)) {
+        if (!this._disabledDropTargets.has(element) && !this._acceptedDropTargets.has(element)) {
           shouldAccept = accepts({
             kind: this.config.kind,
             data: this._currentData!,
@@ -279,12 +270,12 @@ export class Draggable implements IDraggable {
       }
 
       if (!shouldAccept) {
-        disabledDropTargets.add(element);
+        this._disabledDropTargets.add(element);
 
         return;
       }
 
-      acceptedDropTargets.add(element);
+      this._acceptedDropTargets.add(element);
     });
   }
 
@@ -303,7 +294,7 @@ export class Draggable implements IDraggable {
 
     this._newDropTargets = this._getDropTargets(event);
 
-    this._populateDisableDropTargets(event);
+    this._populateDisabledDropTargets(event);
 
     const dropHandlerArgs = this._getDropHandlerArgs(event);
 
@@ -353,8 +344,8 @@ export class Draggable implements IDraggable {
     this._currentDropTargets.clear();
     this._currentData = null;
 
-    disabledDropTargets.clear();
-    acceptedDropTargets.clear();
+    this._disabledDropTargets.clear();
+    this._acceptedDropTargets.clear();
 
     this._pluginsSnapshot.forEach((plugin) => {
       plugin.cleanup?.();
