@@ -1,13 +1,28 @@
-import React, { useRef, useState, useMemo, useCallback } from "react";
+import React, { useRef, useState, useMemo, useCallback, ReactElement } from "react";
+import { createPortal } from "react-dom";
 import {
   DraggableConfig as DraggableCoreConfig,
   DragStarHandlerArgs,
   createDraggable,
   PluginType,
+  DRAGGABLE_ATTRIBUTE,
 } from "@snapdrag/core";
 import { DraggableConfig } from "./types";
-import { setDragElementPosition, setDragElement } from "./Overlay";
+import { setDragElementPosition, OVERLAY_ID, setOverlayVisible } from "./Overlay";
 import { getDropTargets } from "./utils/getDropTargets";
+
+const DragComponent = React.forwardRef<HTMLElement, React.ComponentPropsWithRef<any>>(
+  ({ dragComponent, placeholderComponent }, ref) => {
+    const dragComponentWithRef = React.cloneElement(dragComponent, { ref });
+
+    return (
+      <>
+        {placeholderComponent}
+        {createPortal(dragComponentWithRef, document.getElementById(OVERLAY_ID)!)}
+      </>
+    );
+  }
+);
 
 export function useDraggable(config: DraggableConfig) {
   const [isDragging, setIsDragging] = useState(false);
@@ -22,6 +37,7 @@ export function useDraggable(config: DraggableConfig) {
     isDragging: false,
     config,
     data: null as any,
+    draggableByDefault: true,
   });
 
   refs.current.config = config;
@@ -70,6 +86,7 @@ export function useDraggable(config: DraggableConfig) {
       current.isDragging = true;
       current.data = props.data;
 
+      setOverlayVisible(true);
       setDragElementPosition({ top, left });
       setIsDragging(true);
       setData(props.data);
@@ -124,10 +141,10 @@ export function useDraggable(config: DraggableConfig) {
       current.isDragging = false;
       current.elementOffset = { top: 0, left: 0 };
 
+      setOverlayVisible(false);
       setIsDragging(false);
       setData(null);
       setDragElementPosition({ top: 0, left: 0 });
-      setDragElement(null);
 
       const dropTargets = getDropTargets(props.dropTargets);
 
@@ -155,6 +172,10 @@ export function useDraggable(config: DraggableConfig) {
         current.element = element;
 
         dragSource.listen(element);
+
+        if (!refs.current.draggableByDefault) {
+          element.setAttribute(DRAGGABLE_ATTRIBUTE, "false");
+        }
       }
 
       const ref = current.originalRef;
@@ -172,6 +193,10 @@ export function useDraggable(config: DraggableConfig) {
     (element: HTMLElement | null) => {
       if (element) {
         dragSource.listen(element);
+
+        if (!refs.current.draggableByDefault) {
+          element.setAttribute(DRAGGABLE_ATTRIBUTE, "false");
+        }
       }
 
       refs.current.dragElement = element;
@@ -192,7 +217,9 @@ export function useDraggable(config: DraggableConfig) {
 
       const clone = React.cloneElement(child, { ref: componentRef });
 
-      current.dragElementSnapshot ??= clone;
+      if (!current.dragElementSnapshot) {
+        current.dragElementSnapshot = clone;
+      }
 
       if (current.isDragging) {
         let dragComponent =
@@ -200,20 +227,23 @@ export function useDraggable(config: DraggableConfig) {
 
         dragComponent = React.cloneElement(dragComponent, { ref: dragComponentRef });
 
-        // We should not set the drag element in the render phase
-        Promise.resolve().then(() => {
-          setDragElement(dragComponent);
-        });
+        let placeholderComponent: ReactElement | null = current.dragElementSnapshot;
 
         if (current.config.placeholder) {
-          return current.config.placeholder?.({ data: current.data, props: child.props }) ?? null;
+          placeholderComponent =
+            current.config.placeholder?.({ data: current.data, props: child.props }) ?? null;
         }
 
         if (current.config.move) {
-          return null;
+          placeholderComponent = null;
         }
 
-        return current.dragElementSnapshot;
+        return (
+          <DragComponent
+            dragComponent={dragComponent}
+            placeholderComponent={placeholderComponent}
+          />
+        );
       }
 
       return clone;
@@ -221,8 +251,30 @@ export function useDraggable(config: DraggableConfig) {
     [componentRef, dragComponentRef]
   );
 
+  const handleRef = useCallback((element: HTMLElement | null) => {
+    if (element) {
+      element.setAttribute(DRAGGABLE_ATTRIBUTE, "true");
+    }
+  }, []);
+
+  const dragHandle = useCallback(
+    (component: React.ReactElement<React.ComponentPropsWithRef<any>>) => {
+      if (!component) {
+        return null;
+      }
+
+      refs.current.draggableByDefault = false;
+
+      return React.cloneElement(component, {
+        ref: handleRef,
+      });
+    },
+    []
+  );
+
   return {
     draggable,
+    dragHandle,
     isDragging,
     data,
   };

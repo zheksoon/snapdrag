@@ -1,18 +1,36 @@
+import { DROPPABLE_ATTRIBUTE, DROPPABLE_FORCE_ATTRIBUTE } from "@snapdrag/core";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 const NOOP = () => {};
 
-export let setDragElement: (element: ReactElement | null) => void = NOOP;
+export let setOverlayVisible: (visible: boolean) => void = NOOP;
 export let setDragElementPosition: (position: { top: number; left: number }) => void = NOOP;
 
+export const OVERLAY_ID = "$snapdrag-overlay";
+
 export function Overlay({ style = {}, className = "" }) {
-  const [dragElement, _setDragElement] = useState<ReactElement | null>(null);
+  const dragOverlayRef = useRef<HTMLDivElement>(null);
   const dragWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // TODO: fix React error (useEffect called while rendering the draggable element)
-    setDragElement = (element: ReactElement | null) => {
-      _setDragElement(element);
+    setOverlayVisible = (visible: boolean) => {
+      const dragOverlay = dragOverlayRef.current;
+
+      if (!dragOverlay) return;
+
+      dragOverlay.style.display = visible ? "block" : "none";
+
+      const dragWrapper = dragWrapperRef.current;
+
+      if (!dragWrapper) return;
+
+      // force the drag wrapper to be not droppable, so it will not interfere with real drop event
+      // self-drop doesn't make sense
+      if (visible) {
+        dragWrapper.setAttribute(DROPPABLE_FORCE_ATTRIBUTE, "false");
+      } else {
+        dragWrapper.removeAttribute(DROPPABLE_FORCE_ATTRIBUTE);
+      }
     };
 
     setDragElementPosition = (position: { top: number; left: number }) => {
@@ -24,8 +42,8 @@ export function Overlay({ style = {}, className = "" }) {
     };
 
     return () => {
-      setDragElement = NOOP;
       setDragElementPosition = NOOP;
+      setOverlayVisible = NOOP;
     };
   }, []);
 
@@ -41,15 +59,13 @@ export function Overlay({ style = {}, className = "" }) {
     bottom: 0,
     left: 0,
     right: 0,
-    display: dragElement ? "block" : "none",
+    display: "none",
     ...style,
   };
 
   return (
-    <div style={dragOverlayStyle} className={className}>
-      <div ref={dragWrapperRef} style={dragWrapperStyle}>
-        {dragElement}
-      </div>
+    <div ref={dragOverlayRef} style={dragOverlayStyle} className={className}>
+      <div id={OVERLAY_ID} ref={dragWrapperRef} style={dragWrapperStyle}></div>
     </div>
   );
 }
