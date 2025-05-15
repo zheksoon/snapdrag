@@ -1,32 +1,22 @@
-html,
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-#root {
-  position: relative;
-}
-
 .square {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  color: black;
 }
 
-.drag {
-  position: absolute;
-  cursor: move;
-  top: 100px;
-  left: 100px;
+.square.draggable {
+  cursor: grab;
 }
 
-.drop {
-  position: absolute;
-  top: 100px;
-  left: 300px;
+.square.droppable {
+  border: 3px dashed white;
 }
