@@ -3,7 +3,7 @@ import { Overlay, useDraggable, useDroppable } from "snapdrag";
 
 import "./styles.css";
 
-const DraggableSquare = ({ color }: { color: string; }) => {
+const DraggableSquare = ({ color }: { color: string }) => {
   const { draggable, isDragging } = useDraggable({
     kind: "SQUARE",
     data: { color },
@@ -19,7 +19,7 @@ const DraggableSquare = ({ color }: { color: string; }) => {
   );
 };
 
-const DroppableSquare = ({ color }: { color: string; }) => {
+const DroppableSquare = ({ color }: { color: string }) => {
   const [text, setText] = useState("Drop here");
 
   const { droppable, hovered } = useDroppable({

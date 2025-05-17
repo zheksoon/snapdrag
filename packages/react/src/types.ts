@@ -10,7 +10,7 @@ export type DraggableConfig = {
   kind: Kind;
   data?: any;
   component?: (args: { data: any; props: Record<string, any> }) => React.ReactElement;
-  placeholder?: (args: { data: any, props: Record<string, any> }) => React.ReactElement;
+  placeholder?: (args: { data: any; props: Record<string, any> }) => React.ReactElement;
   offset?:
     | { top: number; left: number }
     | ((args: { element: HTMLElement; dragStartEvent: MouseEvent; data: any }) => {
@@ -38,6 +38,8 @@ export type DraggableConfig = {
     data: any;
   }) => void;
   onDragMove?: (args: {
+    top: number;
+    left: number;
     event: MouseEvent;
     dragStartEvent: MouseEvent;
     dropTargets: DropTargetData[];
@@ -45,6 +47,8 @@ export type DraggableConfig = {
     data: any;
   }) => void;
   onDragEnd?: (args: {
+    top: number;
+    left: number;
     event: MouseEvent;
     dragStartEvent: MouseEvent;
     dropTargets: DropTargetData[];

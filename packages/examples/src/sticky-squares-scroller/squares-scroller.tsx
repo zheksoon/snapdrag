@@ -7,6 +7,7 @@ import { getMouseQuadrant } from "./utils";
 
 import { Overlay, useDraggable, useDroppable } from "snapdrag";
 import { createScroller } from "snapdrag/plugins";
+import { tx } from "onek";
 
 const borderWidth = "5px";
 
@@ -64,8 +65,17 @@ function TargetSquare({ model }: { model: SquareModel }) {
     onDragStart() {
       setOpacity(0.8);
     },
-    onDragEnd() {
+    onDragEnd({ top, left, dropTargets }) {
       setOpacity(1.0);
+
+      if (!canvasEl || dropTargets.length > 0) {
+        return;
+      }
+
+      tx(() => {
+        model.x = canvasEl.offsetLeft + canvasEl.scrollLeft + left;
+        model.y = canvasEl.offsetTop + canvasEl.scrollTop + top;
+      });
     },
     // Attach plugin to the draggable, so it will react
     // to its drag events and update the scroll position

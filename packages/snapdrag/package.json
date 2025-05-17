@@ -1,6 +1,6 @@
 {
   "name": "snapdrag",
-  "version": "0.8.6",
+  "version": "0.8.8",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "keywords": [
     "drag",
@@ -75,7 +75,6 @@
     "README.md",
     "LICENSE"
   ],
-  "sideEffects": false,
   "scripts": {
     "build": "tsup --clean && cp ../../README.md ../../LICENSE ./",
     "dev": "tsup --watch",

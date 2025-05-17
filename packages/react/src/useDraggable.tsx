@@ -120,22 +120,23 @@ export function useDraggable(config: DraggableConfig) {
 
       setDragElementPosition({ top, left });
 
-      if (!refs.current.dragElement) {
-        return;
-      }
-
       const dropTargets = getDropTargets(props.dropTargets);
 
       config.onDragMove?.({
         event: props.event,
         dragStartEvent: props.dragStartEvent,
         element: refs.current.dragElement!,
+        top,
+        left,
         dropTargets,
         data: props.data,
       });
     },
     onDragEnd(props) {
       const current = refs.current;
+
+      const top = current.elementOffset.top + props.event.clientY;
+      const left = current.elementOffset.left + props.event.clientX;
 
       current.dragElementSnapshot = null;
       current.isDragging = false;
@@ -149,6 +150,8 @@ export function useDraggable(config: DraggableConfig) {
       const dropTargets = getDropTargets(props.dropTargets);
 
       config.onDragEnd?.({
+        top,
+        left,
         event: props.event,
         dragStartEvent: props.dragStartEvent,
         element: refs.current.dragElement!,

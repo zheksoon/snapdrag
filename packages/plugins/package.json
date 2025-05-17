@@ -1,6 +1,6 @@
 {
   "name": "@snapdrag/plugins",
-  "version": "0.8.6",
+  "version": "0.8.8",
   "description": "Plugins for Snapdrag drag and drop library",
   "keywords": [
     "snapdrag",

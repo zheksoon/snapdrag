@@ -3189,20 +3189,20 @@ __metadata:
     onek: "npm:^0.2.0"
     react: "npm:>=18.3.0"
     react-dom: "npm:>=18.3.0"
-    snapdrag: "workspace:../snapdrag"
+    snapdrag: "npm:0.8.8"
     styled-components: "npm:^6.1.8"
     typescript: "npm:^5.2.2"
     vite: "npm:^5.2.0"
   languageName: unknown
   linkType: soft
 
-"snapdrag-monorepo@workspace:., snapdrag@workspace:../snapdrag":
+"snapdrag-monorepo@workspace:.":
   version: 0.0.0-use.local
   resolution: "snapdrag-monorepo@workspace:."
   languageName: unknown
   linkType: soft
 
-"snapdrag@workspace:packages/snapdrag":
+"snapdrag@npm:0.8.8, snapdrag@workspace:packages/snapdrag":
   version: 0.0.0-use.local
   resolution: "snapdrag@workspace:packages/snapdrag"
   dependencies:
