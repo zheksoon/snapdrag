@@ -1,0 +1,35 @@
+{
+  "name": "snapdrag-examples",
+  "version": "0.8.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --open --host",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && yarn typecheck",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "classnames": "^2.5.1",
+    "lodash": "^4.17.21",
+    "onek": "^0.2.0",
+    "react": ">=18.3.0",
+    "react-dom": ">=18.3.0",
+    "snapdrag": "workspace:../snapdrag",
+    "styled-components": "^6.1.8"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.1",
+    "@types/react": ">=18.3.0",
+    "@types/react-dom": ">=18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  }
+}

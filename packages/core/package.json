@@ -1,0 +1,82 @@
+{
+  "name": "@snapdrag/core",
+  "version": "0.8.6",
+  "description": "Core logic for Snapdrag drag and drop library",
+  "keywords": [
+    "snapdrag",
+    "drag",
+    "drop",
+    "draggable",
+    "droppable",
+    "sortable",
+    "kanban",
+    "vanilla",
+    "typescript",
+    "performance",
+    "customizable",
+    "touch",
+    "dnd",
+    "react-dnd",
+    "dnd-kit",
+    "beautiful-dnd",
+    "sortablejs",
+    "dragula",
+    "interactjs",
+    "draggablejs",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zheksoon/snapdrag.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Eugene Daragan"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "source": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup --clean && yarn copy-files && yarn publint",
+    "copy-files": "cp ../../LICENSE dist",
+    "dev": "tsup --watch",
+    "lint": "yarn typecheck",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": ">=20.18.0",
+    "publint": "^0.3.9",
+    "tsup": "^8.4.0",
+    "typescript": "^5.2.2"
+  },
+  "packageManager": "yarn@4.9.1",
+  "engines": {
+    "node": ">=20.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

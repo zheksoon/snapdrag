@@ -1,5 +1,9 @@
 build/
 
+packages/snapdrag/LICENSE
+packages/snapdrag/README.md
+
+.yarn/
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

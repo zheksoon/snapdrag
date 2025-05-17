@@ -1,74 +1,30 @@
 {
-  "name": "snapdrag",
-  "version": "0.7.20",
-  "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
+  "name": "snapdrag-monorepo",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zheksoon/snapdrag.git"
   },
-  "type": "module",
-  "main": "./react/dist/snapdrag-react.cjs",
-  "module": "./react/dist/snapdrag-react.js",
-  "umd:main": "./react/dist/snapdrag-react.umd.cjs",
-  "unpkg": "./react/dist/snapdrag-react.umd.cjs",
-  "types": "./react/dist/types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./react/dist/types/index.d.ts",
-        "default": "./react/dist/snapdrag-react.js"
-      },
-      "require": {
-        "types": "./react/dist/types/index.d.cts",
-        "default": "./react/dist/snapdrag-react.cjs"
-      }
-    },
-    "./core": {
-      "import": {
-        "types": "./core/dist/types/index.d.ts",
-        "default": "./core/dist/snapdrag-core.js"
-      },
-      "require": {
-        "types": "./core/dist/types/index.d.cts",
-        "default": "./core/dist/snapdrag-core.cjs"
-      }
-    }
-  },
-  "scripts": {
-    "dev": "yarn build && cd ./examples && yarn dev",
-    "build": "yarn build:core && yarn build:react",
-    "build:core": "cd ./core && yarn && yarn build",
-    "build:react": "cd ./react && yarn && yarn build"
-  },
-  "files": [
-    "core/dist/**/*",
-    "core/src/**/*",
-    "core/package.json",
-    "core/README.md",
-    "react/dist/**/*",
-    "react/src/**/*",
-    "react/package.json",
-    "package.json",
-    "README.md",
-    "LICENSE"
-  ],
-  "keywords": [
-    "drag",
-    "drop",
-    "drag-and-drop",
-    "draggable",
-    "vanilla",
-    "typescript",
-    "react",
-    "react-dnd"
-  ],
+  "license": "MIT",
   "author": {
     "name": "Eugene Daragan"
   },
-  "license": "MIT",
-  "devDependencies": {
-    "vite": "^5.2.7",
-    "vite-plugin-dts": "^3.8.1"
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "NODE_ENV=production yarn ws-exec build",
+    "dev": "NODE_ENV=development yarn ws-exec-parallel dev",
+    "lint": "yarn ws-exec-parallel lint",
+    "test": "yarn ws-exec-parallel test",
+    "typecheck": "yarn ws-exec-parallel typecheck",
+    "publish": "yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --exclude snapdrag-examples --verbose version \"$@\" && yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --exclude snapdrag-examples --verbose npm publish --access public",
+    "ws-exec": "yarn workspaces foreach --all --topological --exclude snapdrag-monorepo --verbose run",
+    "ws-exec-parallel": "yarn workspaces foreach --all --parallel --exclude snapdrag-monorepo --verbose run"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@4.9.1",
+  "engines": {
+    "node": ">=20.18.0"
+  }
 }

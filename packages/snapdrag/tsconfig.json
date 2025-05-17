@@ -1,0 +1,13 @@
+{
+"compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "composite": true, // Important for project references/monorepos
+    "declaration": true, // Generate .d.ts files
+    "declarationMap": true, // Generate sourcemaps for .d.ts files
+    "moduleResolution": "bundler", // Modern module resolution
+    "module": "es2020", // Use ESNext module system
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
