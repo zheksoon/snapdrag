@@ -53,6 +53,7 @@ Snapdrag is built on top of `snapdrag/core`, a universal building block that wor
 - [API Reference](#api-reference)
   - [useDraggable Configuration](#usedraggable-configuration)
   - [useDroppable Configuration](#usedroppable-configuration)
+- [Plugins](#plugins)
 - [Browser Compatibility](#browser-compatibility)
 - [Comparison with Alternatives](#comparison-with-alternatives)
 - [License](#license)
@@ -72,10 +73,6 @@ yarn add snapdrag
 
 Snapdrag is built around three core components:
 
-<p align="center">
-  <img width="500" alt="Snapdrag Concepts" src="https://raw.githubusercontent.com/zheksoon/snapdrag/readme-rewrite/assets/drag-and-drop-squares.avif" />
-</p>
-
 - **`useDraggable`** - A hook that makes any React element draggable
 - **`useDroppable`** - A hook that makes any React element a potential drop target
 - **`Overlay`** - A component that renders the dragged element during drag operations
@@ -90,120 +87,120 @@ When a draggable moves over a compatible droppable, they can share information w
 
 ## Quick Start Example
 
-Here's a minimal example that demonstrates Snapdrag's core capabilities - its callback system and seamless React integration:
+Here is the simplest example involving two squares. The draggable square carries a color in its data. The droppable square reacts to the drag interaction by setting its color according to the draggable’s color. When dropped, the text of the droppable square is updated.
 
-```jsx
-import React, { useState } from "react";
-import { useDraggable, useDroppable, Overlay } from "snapdrag";
+<p align="center">
+  <img width="400" alt="Simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/readme-rewrite/assets/simple-squares.avif" />
+</p>
 
-function DragDropExample() {
-  const [dropInfo, setDropInfo] = useState("No drops yet");
-  const [dragStatus, setDragStatus] = useState("Ready to drag");
+**DraggableSquare.tsx**
 
-  // Set up draggable element
-  const { draggable } = useDraggable({
-    kind: "ITEM",
-    data: { id: "draggable-1" },
+```tsx
+import { useState } from "react";
+import { useDraggable } from "snapdrag";
 
-    // Demonstrate the callback system
-    onDragStart: () => {
-      setDragStatus("Started dragging");
+export const DraggableSquare = ({ color }: { color: string }) => {
+  const [text, setText] = useState("Drag me");
+  const { draggable, isDragging } = useDraggable({
+    kind: "SQUARE",
+    data: { color },
+    move: true,
+    // Callbacks are totally optional
+    onDragStart({ data }) {
+      // data is the own data of the draggable
+      setText(`Dragging ${data.color}`);
     },
-    onDragMove: ({ dropTargets }) => {
-      // Access data from the droppable underneath (if any)
-      const status = dropTargets.length
-        ? `Over droppable: ${dropTargets[0].data.id}`
-        : "Not over a droppable";
-      setDragStatus(status);
+    onDragMove({ dropTargets }) {
+      // Check if there are any drop targets under the pointer
+      if (dropTargets.length > 0) {
+        // Update the text based on the first drop target color
+        setText(`Over ${dropTargets[0].data.color}`);
+      } else {
+        setText("Dragging...");
+      }
     },
-    onDragEnd: () => {
-      setDragStatus("Ready to drag");
-    },
-  });
-
-  // Set up droppable element
-  const { droppable, hovered } = useDroppable({
-    accepts: "ITEM",
-    data: { id: "droppable-1" },
-
-    // Store data about interactions
-    onDragIn: ({ data }) => {
-      setDropInfo(`Drag entered with ID: ${data.id}`);
-    },
-    onDragOut: () => {
-      setDropInfo("Drag left droppable area");
-    },
-    onDrop: ({ data }) => {
-      setDropInfo(`Dropped item with ID: ${data.id}`);
+    onDragEnd({ dropTargets }) {
+      // Check if the draggable was dropped on a valid target
+      if (dropTargets.length > 0) {
+        setText(`Dropped on ${dropTargets[0].data.color}`);
+      } else {
+        setText("Drag me");
+      }
     },
   });
 
-  return (
-    <div className="container">
-      <div className="status">
-        <div>Drag status: {dragStatus}</div>
-        <div>Drop info: {dropInfo}</div>
-      </div>
+  const opacity = isDragging ? 0.5 : 1;
 
-      <div className="elements">
-        {/* Draggable element */}
-        {draggable(<div className="box draggable">Drag me</div>)}
-
-        {/* Droppable element */}
-        {droppable(<div className={`box droppable ${hovered ? "hovered" : ""}`}>Drop here</div>)}
-      </div>
-
-      {/* Required to render dragged elements */}
-      <Overlay />
+  return draggable(
+    <div className="square draggable" style={{ backgroundColor: color, opacity }}>
+      {text}
     </div>
   );
-}
-
-export default DragDropExample;
+};
 ```
 
-```css
-/* In your CSS file */
-.container {
-  padding: 20px;
-}
+**DroppableSquare.tsx**
 
-.status {
-  margin-bottom: 20px;
-  font-family: monospace;
-}
+```tsx
+import { useState } from "react";
+import { useDroppable } from "snapdrag";
 
-.elements {
-  display: flex;
-  gap: 50px;
-}
+export const DroppableSquare = ({ color }: { color: string }) => {
+  const [text, setText] = useState("Drop here");
 
-.box {
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-}
+  const { droppable } = useDroppable({
+    accepts: "SQUARE",
+    data: { color },
+    // Optional callbacks
+    onDragIn({ data }) {
+      // Some draggable is hovering over this droppable
+      // data is the data of the draggable
+      setText(`Hovered over ${data.color}`);
+    },
+    onDragOut() {
+      // The draggable is no longer hovering over this droppable
+      setText("Drop here");
+    },
+    onDrop({ data }) {
+      // Finally, the draggable is dropped on this droppable
+      setText(`Dropped ${data.color}`);
+    },
+  });
 
-.draggable {
-  background-color: #4a90e2;
-  color: white;
-}
+  return droppable(
+    <div className="square droppable" style={{ backgroundColor: color }}>
+      {text}
+    </div>
+  );
+};
+```
 
-.droppable {
-  background-color: #e2e2e2;
-  border: 2px dashed #999;
-}
+**App.tsx**
 
-.droppable.hovered {
-  background-color: #f0f8ff;
-  border-color: #4a90e2;
+```tsx
+import { Overlay } from "snapdrag";
+
+export default function App() {
+  return (
+    <>
+      {/* Render squares with absolute wrappers for positioning */}
+      <div style={{ position: "relative" }}>
+        {/* Just two squares for simplicity */}
+        <div style={{ position: "absolute", top: 100, left: 100 }}>
+          <DraggableSquare color="red" />
+        </div>
+        <div style={{ position: "absolute", top: 100, left: 300 }}>
+          <DroppableSquare color="green" />
+        </div>
+      </div>
+      {/* Render overlay to show the dragged component */}
+      <Overlay />
+    </>
+  );
 }
 ```
+
+This example on [CodeSandbox](https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s)
 
 This example showcases the key strengths of Snapdrag:
 
@@ -213,10 +210,6 @@ This example showcases the key strengths of Snapdrag:
 4. **Low-level Control**: Provides direct access to all drag events for precise control
 
 The example deliberately focuses on the core mechanics rather than a specific UI pattern, letting you see how the library works at a fundamental level.
-
-````
-
-[Try this example on CodeSandbox](https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s)
 
 ## How Snapdrag Works
 
@@ -248,18 +241,14 @@ Basic usage:
 ```jsx
 const DraggableItem = () => {
   const { draggable, isDragging } = useDraggable({
-    kind: "ITEM",           // Required: identifies this draggable type
-    data: { id: "123" },    // Optional: data to share during drag operations
-    move: true,             // Optional: move vs clone during dragging
+    kind: "ITEM", // Required: identifies this draggable type
+    data: { id: "123" }, // Optional: data to share during drag operations
+    move: true, // Optional: move vs clone during dragging
   });
 
-  return draggable(
-    <div className={isDragging ? "dragging" : ""}>
-      Drag me!
-    </div>
-  );
+  return draggable(<div className={isDragging ? "dragging" : ""}>Drag me!</div>);
 };
-````
+```
 
 **Important Note**: The wrapped component must accept a `ref` to the DOM node to be draggable. If you already have a ref, Snapdrag will handle it correctly:
 
@@ -331,13 +320,31 @@ function App() {
 }
 ```
 
+#### Overlay Component Customization
+
+You can customize the appearance of the `Overlay` component using the `style` and `className` props.
+
+**`style`**: An object that allows you to apply inline styles to the overlay wrapper. This is useful for setting properties like `zIndex` or a custom background.
+
+```jsx
+<Overlay style={{ zIndex: 9999, backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
+```
+
+**`className`**: A string that allows you to apply CSS classes to the overlay wrapper. This is useful for applying predefined styles from your CSS stylesheets.
+
+```jsx
+<Overlay className="custom-overlay" />
+```
+
+These props provide flexibility in integrating the `Overlay` component seamlessly into your application's design.
+
 ## Draggable Lifecycle
 
 The draggable component goes through a lifecycle during drag interactions, with callbacks at each stage.
 
 ### `onDragStart`
 
-Called when the drag operation begins (after the user clicks and begins moving):
+Called when the drag operation begins (after the user clicks and begins moving, and after `shouldDrag` if provided, returns `true`):
 
 ```jsx
 const { draggable } = useDraggable({
@@ -349,12 +356,12 @@ const { draggable } = useDraggable({
 });
 ```
 
-The callback receives:
+The callback receives an object with the following properties:
 
-- `data`: The draggable's data (from the `data` config option)
-- `event`: The current `PointerEvent` from the `pointermove` handler
-- `dragStartEvent`: The initial `PointerEvent` from `pointerdown`
-- `element`: The draggable DOM element
+- `data`: The draggable's data (from the `data` config option of `useDraggable`).
+- `event`: The `PointerEvent` that triggered the drag start (usually the first `pointermove` after `pointerdown` and `shouldDrag` validation).
+- `dragStartEvent`: The initial `PointerEvent` from `pointerdown` that initiated the drag attempt.
+- `element`: The DOM element that is being dragged (this is the element rendered in the `Overlay`).
 
 ### `onDragMove`
 
@@ -363,7 +370,7 @@ Called on every pointer movement during dragging:
 ```jsx
 const { draggable } = useDraggable({
   kind: "CARD",
-  onDragMove({ dropTargets, top, left, data, event, element }) {
+  onDragMove({ dropTargets, top, left, data, event, dragStartEvent, element }) {
     // dropTargets contains info about all drop targets under the pointer
     if (dropTargets.length > 0) {
       console.log("Over drop zone:", dropTargets[0].data.zone);
@@ -375,10 +382,16 @@ const { draggable } = useDraggable({
 });
 ```
 
-In addition to the properties from `onDragStart`, this callback receives:
+In addition to the properties from `onDragStart` (`data`, `dragStartEvent`, `element`), this callback receives:
 
-- `dropTargets`: Array of drop targets currently under the pointer
-- `top` and `left`: Screen coordinates of the draggable element
+- `event`: The current `PointerEvent` from the `pointermove` handler.
+- `dropTargets`: An array of objects, each representing a droppable target currently under the pointer. Each object contains:
+  - `kind`: The `kind` of the droppable.
+  - `data`: The `data` associated with the droppable (from its `useDroppable` configuration).
+  - `element`: The DOM element of the draggable.
+  - `dropElement`: The DOM element of the droppable.
+- `top`: The calculated top screen coordinate of the draggable element in the overlay.
+- `left`: The calculated left screen coordinate of the draggable element in the overlay.
 
 **Note**: This callback is called frequently, so avoid expensive operations here.
 
@@ -389,7 +402,7 @@ Called when the drag operation completes (on `pointerup`):
 ```jsx
 const { draggable } = useDraggable({
   kind: "CARD",
-  onDragEnd({ dropTargets, data, event, element }) {
+  onDragEnd({ dropTargets, top, left, data, event, dragStartEvent, element }) {
     if (dropTargets.length > 0) {
       console.log("Dropped on:", dropTargets[0].data.zone);
     } else {
@@ -400,11 +413,13 @@ const { draggable } = useDraggable({
 });
 ```
 
+Receives the same properties as `onDragMove` (`data`, `event`, `dragStartEvent`, `element`, `dropTargets`, `top`, `left`).
 If the user dropped the element on valid drop targets, `dropTargets` will contain them; otherwise, it will be an empty array.
+The `top` and `left` coordinates represent the final position of the draggable in the overlay just before it's hidden.
 
 ## Droppable Lifecycle
 
-The droppable component also has lifecycle events during drag interactions.
+The droppable component also has lifecycle events during drag interactions. All droppable callbacks receive a `dropTargets` array, similar to the one in `useDraggable`'s `onDragMove` and `onDragEnd`, representing all droppables currently under the pointer.
 
 ### `onDragIn`
 
@@ -413,23 +428,32 @@ Called when a draggable first enters this drop target:
 ```jsx
 const { droppable } = useDroppable({
   accepts: "CARD",
-  onDragIn({ kind, data, event, element, dropElement }) {
+  onDragIn({ kind, data, event, element, dropElement, dropTargets }) {
     console.log(`${kind} entered drop zone`);
     // Change appearance, update state, etc.
   },
 });
 ```
 
+The callback receives an object with:
+
+- `kind`: The `kind` of the draggable that entered.
+- `data`: The `data` from the draggable.
+- `event`: The `PointerEvent` that triggered this event.
+- `element`: The DOM element of the draggable.
+- `dropElement`: The DOM element of this droppable.
+- `dropTargets`: Array of all active drop targets under the pointer, including the current one.
+
 This is called once when a draggable enters and can be used to trigger animations or state changes.
 
 ### `onDragMove` (Droppable)
 
-Called as a draggable moves within the drop target:
+Called as a draggable moves _within_ the drop target:
 
 ```jsx
 const { droppable } = useDroppable({
   accepts: "CARD",
-  onDragMove({ kind, data, event, dropElement }) {
+  onDragMove({ kind, data, event, element, dropElement, dropTargets }) {
     // Calculate position within the drop zone
     const rect = dropElement.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -440,7 +464,7 @@ const { droppable } = useDroppable({
 });
 ```
 
-Like the draggable version, this is called frequently, so keep operations light. This is perfect for creating dynamic visual cues like highlighting different sections of your drop zone based on cursor position.
+Receives the same properties as `onDragIn`. Like the draggable version, this is called frequently, so keep operations light. This is perfect for creating dynamic visual cues like highlighting different sections of your drop zone based on cursor position.
 
 ### `onDragOut`
 
@@ -449,14 +473,14 @@ Called when a draggable leaves the drop target:
 ```jsx
 const { droppable } = useDroppable({
   accepts: "CARD",
-  onDragOut({ kind, data }) {
+  onDragOut({ kind, data, event, element, dropElement, dropTargets }) {
     console.log(`${kind} left drop zone`);
     // Revert animations, update state, etc.
   },
 });
 ```
 
-This is typically used to undo changes made in `onDragIn`. Use it to clean up and reset any visual changes you made when the draggable entered.
+Receives the same properties as `onDragIn`. This is typically used to undo changes made in `onDragIn`. Use it to clean up and reset any visual changes you made when the draggable entered.
 
 ### `onDrop`
 
@@ -465,14 +489,14 @@ Called when a draggable is successfully dropped on this target:
 ```jsx
 const { droppable } = useDroppable({
   accepts: "CARD",
-  onDrop({ kind, data, dropElement }) {
+  onDrop({ kind, data, event, element, dropElement, dropTargets }) {
     console.log(`${kind} was dropped with data:`, data);
     // Handle the dropped item
   },
 });
 ```
 
-This is where you implement the main logic for what happens when a drop succeeds. Update your application state, save the new position, or trigger any other business logic related to the completed drag operation.
+Receives the same properties as `onDragIn`. This is where you implement the main logic for what happens when a drop succeeds. Update your application state, save the new position, or trigger any other business logic related to the completed drag operation.
 
 ## Common Patterns
 
@@ -1034,8 +1058,8 @@ Arguments:
 - `data` - The data from the draggable
 - `event` - The current pointer event
 - `element` - The draggable element
-- `dropElement` - The droppable element itself
-- `dropTargets` - Array of all drop targets at this point
+- `dropElement` - The droppable element
+- `dropTargets` - Array of all current drop targets under the pointer
 
 ##### `onDragOut`
 
@@ -1044,7 +1068,7 @@ Called when a draggable leaves this drop target:
 ```jsx
 const { droppable } = useDroppable({
   accepts: "SQUARE",
-  onDragOut: ({ kind, data, event, element, dropElement }) => {
+  onDragOut: ({ kind, data, event, element, dropElement, dropTargets }) => {
     console.log(`${kind} left the drop zone`);
     // Revert appearance changes, etc.
   },
@@ -1080,7 +1104,7 @@ Called when a draggable is dropped on this target:
 ```jsx
 const { droppable } = useDroppable({
   accepts: "SQUARE",
-  onDrop: ({ kind, data, event, element, dropElement }) => {
+  onDrop: ({ kind, data, event, element, dropElement, dropTargets }) => {
     console.log(`${kind} was dropped with data:`, data);
     // Handle the dropped item (update state, etc.)
   },
@@ -1088,6 +1112,107 @@ const { droppable } = useDroppable({
 ```
 
 Arguments are the same as the other callbacks.
+
+## Plugins
+
+Snapdrag offers a plugin system to extend its core functionality. Plugins can hook into the draggable lifecycle events (`onDragStart`, `onDragMove`, `onDragEnd`) to add custom behaviors.
+
+### Scroller Plugin
+
+The `scroller` plugin automatically scrolls a container element when a dragged item approaches its edges. This is useful for large scrollable areas where users might need to drag items beyond the visible viewport.
+
+**Initialization**
+
+To use the scroller plugin, first create an instance of it by calling `createScroller(config)`.
+
+```typescript
+import { createScroller } from "snapdrag/plugins";
+
+const scroller = createScroller({
+  x: true, // Enable horizontal scrolling with default settings
+  y: { threshold: 150, speed: 1000, distancePower: 2 }, // Enable vertical scrolling with custom settings
+});
+```
+
+**Configuration Options (`ScrollerConfig`)**
+
+- `x`: (Optional) Enables or configures horizontal scrolling.
+  - `boolean`: If `true`, uses default settings. If `false` or omitted, horizontal scrolling is disabled.
+  - `object (AxisConfig)`: Allows fine-tuning of horizontal scrolling behavior:
+    - `threshold` (number, default: `100`): The distance in pixels from the container's edge at which scrolling should begin.
+    - `speed` (number, default: `2000`): The maximum scroll speed in pixels per second when the pointer is at the very edge of the container.
+    - `distancePower` (number, default: `1.5`): Controls the acceleration of scrolling as the pointer gets closer to the edge. A higher value means faster acceleration.
+- `y`: (Optional) Enables or configures vertical scrolling. Accepts the same `boolean` or `object (AxisConfig)` values as `x`.
+
+**Usage with `useDraggable`**
+
+Once created, the scroller instance needs to be passed to the `plugins` array in the `useDraggable` hook's configuration. The scroller function itself takes the scrollable container element as an argument.
+
+```jsx
+import { useDraggable } from "snapdrag";
+import { createScroller } from "snapdrag/plugins";
+import { useRef, useEffect, useState } from "react";
+
+// Initialize the scroller plugin
+const scrollerPlugin = createScroller({ x: true, y: true });
+
+const DraggableComponent = () => {
+  const scrollContainerRef = useRef(null);
+  // State to hold the container element once it's mounted
+  const [scrollContainer, setScrollContainer] = useState(null);
+
+  useEffect(() => {
+    // Set the container element once the ref is populated
+    if (scrollContainerRef.current) {
+      setScrollContainer(scrollContainerRef.current);
+    }
+  }, []);
+
+  const { draggable } = useDraggable({
+    kind: "ITEM",
+    data: { id: "my-item" },
+    // Pass the scroller plugin, providing the scrollable container
+    plugins: scrollContainer ? [scrollerPlugin(scrollContainer)] : [],
+  });
+
+  return (
+    <div
+      ref={scrollContainerRef}
+      style={{ overflow: "auto", height: "200px", width: "300px", border: "1px solid black" }}
+    >
+      <div style={{ height: "500px", width: "800px" }}>
+        {" "}
+        {/* Inner content larger than container */}
+        {draggable(
+          <div style={{ width: "100px", height: "50px", backgroundColor: "lightblue" }}>
+            Drag me
+          </div>
+        )}
+        {/* More draggable items or content here */}
+      </div>
+    </div>
+  );
+};
+```
+
+**How it Works**
+
+1.  **Initialization**: `createScroller` returns a new scroller function configured with your desired settings.
+2.  **Plugin Attachment**: When you pass `scrollerPlugin(containerElement)` to `useDraggable`, Snapdrag calls the appropriate lifecycle methods of the plugin (`onDragStart`, `onDragMove`, `onDragEnd`).
+3.  **Drag Monitoring**: During a drag operation, `onDragMove` is continuously called. The scroller plugin checks the pointer's position relative to the specified `containerElement`.
+4.  **Edge Detection**: If the pointer moves within the `threshold` distance of an edge for an enabled axis (x or y), the plugin initiates scrolling.
+5.  **Scrolling Speed**: The scrolling speed increases polynomially (based on `distancePower`) as the pointer gets closer to the edge, up to the maximum `speed`.
+6.  **Animation Loop**: Scrolling is performed using `requestAnimationFrame` for smooth animation.
+7.  **Cleanup**: When the drag ends (`onDragEnd`) or the component unmounts, the plugin cleans up any active animation frames.
+
+**Important Considerations:**
+
+- The `containerElement` passed to the scroller function must be the actual scrollable DOM element.
+- Ensure the `containerElement` has `overflow: auto` or `overflow: scroll` CSS properties set for the respective axes you want to enable scrolling on.
+- If the scrollable container is not immediately available on component mount (e.g., if its ref is populated later), you might need to conditionally apply the plugin or update it, as shown in the example using `useState` and `useEffect` to pass the container element once it's available.
+- The plugin calculates distances based on the viewport. If your scroll container or draggable items are scaled using CSS transforms, you might need to adjust threshold and speed values accordingly or ensure pointer events are correctly mapped.
+
+This plugin provides a seamless way to integrate auto-scrolling functionality into your drag-and-drop interfaces, enhancing usability for scenarios involving large or overflowing content areas.
 
 ## Browser Compatibility
 
