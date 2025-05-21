@@ -18,12 +18,12 @@ Snapdrag is built on top of `snapdrag/core`, a universal building block that wor
 
 ## Key Features
 
-- **Simple API**: Get started quickly with just two hooks (`useDraggable`, `useDroppable`) and one component (`Overlay`) to create rich drag-and-drop interactions.
-- **Ergonomic Design**: Focus on your logic, not boilerplate. No need to memoize callbacks or wrestle with complex configurations.
-- **Fully Customizable**: A comprehensive event system gives you the power to build precisely the experience you envision.
-- **Two-Way Data Exchange**: Enables seamless communication and data sharing between draggable and droppable components during interactions.
-- **Handles Multiple Drop Targets**: Natively supports scenarios where draggables might overlap several drop zones simultaneously, providing clear information about all potential targets.
-- **Independent of HTML5 DnD**: Avoids the quirks and limitations of the native HTML5 drag-and-drop API, ensuring better control and consistent behavior across all modern browsers.
+- 🚀 **Minimal, modern API:** just two hooks and one overlay component.
+- 🎛️ **Full control:** granular event callbacks for every drag stage.
+- 🔄 **Two-way data flow:** draggables and droppables exchange data seamlessly.
+- 🗂️ **Multiple drop targets:** supports overlapping and nested zones.
+- 🛑 **No HTML5 DnD:** consistent, reliable behavior across browsers.
+- ⚡️ **Built for performance and extensibility.**
 
 ## Table of Contents
 
