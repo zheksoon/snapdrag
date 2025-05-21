@@ -12,18 +12,18 @@
 
 ## What is Snapdrag?
 
-**Snapdrag** is a lightweight, intuitive drag-and-drop library for React that prioritizes developer experience. Built with ergonomics and simplicity in mind, Snapdrag offers a refreshing alternative to complex drag-and-drop solutions while maintaining the flexibility needed for sophisticated applications.
+**Snapdrag** is a lightweight, intuitive drag-and-drop library for React that prioritizes developer experience and performance. Designed with ergonomics and simplicity at its core, Snapdrag offers a refreshing alternative to complex drag-and-drop solutions while maintaining the flexibility needed for sophisticated applications.
 
 Snapdrag is built on top of `snapdrag/core`, a universal building block that works with any framework or vanilla JavaScript.
 
 ## Key Features
 
-- **Extremely simple** - just two hooks (`useDraggable`, `useDroppable`) and one component (`Overlay`) to create rich interactions
-- **Highly ergonomic** - no need to memoize callbacks or manage complex configurations
-- **Fully customizable** - rich event system lets you build exactly what you need
-- **Two-way data exchange** - seamless communication between draggable and droppable components
-- **Multiple drop targets** - support for layered interactions when draggables overlap multiple drop zones
-- **No HTML5 drag-and-drop** - better control and consistent behavior across all browsers
+- **Simple API**: Get started quickly with just two hooks (`useDraggable`, `useDroppable`) and one component (`Overlay`) to create rich drag-and-drop interactions.
+- **Ergonomic Design**: Focus on your logic, not boilerplate. No need to memoize callbacks or wrestle with complex configurations.
+- **Fully Customizable**: A comprehensive event system gives you the power to build precisely the experience you envision.
+- **Two-Way Data Exchange**: Enables seamless communication and data sharing between draggable and droppable components during interactions.
+- **Handles Multiple Drop Targets**: Natively supports scenarios where draggables might overlap several drop zones simultaneously, providing clear information about all potential targets.
+- **Independent of HTML5 DnD**: Avoids the quirks and limitations of the native HTML5 drag-and-drop API, ensuring better control and consistent behavior across all modern browsers.
 
 ## Table of Contents
 
@@ -83,7 +83,7 @@ The fundamental relationship works like this:
 2. Each droppable specifies what **`kind`** it **`accepts`** through its configuration
 3. They exchange **`data`** during interactions, allowing for rich behaviors and communication
 
-When a draggable moves over a compatible droppable, they can share information with each other, enabling dynamic behaviors like highlighting, sorting, or transforming based on the current interaction context.
+When a draggable is over a compatible droppable, they can exchange information. This unlocks dynamic behaviors such as highlighting, sorting, or visually transforming elements based on the ongoing interaction.
 
 ## Quick Start Example
 
@@ -204,12 +204,12 @@ This example on [CodeSandbox](https://codesandbox.io/p/sandbox/snapdrag-simple-s
 
 This example showcases the key strengths of Snapdrag:
 
-1. **Callback System**: Uses all the major callbacks to react to different stages of the drag interaction
-2. **Data Exchange**: Shows how data flows between draggable and droppable elements
-3. **React Integration**: Updates React state based on drag events, showing integration with React's state system
-4. **Low-level Control**: Provides direct access to all drag events for precise control
+1. **Callbacks**: You'll see how its callback system lets you react to every stage of the drag.
+2. **Easy Data Exchange**: It shows how data can flow smoothly between draggable and droppable elements.
+3. **Seamless React Integration**: Notice how it updates React state based on drag events, fitting naturally into your components.
+4. **Fine-Grained Control**: It demonstrates the level of control you get with direct access to drag events.
 
-The example deliberately focuses on the core mechanics rather than a specific UI pattern, letting you see how the library works at a fundamental level.
+We've intentionally focused this example on the raw mechanics rather than a fancy UI pattern. This helps illustrate how Snapdrag operates at its core, giving you a clear view of its fundamental workings.
 
 ## How Snapdrag Works
 
@@ -238,7 +238,7 @@ The `useDraggable` hook makes any React element draggable. It returns an object 
 
 Basic usage:
 
-```jsx
+```tsx
 const DraggableItem = () => {
   const { draggable, isDragging } = useDraggable({
     kind: "ITEM", // Required: identifies this draggable type
@@ -304,7 +304,7 @@ const DropZone = () => {
 
 The `Overlay` component renders the currently dragged element. It should be included once in your application:
 
-```jsx
+```tsx
 import { Overlay } from "snapdrag";
 
 function App() {
@@ -386,10 +386,8 @@ In addition to the properties from `onDragStart` (`data`, `dragStartEvent`, `ele
 
 - `event`: The current `PointerEvent` from the `pointermove` handler.
 - `dropTargets`: An array of objects, each representing a droppable target currently under the pointer. Each object contains:
-  - `kind`: The `kind` of the droppable.
   - `data`: The `data` associated with the droppable (from its `useDroppable` configuration).
-  - `element`: The DOM element of the draggable.
-  - `dropElement`: The DOM element of the droppable.
+  - `element`: The DOM element of the droppable.
 - `top`: The calculated top screen coordinate of the draggable element in the overlay.
 - `left`: The calculated left screen coordinate of the draggable element in the overlay.
 
@@ -439,10 +437,12 @@ The callback receives an object with:
 
 - `kind`: The `kind` of the draggable that entered.
 - `data`: The `data` from the draggable.
-- `event`: The `PointerEvent` that triggered this event.
+- `event`: The current `PointerEvent` from the `pointermove` handler.
 - `element`: The DOM element of the draggable.
 - `dropElement`: The DOM element of this droppable.
-- `dropTargets`: Array of all active drop targets under the pointer, including the current one.
+- `dropTargets`: Array of all active drop targets under the pointer, including the current one. Each entry contains:
+  - `data`: The `data` from the droppable (from its `useDroppable` configuration).
+  - `element`: The DOM element of the droppable.
 
 This is called once when a draggable enters and can be used to trigger animations or state changes.
 
@@ -502,7 +502,7 @@ Receives the same properties as `onDragIn`. This is where you implement the main
 
 ### Two-way Data Exchange
 
-Snapdrag enables bidirectional data flow between draggables and droppables:
+Snapdrag makes it simple for draggables and droppables to talk to each other by exchanging data in both directions:
 
 ```jsx
 // Draggable component accessing droppable data
@@ -547,10 +547,11 @@ export const DraggableSquare = ({ color: initialColor }) => {
     data: { color },
     move: true,
     onDragMove({ dropTargets }) {
-      // Get color from drop target or revert to initial color
-      const newColor = dropTargets.length ? dropTargets[0].data.color : initialColor;
-
-      setColor(newColor);
+      if (dropTargets.length) {
+        setColor(dropTargets[0].data.color);
+      } else {
+        setColor(initialColor);
+      }
     },
     onDragEnd() {
       setColor(initialColor); // Reset on drop
@@ -691,6 +692,12 @@ const { draggable } = useDraggable({
   },
 });
 ```
+
+### Touch Support
+
+Snapdrag supports touch events out of the box. It uses `PointerEvent` to handle both mouse and touch interactions seamlessly. You can use the same API for both types of events.
+
+To make your draggable elements touch-friendly, ensure they are touchable (e.g., using `touch-action: none` in CSS). The container can have `touch-action: pan-x` or `touch-action: pan-y` to allow scrolling while dragging.
 
 ## Examples
 
@@ -1212,11 +1219,11 @@ const DraggableComponent = () => {
 - If the scrollable container is not immediately available on component mount (e.g., if its ref is populated later), you might need to conditionally apply the plugin or update it, as shown in the example using `useState` and `useEffect` to pass the container element once it's available.
 - The plugin calculates distances based on the viewport. If your scroll container or draggable items are scaled using CSS transforms, you might need to adjust threshold and speed values accordingly or ensure pointer events are correctly mapped.
 
-This plugin provides a seamless way to integrate auto-scrolling functionality into your drag-and-drop interfaces, enhancing usability for scenarios involving large or overflowing content areas.
+The `scroller` plugin offers a straightforward way to add automatic scrolling to your drag-and-drop interfaces. It significantly enhances usability, especially when users need to drag items across large, scrollable containers or overflowing content areas.
 
 ## Browser Compatibility
 
-Snapdrag works in all modern browsers that support Pointer Events:
+Snapdrag is compatible with all modern browsers that support Pointer Events. This includes:
 
 - Chrome 55+
 - Firefox 59+
