@@ -1,0 +1,38 @@
+.app {
+  position: relative;
+  margin-top: 100px;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.left-100 {
+  left: 100px;
+}
+
+.left-300 {
+  left: 300px;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  touch-action: none;
+  user-select: none;
+}
+
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: green;
+}
