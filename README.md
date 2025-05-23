@@ -12,18 +12,59 @@
 
 ## What is Snapdrag?
 
-**Snapdrag** is a lightweight, intuitive drag-and-drop library for React that prioritizes developer experience and performance. Designed with ergonomics and simplicity at its core, Snapdrag offers a refreshing alternative to complex drag-and-drop solutions while maintaining the flexibility needed for sophisticated applications.
+**Snapdrag** is an alternative vision of how drag-and-drop should be done in React - simple, intuitive, and performant. With just two hooks and an overlay component you can build rich drag-and-drop interactions - starting from simple squares, ending with scrollable and sortable multi-lists.
 
 Snapdrag is built on top of `snapdrag/core`, a universal building block that works with any framework or vanilla JavaScript.
 
 ## Key Features
 
-- 🚀 **Minimal, modern API:** just two hooks and one overlay component.
-- 🎛️ **Full control:** granular event callbacks for every drag stage.
-- 🔄 **Two-way data flow:** draggables and droppables exchange data seamlessly.
-- 🗂️ **Multiple drop targets:** supports overlapping and nested zones.
-- 🛑 **No HTML5 DnD:** consistent, reliable behavior across browsers.
-- ⚡️ **Built for performance and extensibility.**
+- 🚀 **Minimal, modern API:** just two hooks and one overlay component
+- 🎛️ **Full control:** granular event callbacks for every drag stage
+- 🔄 **Two-way data flow:** draggables and droppables exchange data seamlessly
+- 🗂️ **Multiple drop targets:** supports overlapping and nested zones
+- 🔌 **Plugins system:** easily extend functionality
+- 🛑 **No HTML5 DnD:** consistent, reliable behavior across browsers
+- ⚡️ **Built for performance and extensibility**
+
+## TL;DR
+
+```tsx
+import { useDraggable, useDroppable, Overlay } from "snapdrag";
+import "./styles.css";
+
+const App = () => {
+  const { draggable } = useDraggable({
+    kind: "SQUARE",
+    data: { color: "red" },
+    move: true,
+  });
+
+  const { droppable } = useDroppable({
+    accepts: "SQUARE",
+    onDrop({ data }) {
+      alert(`Dropped ${data.color} square`);
+    },
+  });
+
+  return (
+    <div className="app">
+      <div className="absolute left-100">
+        {draggable(<div className="square red">Drag me</div>)}
+      </div>
+      <div className="absolute left-300">
+        {droppable(<div className="square green">Drop on me</div>)}
+      </div>
+      <Overlay />
+    </div>
+  );
+};
+```
+
+Result:
+
+<p align="center">
+  <img width="400" alt="TL;DR example" src="https://raw.githubusercontent.com/zheksoon/snapdrag/readme-rewrite/assets/tldr-drop.avif" />
+</p>
 
 ## Table of Contents
 
@@ -36,14 +77,7 @@ Snapdrag is built on top of `snapdrag/core`, a universal building block that wor
   - [useDroppable](#usedroppable)
   - [Overlay](#overlay)
 - [Draggable Lifecycle](#draggable-lifecycle)
-  - [onDragStart](#ondragstart)
-  - [onDragMove](#ondragmove)
-  - [onDragEnd](#ondragend)
 - [Droppable Lifecycle](#droppable-lifecycle)
-  - [onDragIn](#ondragin)
-  - [onDragMove (Droppable)](#ondragmove-droppable)
-  - [onDragOut](#ondragout)
-  - [onDrop](#ondrop)
 - [Common Patterns](#common-patterns)
 - [Examples](#examples)
   - [Basic: Colored Squares](#basic-colored-squares)
@@ -87,7 +121,7 @@ When a draggable is over a compatible droppable, they can exchange information. 
 
 ## Quick Start Example
 
-Here is the simplest example involving two squares. The draggable square carries a color in its data. The droppable square reacts to the drag interaction by setting its color according to the draggable’s color. When dropped, the text of the droppable square is updated.
+Here is more comprehensive example that demonstrate the lifecycle of draggable and droppable items. Usually you need to use only subset of that, but will show almost every callback for clarity.
 
 <p align="center">
   <img width="400" alt="Simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/readme-rewrite/assets/simple-squares.avif" />
@@ -182,20 +216,18 @@ import { Overlay } from "snapdrag";
 
 export default function App() {
   return (
-    <>
-      {/* Render squares with absolute wrappers for positioning */}
-      <div style={{ position: "relative" }}>
-        {/* Just two squares for simplicity */}
-        <div style={{ position: "absolute", top: 100, left: 100 }}>
-          <DraggableSquare color="red" />
-        </div>
-        <div style={{ position: "absolute", top: 100, left: 300 }}>
-          <DroppableSquare color="green" />
-        </div>
+    <div className="app relative">
+      {/* Just two squares for simplicity */}
+      <div className="absolute top-100 left-100">
+        <DraggableSquare color="red" />
       </div>
+      <div className="absolute top-100 left-300">
+        <DroppableSquare color="green" />
+      </div>
+
       {/* Render overlay to show the dragged component */}
       <Overlay />
-    </>
+    </div>
   );
 }
 ```
