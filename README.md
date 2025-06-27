@@ -89,7 +89,6 @@ Result:
   - [useDroppable Configuration](#usedroppable-configuration)
 - [Plugins](#plugins)
 - [Browser Compatibility](#browser-compatibility)
-- [Comparison with Alternatives](#comparison-with-alternatives)
 - [License](#license)
 - [Author](#author)
 
@@ -121,7 +120,7 @@ When a draggable is over a compatible droppable, they can exchange information. 
 
 ## Quick Start Example
 
-Here is more comprehensive example that demonstrate the lifecycle of draggable and droppable items. Usually you need to use only subset of that, but will show almost every callback for clarity.
+Here is more comprehensive example that demonstrate the lifecycle of draggable and droppable items. Usually you need to use only subset of that, but we will show almost every callback for clarity.
 
 <p align="center">
   <img width="400" alt="Simple drag-and-drop squares" src="https://raw.githubusercontent.com/zheksoon/snapdrag/readme-rewrite/assets/simple-squares.avif" />
@@ -234,15 +233,6 @@ export default function App() {
 
 This example on [CodeSandbox](https://codesandbox.io/p/sandbox/snapdrag-simple-squares-8rw96s)
 
-This example showcases the key strengths of Snapdrag:
-
-1. **Callbacks**: You'll see how its callback system lets you react to every stage of the drag.
-2. **Easy Data Exchange**: It shows how data can flow smoothly between draggable and droppable elements.
-3. **Seamless React Integration**: Notice how it updates React state based on drag events, fitting naturally into your components.
-4. **Fine-Grained Control**: It demonstrates the level of control you get with direct access to drag events.
-
-We've intentionally focused this example on the raw mechanics rather than a fancy UI pattern. This helps illustrate how Snapdrag operates at its core, giving you a clear view of its fundamental workings.
-
 ## How Snapdrag Works
 
 Under the hood, Snapdrag takes a different approach than traditional drag-and-drop libraries:
@@ -255,9 +245,7 @@ Under the hood, Snapdrag takes a different approach than traditional drag-and-dr
 
 Unlike HTML5 drag-and-drop which has limited customization options, Snapdrag gives you control over every aspect of the drag experience.
 
-One key advantage: draggables aren't bound to their initial configuration. This means you can change settings at any time during the drag operation, making Snapdrag extremely flexible. Want to dynamically change what a draggable can do based on its current position? No problem!
-
-An important note for React users: the draggable/droppable wrappers transparently handle refs to the original React element, making composition easy and natural. You can still use your own refs and event handlers without conflicts.
+You can change settings of draggable and droppable at any time during the drag operation, making Snapdrag extremely flexible. Want to dynamically change what a draggable can do based on its current position? No problem!
 
 ## Core Components
 
@@ -346,29 +334,13 @@ function App() {
       <YourDraggableComponents />
 
       {/* Required: Shows the dragged element */}
-      <Overlay />
+      <Overlay className="your-class" style={someStyles} />
     </div>
   );
 }
 ```
 
-#### Overlay Component Customization
-
-You can customize the appearance of the `Overlay` component using the `style` and `className` props.
-
-**`style`**: An object that allows you to apply inline styles to the overlay wrapper. This is useful for setting properties like `zIndex` or a custom background.
-
-```jsx
-<Overlay style={{ zIndex: 9999, backgroundColor: "rgba(0, 0, 0, 0.1)" }} />
-```
-
-**`className`**: A string that allows you to apply CSS classes to the overlay wrapper. This is useful for applying predefined styles from your CSS stylesheets.
-
-```jsx
-<Overlay className="custom-overlay" />
-```
-
-These props provide flexibility in integrating the `Overlay` component seamlessly into your application's design.
+You can add your own classes and styles to the overlay to make it fit your application.
 
 ## Draggable Lifecycle
 
@@ -691,13 +663,38 @@ Snapdrag handles the case where multiple drop targets overlap:
 const { draggable } = useDraggable({
   kind: "ITEM",
   onDragMove({ dropTargets }) {
-    // Check all droppables under this point
-    dropTargets.forEach((target) => {
-      console.log(`Over ${target.data.name} (z-index: ${target.data.zIndex})`);
-    });
+    // Sort by order to find the topmost
+    const sorted = [...dropTargets].sort((a, b) => b.data.order - a.data.order);
 
-    // Sort by z-index to find the topmost
-    const sorted = [...dropTargets].sort((a, b) => b.data.zIndex - a.data.zIndex);
+    if (sorted.length) {
+      console.log(`Topmost target: ${sorted[0].data.name}`);
+    }
+  },
+});
+
+// ... somewere in your code
+
+const { droppable } = useDroppable({
+  accepts: "ITEM",
+  data: { order: 10 },
+});
+```
+
+You also can you DOM elements to get the topmost drop target:
+
+```tsx
+const { draggable } = useDraggable({
+  kind: "ITEM",
+  onDragMove({ dropTargets }) {
+    // Sort by order to find the topmost
+
+    const sorted = [...dropTargets].sort((a, b) => {
+      // access drop target element instead of data
+      const aIndex = a.element.getComputedStyle().zIndex || 0;
+      const bIndex = b.element.getComputedStyle().zIndex || 0;
+
+      return bIndex - aIndex;
+    });
 
     if (sorted.length) {
       console.log(`Topmost target: ${sorted[0].data.name}`);
@@ -1196,31 +1193,21 @@ import { useRef, useEffect, useState } from "react";
 const scrollerPlugin = createScroller({ x: true, y: true });
 
 const DraggableComponent = () => {
-  const scrollContainerRef = useRef(null);
   // State to hold the container element once it's mounted
   const [scrollContainer, setScrollContainer] = useState(null);
-
-  useEffect(() => {
-    // Set the container element once the ref is populated
-    if (scrollContainerRef.current) {
-      setScrollContainer(scrollContainerRef.current);
-    }
-  }, []);
 
   const { draggable } = useDraggable({
     kind: "ITEM",
     data: { id: "my-item" },
-    // Pass the scroller plugin, providing the scrollable container
-    plugins: scrollContainer ? [scrollerPlugin(scrollContainer)] : [],
+    plugins: [scrollerPlugin(scrollContainer)],
   });
 
   return (
     <div
-      ref={scrollContainerRef}
+      ref={setScrollContainer}
       style={{ overflow: "auto", height: "200px", width: "300px", border: "1px solid black" }}
     >
       <div style={{ height: "500px", width: "800px" }}>
-        {" "}
         {/* Inner content larger than container */}
         {draggable(
           <div style={{ width: "100px", height: "50px", backgroundColor: "lightblue" }}>
@@ -1263,20 +1250,6 @@ Snapdrag is compatible with all modern browsers that support Pointer Events. Thi
 - Edge 18+
 
 Mobile devices are also supported as long as they support Pointer Events.
-
-## Comparison with Alternatives
-
-| Feature               | Snapdrag | react-dnd  | react-beautiful-dnd |
-| --------------------- | -------- | ---------- | ------------------- |
-| API Style             | Hooks    | HOCs/Hooks | Components          |
-| Bundle Size           | Small    | Medium     | Large               |
-| Requires Context      | No       | Yes        | Yes                 |
-| HTML5 DnD             | No       | Yes        | No                  |
-| Multiple Drop Targets | Yes      | Limited    | No                  |
-| Animation Control     | Full     | Limited    | Built-in            |
-| Learning Curve        | Gentle   | Steep      | Moderate            |
-| Two-way Data Exchange | Yes      | Limited    | No                  |
-| Mobile Support        | Yes      | Limited    | Yes                 |
 
 ## License
 
