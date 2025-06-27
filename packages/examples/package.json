@@ -16,7 +16,7 @@
     "onek": "^0.2.0",
     "react": ">=18.3.0",
     "react-dom": ">=18.3.0",
-    "snapdrag": "0.8.8",
+    "snapdrag": "0.8.9",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

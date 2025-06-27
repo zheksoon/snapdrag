@@ -1,6 +1,6 @@
 {
   "name": "snapdrag",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "description": "A simple, lightweight, and performant drag and drop library for React and vanilla JS",
   "keywords": [
     "drag",
